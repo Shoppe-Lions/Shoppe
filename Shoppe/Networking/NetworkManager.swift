@@ -9,10 +9,20 @@ import Foundation
 
 enum NetworkError: Error {
     case invalidURL
-    case decodingError(Error)
+    case decodingError(error: Error)
     case serverError(statusCode: Int)
     case noData
-    case networkError(Error)
+    case networkError(error: Error)
+    
+    var customDescription: String {
+        switch self {
+        case .invalidURL: return "Invalid URL"
+        case .decodingError: return "Data decoding error"
+        case .serverError(let statusCode): return "Server error, code: \(statusCode)"
+        case .noData: return "No data from server"
+        case .networkError(let error): return "Ошибка сети: \(error.localizedDescription)"
+        }
+    }
 }
 
 final class NetworkManager {
@@ -27,20 +37,23 @@ final class NetworkManager {
 
         URLSession.shared.dataTask(with: url) { data, response, error in
             
-            if let error = error {
-                completion(.failure(.networkError(error)))
+            if let error {
+                completion(.failure(.networkError(error: error)))
                 print ("Can't connect to the server. Check your internet connection")
                 return
             }
             
-            guard response is HTTPURLResponse else {
-                let error = NSError(domain: "Not a http response", code: 0, userInfo: nil)
-                completion(.failure(.serverError(statusCode: error.code)))
+            guard let httpResponse = response as? HTTPURLResponse else {
+                completion(.failure(.serverError(statusCode: 0)))
                 return
             }
             
-            guard let data = data else {
-                _ = NSError (domain: "No data", code: 0, userInfo: nil)
+            guard httpResponse.statusCode == 200 else {
+                completion(.failure(.serverError(statusCode: httpResponse.statusCode)))
+                return
+            }
+                        
+            guard let data else {
                 completion(.failure(.noData))
                 return
             }
@@ -51,7 +64,7 @@ final class NetworkManager {
                     completion(.success(decodedData))
                 }
             } catch {
-                completion(.failure(.decodingError(error)))
+                completion(.failure(.decodingError(error: error)))
             }
         }.resume()
     }
