@@ -13,6 +13,9 @@ protocol WishlistViewProtocol: AnyObject {
 }
 
 final class WishlistViewController: UIViewController, WishlistViewProtocol {
+    
+    private var products: [Product] = []
+
     func didTapWishListButton() {
         //todo
     }
@@ -21,5 +24,12 @@ final class WishlistViewController: UIViewController, WishlistViewProtocol {
         //todo
     }
     
-    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        let cell = ProductCell(frame: CGRect(x: 20, y: 100, width: 300, height: 600))
+        view.addSubview(cell)
+        
+      
+        
+    }
 }
