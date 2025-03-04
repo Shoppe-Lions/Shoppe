@@ -89,6 +89,8 @@ final class CartViewController: UIViewController {
     private lazy var cartTableView: UITableView = {
         let element = UITableView()
         element.dataSource = self
+        element.delegate = self
+        element.separatorStyle = .none
         element.register(CartTableViewCell.self, forCellReuseIdentifier: CartTableViewCell.reuseIdentifier)
         element.translatesAutoresizingMaskIntoConstraints = false
         return element
@@ -103,9 +105,9 @@ final class CartViewController: UIViewController {
     }
 }
 
-// MARK: - Data Source
+// MARK: - UITableViewDataSource and UITableViewDelegate
 
-extension CartViewController: UITableViewDataSource {
+extension CartViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         10
     }
@@ -113,11 +115,17 @@ extension CartViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: CartTableViewCell.reuseIdentifier, for: indexPath) as! CartTableViewCell
         
+        cell.selectionStyle = .none
+        
         return cell
     }
     
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        120
+    }
     
 }
+
 
 // MARK: - Set Views and Setup Constraints
 private extension CartViewController {
