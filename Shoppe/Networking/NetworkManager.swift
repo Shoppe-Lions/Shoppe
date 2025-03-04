@@ -9,8 +9,10 @@ import Foundation
 
 enum NetworkError: Error {
     case invalidURL
-    case requestFailed
-    case decodingError
+    case decodingError(Error)
+    case serverError(statusCode: Int)
+    case noData
+    case networkError(Error)
 }
 
 final class NetworkManager {
@@ -24,13 +26,22 @@ final class NetworkManager {
         }
 
         URLSession.shared.dataTask(with: url) { data, response, error in
-            if error != nil {
-                completion(.failure(.requestFailed))
+            
+            if let error = error {
+                completion(.failure(.networkError(error)))
+                print ("Can't connect to the server. Check your internet connection")
                 return
             }
-
+            
+            guard response is HTTPURLResponse else {
+                let error = NSError(domain: "Not a http response", code: 0, userInfo: nil)
+                completion(.failure(.serverError(statusCode: error.code)))
+                return
+            }
+            
             guard let data = data else {
-                completion(.failure(.requestFailed))
+                _ = NSError (domain: "No data", code: 0, userInfo: nil)
+                completion(.failure(.noData))
                 return
             }
 
@@ -40,7 +51,7 @@ final class NetworkManager {
                     completion(.success(decodedData))
                 }
             } catch {
-                completion(.failure(.decodingError))
+                completion(.failure(.decodingError(error)))
             }
         }.resume()
     }
