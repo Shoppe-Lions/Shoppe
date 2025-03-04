@@ -14,6 +14,8 @@ final class ShippingAdressTableViewCell: UITableViewCell {
         let element = UIStackView()
         element.axis = .vertical
         element.backgroundColor = UIColor(red: 249/255, green: 249/255, blue: 249/255, alpha: 1)
+        element.isLayoutMarginsRelativeArrangement = true
+        element.layoutMargins = UIEdgeInsets(top: 10, left: 15, bottom: 10, right: 15)
         element.layer.cornerRadius = 10
         return element
     }()
@@ -29,6 +31,7 @@ final class ShippingAdressTableViewCell: UITableViewCell {
         let element = UIStackView()
         element.axis = .horizontal
         element.spacing = 40
+        element.alignment = .center
         return element
     }()
     
@@ -43,7 +46,6 @@ final class ShippingAdressTableViewCell: UITableViewCell {
     private lazy var editButton: UIButton = {
         let element = UIButton(type: .custom)
         element.setImage(UIImage(named: "EditButton"), for: .normal)
-        element.translatesAutoresizingMaskIntoConstraints = false
         return element
     }()
     
@@ -68,22 +70,17 @@ private extension ShippingAdressTableViewCell {
         
         adressInfoStackView.addArrangedSubview(detailsAdressLabel)
         adressInfoStackView.addArrangedSubview(editButton)
-        
     }
     
     func setupConstraints() {
         shippingAdressSV.snp.makeConstraints { make in
             make.leading.trailing.equalTo(contentView)
-            make.height.equalTo(70)
+            make.top.bottom.equalTo(contentView).inset(8)
         }
         
-        titleAdressLabel.snp.makeConstraints { make in
-            make.leading.equalTo(shippingAdressSV.snp.leading).offset(15)
+        editButton.snp.makeConstraints { make in
+            make.width.height.equalTo(30)
         }
-        
-//        adressInfoStackView.snp.makeConstraints { make in
-//            make.leading.trailing.equalToSuperview().inset(15)
-//        }
     }
 }
 
