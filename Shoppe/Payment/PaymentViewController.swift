@@ -8,64 +8,92 @@
 import UIKit
 import SnapKit
 
+let mockData: [Product] = [
+    Product(id: 1, title: "", price: 17.00, description: "26, Duong So 2, Thao Dien Ward, An Phu, District 2, Ho Chi Minh city", category: "", image: "mockImage", rating: Rating(rate: 22.00, count: 1)),
+    Product(id: 1, title: "", price: 15.00, description: "60, Duong So 2, Thao Dien Ward, An Phu, District 2, Ho Chi Minh city", category: "", image: "mockImage", rating: Rating(rate: 22.00, count: 1)),
+    Product(id: 1, title: "", price: 15.00, description: "60, Duong So 2, Thao Dien Ward, An Phu, District 2, Ho Chi Minh city", category: "", image: "mockImage", rating: Rating(rate: 22.00, count: 1))
+]
+
 class PaymentViewController: UIViewController {
+    lazy var shippingDetails = DetailsView(type: .shipping)
+    lazy var deliveryDetails = DetailsView(type: .contacts)
+    lazy var itemTitle = HeadingLabel(title: "Items")
+    lazy var itemsStackView = SH_VerticalStackView()
     
-    lazy var detailsView: UIView = {
-        let view = UIView()
-        view.backgroundColor = .gray
-        view.layer.cornerRadius = 15
-        return view
-    }()
-    
-    lazy var titleLabel: UILabel = {
-        let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "Shipping Address"
-        label.font = .systemFont(ofSize: 14, weight: .bold)
-        label.textAlignment = .center
-        label.numberOfLines = 0
-        return label
-    }()
-    
-    lazy var descriptionLabel: UILabel = {
-        let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "26, Duong So 2, Thao Dien Ward, An Phu, District 2, Ho Chi Minh city"
-        label.font = .systemFont(ofSize: 14, weight: .regular)
-        label.textAlignment = .left
-        label.numberOfLines = 0
-        return label
-    }()
-    
+    // Shipping Options
+    lazy var shippingStackView = SH_VerticalStackView()
+    lazy var shippingTitle = HeadingLabel(title: "Shipping Options")
+    lazy var shippingStandard = ShippingDetailView()
+    lazy var shippingExpress = ShippingDetailView()
+    lazy var shippingDescription = UILabel()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         setupViews()
         setConstraints()
+        setupItems()
+        setShippingDescription()
     }
     
     func setupViews() {
-        view.backgroundColor = .blue
-        view.addSubview(detailsView)
-        detailsView.addSubview(titleLabel)
-        detailsView.addSubview(descriptionLabel)
+        view.addSubview(shippingDetails)
+        view.addSubview(deliveryDetails)
+        view.addSubview(itemTitle)
+        view.addSubview(shippingTitle)
+        view.addSubview(itemsStackView)
+        view.addSubview(shippingStackView)
+        view.addSubview(shippingDescription)
+        shippingStackView.addArrangedSubview(shippingTitle)
+        shippingStackView.addArrangedSubview(shippingStandard)
+        shippingStackView.addArrangedSubview(shippingExpress)
+        shippingStackView.addArrangedSubview(shippingDescription)
+    }
+    
+    func setupItems() {
+        for item in mockData {
+            let itemView = ItemView(item: item)
+            itemsStackView.addArrangedSubview(itemView)
+        }
+    }
+    
+    func setShippingDescription() {
+        shippingDescription.text = "Delivered on or before Thursday, 23 April 2020"
+        shippingDescription.translatesAutoresizingMaskIntoConstraints = false
+        shippingDescription.font = .systemFont(ofSize: 12, weight: .thin)
+        shippingDescription.textAlignment = .left
+        shippingDescription.textColor = .black
     }
     
     func setConstraints() {
-        titleLabel.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(20)
-            make.top.equalToSuperview().offset(20)
-        }
-        descriptionLabel.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(20)
-            make.trailing.equalToSuperview().offset(-20)
-            make.top.equalTo(titleLabel.snp.bottom).offset(10)
-        }
-        detailsView.snp.makeConstraints { make in
-            make.center.equalToSuperview()
+        shippingDetails.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(80)
             make.leading.equalToSuperview().offset(20)
             make.trailing.equalToSuperview().offset(-20)
             make.height.equalTo(100)
+        }
+        
+        deliveryDetails.snp.makeConstraints { make in
+            make.top.equalTo(shippingDetails.snp.bottom).offset(20)
+            make.leading.equalToSuperview().offset(20)
+            make.trailing.equalToSuperview().offset(-20)
+            make.height.equalTo(100)
+        }
+        
+        itemTitle.snp.makeConstraints { make in
+            make.top.equalTo(deliveryDetails.snp.bottom).offset(20)
+            make.leading.equalToSuperview().offset(20)
+        }
+        
+        itemsStackView.snp.makeConstraints { make in
+            make.top.equalTo(itemTitle.snp.bottom).offset(10)
+            make.leading.equalToSuperview().offset(20)
+            make.trailing.equalToSuperview().offset(-20)
+        }
+        
+        shippingStackView.snp.makeConstraints { make in
+            make.top.equalTo(itemsStackView.snp.bottom).offset(40)
+            make.leading.equalToSuperview().offset(20)
+            make.trailing.equalToSuperview().offset(-20)
         }
     }
 }
