@@ -149,7 +149,7 @@ private extension CartTableViewCell {
     
     func setupConstraints() {
         cellStackView.snp.makeConstraints { make in
-            make.leading.trailing.equalTo(contentView).inset(15)
+            make.leading.trailing.equalTo(contentView)
             make.height.equalTo(101)
         }
         
@@ -178,8 +178,3 @@ private extension CartTableViewCell {
     }
 }
 
-extension UITableViewCell {
-    static var reuseIdentifier: String {
-        return String(describing: self)
-    }
-}
