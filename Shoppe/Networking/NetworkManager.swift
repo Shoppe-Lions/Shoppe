@@ -9,8 +9,20 @@ import Foundation
 
 enum NetworkError: Error {
     case invalidURL
-    case requestFailed
-    case decodingError
+    case decodingError(error: Error)
+    case serverError(statusCode: Int)
+    case noData
+    case networkError(error: Error)
+    
+    var customDescription: String {
+        switch self {
+        case .invalidURL: return "Invalid URL"
+        case .decodingError: return "Data decoding error"
+        case .serverError(let statusCode): return "Server error, code: \(statusCode)"
+        case .noData: return "No data from server"
+        case .networkError(let error): return "Ошибка сети: \(error.localizedDescription)"
+        }
+    }
 }
 
 final class NetworkManager {
@@ -24,13 +36,25 @@ final class NetworkManager {
         }
 
         URLSession.shared.dataTask(with: url) { data, response, error in
-            if error != nil {
-                completion(.failure(.requestFailed))
+            
+            if let error {
+                completion(.failure(.networkError(error: error)))
+                print ("Can't connect to the server. Check your internet connection")
                 return
             }
-
-            guard let data = data else {
-                completion(.failure(.requestFailed))
+            
+            guard let httpResponse = response as? HTTPURLResponse else {
+                completion(.failure(.serverError(statusCode: 0)))
+                return
+            }
+            
+            guard httpResponse.statusCode == 200 else {
+                completion(.failure(.serverError(statusCode: httpResponse.statusCode)))
+                return
+            }
+                        
+            guard let data else {
+                completion(.failure(.noData))
                 return
             }
 
@@ -40,7 +64,7 @@ final class NetworkManager {
                     completion(.success(decodedData))
                 }
             } catch {
-                completion(.failure(.decodingError))
+                completion(.failure(.decodingError(error: error)))
             }
         }.resume()
     }
