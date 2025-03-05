@@ -28,7 +28,7 @@ class ProductCell: UICollectionViewCell {
     
     private let priceLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .priceLabel //UIColor(red: 0.125, green: 0.125, blue: 0.125, alpha: 1)
+        label.textColor = .customBlack
         var paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineHeightMultiple = 1.05
         label.attributedText = NSMutableAttributedString(string: "$17,00", attributes: [NSAttributedString.Key.kern: -0.17, NSAttributedString.Key.paragraphStyle: paragraphStyle])
@@ -48,7 +48,7 @@ class ProductCell: UICollectionViewCell {
         button.titleLabel?.textAlignment = .center // Line height: 12.1 pt
         //TODO: добавить шрифт
         button.titleLabel?.font = UIFont(name: "Inter-Regular", size: 10)
-        button.backgroundColor = .addButton
+        button.backgroundColor = .customBlue
         button.layer.cornerRadius = 4
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
@@ -111,7 +111,7 @@ class ProductCell: UICollectionViewCell {
     }
     
     private func setupConstraints() {
-        photoContainerView.snp.makeConstraints { make in
+        photoContainerView.snp.makeConstraints { make in //CGRect(x: 0, y: 0, width: 165, height: 181)
             make.top.leading.trailing.equalToSuperview().inset(5)
             make.height.equalTo(contentView.frame.width - 10)
         }
@@ -148,7 +148,7 @@ class ProductCell: UICollectionViewCell {
     func configure(with product: Product) {
         photoImageView.image = UIImage(named: product.image)
         nameLabel.text = product.title
-        priceLabel.text = "\(product.price) ₽"
+        priceLabel.text = "$\(product.price)"
     }
     
 }

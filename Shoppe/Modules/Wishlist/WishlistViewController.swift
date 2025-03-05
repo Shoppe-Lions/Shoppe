@@ -15,14 +15,14 @@ protocol WishlistViewProtocol: AnyObject {
 final class WishlistViewController: UIViewController, WishlistViewProtocol {
     
     private var products: [Product] = [
-        Product(id: 1, title: " Платьишко красное", price: 199.99, description: "", category: "", image: "testPhotoImage", rating: Rating(rate: 5, count: 25)),
-        Product(id: 1, title: " Платьишко желтое", price: 199.99, description: "", category: "", image: "testPhotoImage", rating: Rating(rate: 5, count: 25)),
-        Product(id: 1, title: " Платьишко голубое", price: 199.99, description: "", category: "", image: "testPhotoImage", rating: Rating(rate: 5, count: 25)),
-        Product(id: 1, title: " Платьишко синее", price: 199.99, description: "", category: "", image: "testPhotoImage", rating: Rating(rate: 5, count: 25)),
-        Product(id: 1, title: " Платьишко зеленое", price: 199.99, description: "", category: "", image: "testPhotoImage", rating: Rating(rate: 5, count: 25)),
-        Product(id: 1, title: " Платьишко оранжевое", price: 199.99, description: "", category: "", image: "testPhotoImage", rating: Rating(rate: 5, count: 25)),
-        Product(id: 1, title: " Платьишко белое", price: 199.99, description: "", category: "", image: "testPhotoImage", rating: Rating(rate: 5, count: 25)),
-        Product(id: 1, title: " Платьишко черное", price: 199.99, description: "", category: "", image: "testPhotoImage", rating: Rating(rate: 5, count: 25))
+        Product(id: 1, title: "Red dress", price: 199.99, description: "", category: "", image: "testPhotoImage", rating: Rating(rate: 5, count: 25)),
+        Product(id: 1, title: "Red dress", price: 199.99, description: "", category: "", image: "testPhotoImage", rating: Rating(rate: 5, count: 25)),
+        Product(id: 1, title: "Red dress", price: 199.99, description: "", category: "", image: "testPhotoImage", rating: Rating(rate: 5, count: 25)),
+        Product(id: 1, title: "Red dress", price: 199.99, description: "", category: "", image: "testPhotoImage", rating: Rating(rate: 5, count: 25)),
+        Product(id: 1, title: "Red dress", price: 199.99, description: "", category: "", image: "testPhotoImage", rating: Rating(rate: 5, count: 25)),
+        Product(id: 1, title: "Red dress", price: 199.99, description: "", category: "", image: "testPhotoImage", rating: Rating(rate: 5, count: 25)),
+        Product(id: 1, title: "Red dress", price: 199.99, description: "", category: "", image: "testPhotoImage", rating: Rating(rate: 5, count: 25)),
+        Product(id: 1, title: "Red dress", price: 199.99, description: "", category: "", image: "testPhotoImage", rating: Rating(rate: 5, count: 25))
     ]
     private let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -81,8 +81,8 @@ extension WishlistViewController: UICollectionViewDelegate, UICollectionViewData
     
     // Размер ячейки
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        let width = (collectionView.frame.width - 30) / 2 // Две ячейки в ряд, с отступами
-        return CGSize(width: width, height: width + 80)
+       // let width = (collectionView.frame.width - 30) / 2 // Две ячейки в ряд, с отступами
+        return CGSize(width: 165, height: 282)
     }
     
     
