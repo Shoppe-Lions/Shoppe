@@ -13,7 +13,7 @@ final class ShippingAdressTableViewCell: UITableViewCell {
     private lazy var shippingAdressSV: UIStackView = {
         let element = UIStackView()
         element.axis = .vertical
-        element.backgroundColor = UIColor(red: 249/255, green: 249/255, blue: 249/255, alpha: 1)
+        element.backgroundColor = UIColor(named: "CustomLightGray")
         element.isLayoutMarginsRelativeArrangement = true
         element.layoutMargins = UIEdgeInsets(top: 10, left: 15, bottom: 10, right: 15)
         element.layer.cornerRadius = 10
@@ -23,7 +23,8 @@ final class ShippingAdressTableViewCell: UITableViewCell {
     private lazy var titleAdressLabel: UILabel = {
         let element = UILabel()
         element.text = "Shipping Address"
-        element.font = .systemFont(ofSize: 14, weight: .bold)
+        element.textColor = UIColor(named: "CustomBlack")
+        element.font = UIFont(name: Fonts.Raleway.bold, size: 14)
         return element
     }()
     
@@ -39,7 +40,7 @@ final class ShippingAdressTableViewCell: UITableViewCell {
         let element = UILabel()
         element.text = "26, Duong So 2, Thao Dien Ward, An Phu, District 2, Ho Chi Minh city"
         element.numberOfLines = 0
-        element.font = .systemFont(ofSize: 10, weight: .regular)
+        element.font = UIFont(name: Fonts.NunitoSans.regular, size: 10)
         return element
     }()
     

@@ -15,21 +15,18 @@ final class CartTableViewCell: UITableViewCell {
         let element = UIStackView()
         element.axis = .horizontal
         element.spacing = 10
-        element.translatesAutoresizingMaskIntoConstraints = false
         return element
     }()
     
     private lazy var cellImageView: UIImageView = {
         let element = UIImageView()
         element.image = UIImage(named: "Cell")
-        element.translatesAutoresizingMaskIntoConstraints = false
         return element
     }()
     
     private lazy var deleteProductImageView: UIButton = {
         let element = UIButton(type: .custom)
         element.setImage(UIImage(named: "DeleteProduct"), for: .normal)
-        element.translatesAutoresizingMaskIntoConstraints = false
         return element
     }()
     
@@ -37,7 +34,6 @@ final class CartTableViewCell: UITableViewCell {
         let element = UIStackView()
         element.axis = .vertical
         element.spacing = 23
-        element.translatesAutoresizingMaskIntoConstraints = false
         return element
     }()
     
@@ -45,37 +41,33 @@ final class CartTableViewCell: UITableViewCell {
         let element = UIStackView()
         element.axis = .vertical
         element.spacing = 13
-        element.translatesAutoresizingMaskIntoConstraints = false
         return element
     }()
     private lazy var nameProductLabel: UILabel = {
         let element = UILabel()
         element.text = "Product name"
-        element.font = .systemFont(ofSize: 12, weight: .regular)
-        element.translatesAutoresizingMaskIntoConstraints = false
+        element.font = UIFont(name: Fonts.NunitoSans.regular, size: 12)
         return element
     }()
     
     private lazy var infoLabel: UILabel = {
         let element = UILabel()
         element.text = "Pink, Size M"
-        element.font = .systemFont(ofSize: 14, weight: .medium)
-        element.translatesAutoresizingMaskIntoConstraints = false
+        element.font = UIFont(name: Fonts.Raleway.medium, size: 14)
         return element
     }()
     
     private lazy var bottomInfoStackView: UIStackView = {
         let element = UIStackView()
         element.axis = .horizontal
-        element.translatesAutoresizingMaskIntoConstraints = false
         return element
     }()
     
     private lazy var priceLabel: UILabel = {
         let element = UILabel()
         element.text = "$17,00"
-        element.font = .systemFont(ofSize: 18, weight: .bold)
-        element.translatesAutoresizingMaskIntoConstraints = false
+        element.font = UIFont(name: Fonts.Raleway.bold, size: 18)
+        element.textColor = UIColor(named: "CustomBlack")
         return element
     }()
     
@@ -83,32 +75,29 @@ final class CartTableViewCell: UITableViewCell {
         let element = UIStackView()
         element.axis = .horizontal
         element.spacing = 6
-        element.translatesAutoresizingMaskIntoConstraints = false
         return element
     }()
     
     private lazy var lessButton: UIButton = {
         let element = UIButton(type: .custom)
         element.setImage(UIImage(named: "Less"), for: .normal)
-        element.translatesAutoresizingMaskIntoConstraints = false
         return element
     }()
     
     private lazy var counterLabel: UILabel = {
         let element = UILabel()
         element.text = "1"
-        element.backgroundColor = UIColor(red: 229/255, green: 235/255, blue: 252/255, alpha: 1)
+        element.backgroundColor = UIColor(named: "CustomLightGray")
+        element.font = UIFont(name: Fonts.Raleway.medium, size: 16)
         element.layer.masksToBounds = true
         element.layer.cornerRadius = 8
         element.textAlignment = .center
-        element.translatesAutoresizingMaskIntoConstraints = false
         return element
     }()
     
     private lazy var moreButton: UIButton = {
         let element = UIButton(type: .custom)
         element.setImage(UIImage(named: "More"), for: .normal)
-        element.translatesAutoresizingMaskIntoConstraints = false
         return element
     }()
     // MARK: - Init

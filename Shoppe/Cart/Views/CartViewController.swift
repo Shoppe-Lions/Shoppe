@@ -15,27 +15,25 @@ final class CartViewController: UIViewController {
         let element = UIStackView()
         element.axis = .horizontal
         element.spacing = 8
-        element.translatesAutoresizingMaskIntoConstraints = false
         return element
     }()
     
     private lazy var cartTitle: UILabel = {
         let element = UILabel()
         element.text = "Cart"
-        element.font = .systemFont(ofSize: 28, weight: .bold)
-        element.translatesAutoresizingMaskIntoConstraints = false
+        element.font = UIFont(name: Fonts.Raleway.bold, size: 28)
+        element.textColor = UIColor(named: "CustomBlack")
         return element
     }()
     
     private lazy var cartCountLabel: UILabel = {
         let element = UILabel()
         element.text = "1"
-        element.font = .systemFont(ofSize: 18, weight: .bold)
+        element.font = UIFont(name: Fonts.Raleway.bold, size: 18)
         element.textAlignment = .center
-        element.backgroundColor = UIColor(red: 229/255, green: 235/255, blue: 252/255, alpha: 1)
+        element.backgroundColor = UIColor(named: "CustomLightGray")
         element.layer.masksToBounds = true
         element.layer.cornerRadius = 15
-        element.translatesAutoresizingMaskIntoConstraints = false
         return element
     }()
     
@@ -45,38 +43,66 @@ final class CartViewController: UIViewController {
         element.delegate = self
         element.separatorStyle = .none
         element.showsVerticalScrollIndicator = false
-        element.register(CartTableViewCell.self, forCellReuseIdentifier: "CartTableViewCell")
-        element.register(ShippingAdressTableViewCell.self, forCellReuseIdentifier: "ShippingAdressTableViewCell")
-        element.translatesAutoresizingMaskIntoConstraints = false
+        element.register(
+            CartTableViewCell.self, 
+            forCellReuseIdentifier: "CartTableViewCell"
+        )
+        element.register(
+            ShippingAdressTableViewCell.self, 
+            forCellReuseIdentifier: "ShippingAdressTableViewCell"
+        )
         return element
     }()
     
     private lazy var bottomStackView: UIStackView = {
         let element = UIStackView()
         element.axis = .horizontal
-        element.backgroundColor = UIColor(red: 249/255, green: 249/255, blue: 249/255, alpha: 1)
+        element.backgroundColor = UIColor(red: 245/255, green: 245/255, blue: 245/255, alpha: 1.0)
         element.isLayoutMarginsRelativeArrangement = true
         element.layoutMargins = UIEdgeInsets(top: 15, left: 20, bottom: 10, right: 20)
         element.distribution = .fill
         element.alignment = .center
-        element.translatesAutoresizingMaskIntoConstraints = false
         return element
     }()
     
-    private lazy var totalCountLabel: UILabel = {
+    private lazy var totalPriceStackView: UIStackView = {
+        let element = UIStackView()
+        element.axis = .horizontal
+        element.spacing = 5
+        element.distribution = .fill
+        element.alignment = .center
+        return element
+    }()
+    private lazy var totalNameLabel: UILabel = {
         let element = UILabel()
-        element.text = "Total $34.00"
-        element.translatesAutoresizingMaskIntoConstraints = false
+        element.text = "Total"
+        element.font = UIFont(name: Fonts.Raleway.extraBold, size: 20)
+        return element
+    }()
+    
+    private lazy var totalPriceLabel: UILabel = {
+        let element = UILabel()
+        element.text = "$34.00"
+        element.font = UIFont(name: Fonts.Raleway.bold, size: 18)
         return element
     }()
     
     private lazy var checkoutButton: UIButton = {
         let element = UIButton(type: .system)
         element.setTitle("Checkout", for: .normal)
-        element.backgroundColor = .systemBlue
+        element.backgroundColor = UIColor(named: "CustomBlue")
         element.tintColor = .white
+        element.titleLabel?.font = UIFont(
+            name: Fonts.NunitoSans.light,
+            size: 16
+        )
         element.layer.cornerRadius = 11
-        element.translatesAutoresizingMaskIntoConstraints = false
+        return element
+    }()
+    
+    private lazy var spacerView: UIView = {
+        let element = UIView()
+        element.setContentHuggingPriority(.defaultLow, for: .horizontal)
         return element
     }()
     // MARK: - Life Circle
@@ -130,7 +156,11 @@ private extension CartViewController {
         view.addSubview(cartTableView)
         
         view.addSubview(bottomStackView)
-        bottomStackView.addArrangedSubview(totalCountLabel)
+        bottomStackView.addArrangedSubview(totalPriceStackView)
+        totalPriceStackView.addArrangedSubview(totalNameLabel)
+        totalPriceStackView.addArrangedSubview(totalPriceLabel)
+        totalPriceStackView.addArrangedSubview(spacerView)
+        
         bottomStackView.addArrangedSubview(checkoutButton)
     }
     
