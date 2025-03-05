@@ -40,7 +40,7 @@ class TotalView: UIView {
     }
     
     func setupViews() {
-        self.backgroundColor = .white
+        self.backgroundColor = .customGray
         self.addSubview(totalPrice)
         self.addSubview(button)
         

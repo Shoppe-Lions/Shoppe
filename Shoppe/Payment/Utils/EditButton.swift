@@ -21,8 +21,7 @@ class EditButton: UIButton {
     }
     
     func setupViews() {
-        let image = UIImage(systemName: "pencil.circle.fill")?
-            .withConfiguration(UIImage.SymbolConfiguration(pointSize: 30))
+        let image = UIImage(named: "EditButton")
         self.setImage(image, for: .normal)
         self.tintColor = .blue
         self.translatesAutoresizingMaskIntoConstraints = false

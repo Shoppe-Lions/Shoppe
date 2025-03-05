@@ -72,7 +72,7 @@ class DetailsView: UIView {
     func setupViews() {
         titleLabel.text = type == .shipping ? "Shipping Address" : "Contact Information"
         self.layer.cornerRadius = 15
-        self.backgroundColor = .gray
+        self.backgroundColor = .customGray
         self.addSubview(titleLabel)
         self.addSubview(addressLabel)
         self.addSubview(phoneLabel)

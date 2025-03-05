@@ -25,7 +25,7 @@ class CountCircleView: UIView {
     }
 
     func setupViews(size: Int) {
-        self.backgroundColor = .lightGray
+        self.backgroundColor = .customLightGray
         self.layer.cornerRadius = 15
         self.clipsToBounds = true
 

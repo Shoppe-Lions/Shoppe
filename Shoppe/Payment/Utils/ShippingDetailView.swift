@@ -13,11 +13,11 @@ enum shippingType {
 
 class ShippingDetailView: UIView {
     var type: shippingType
+    var isChecked = true
     
     lazy var button: UIButton = {
         let button = UIButton()
-        let image = UIImage(systemName: "checkmark.circle.fill")?
-            .withConfiguration(UIImage.SymbolConfiguration(pointSize: 30))
+        let image = UIImage(named: isChecked ? "Check" : "CheckEmpty")
         button.setImage(image, for: .normal)
         button.tintColor = .blue
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -64,7 +64,7 @@ class ShippingDetailView: UIView {
     }
     
     func setupViews() {
-        self.backgroundColor = .lightGray
+        self.backgroundColor = isChecked ? .customLightGray : .customGray
         self.layer.cornerRadius = 12
         addSubview(button)
         addSubview(typeLabel)
