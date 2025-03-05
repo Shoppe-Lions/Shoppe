@@ -13,7 +13,7 @@ final class ShippingAdressTableViewCell: UITableViewCell {
     private lazy var shippingAdressSV: UIStackView = {
         let element = UIStackView()
         element.axis = .vertical
-        element.backgroundColor = UIColor(named: "CustomLightGray")
+        element.backgroundColor = UIColor(red: 249/255, green: 249/255, blue: 249/255, alpha: 1.0)
         element.isLayoutMarginsRelativeArrangement = true
         element.layoutMargins = UIEdgeInsets(top: 10, left: 15, bottom: 10, right: 15)
         element.layer.cornerRadius = 10
