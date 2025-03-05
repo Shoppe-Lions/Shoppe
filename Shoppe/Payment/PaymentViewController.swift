@@ -15,6 +15,10 @@ let mockData: [Product] = [
 ]
 
 class PaymentViewController: UIViewController {
+    
+    lazy var scrollView = UIScrollView()
+    lazy var contentView = UIView()
+    
     lazy var shippingDetails = DetailsView(type: .shipping)
     lazy var deliveryDetails = DetailsView(type: .contacts)
     lazy var itemTitle = HeadingLabel(title: "Items")
@@ -27,26 +31,34 @@ class PaymentViewController: UIViewController {
     lazy var shippingExpress = ShippingDetailView()
     lazy var shippingDescription = UILabel()
     
+    lazy var paymentTitle = HeadingLabel(title: "Payment Method")
+    lazy var paymentDetail = PaymentDetailView()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupViews()
         setConstraints()
+        setScrollView()
         setupItems()
         setShippingDescription()
     }
     
     func setupViews() {
-        view.addSubview(shippingDetails)
-        view.addSubview(deliveryDetails)
-        view.addSubview(itemTitle)
-        view.addSubview(shippingTitle)
-        view.addSubview(itemsStackView)
-        view.addSubview(shippingStackView)
-        view.addSubview(shippingDescription)
+        view.addSubview(scrollView)
+        scrollView.addSubview(contentView)
+        contentView.addSubview(shippingDetails)
+        contentView.addSubview(deliveryDetails)
+        contentView.addSubview(itemTitle)
+        contentView.addSubview(shippingTitle)
+        contentView.addSubview(itemsStackView)
+        contentView.addSubview(shippingStackView)
+        contentView.addSubview(shippingDescription)
         shippingStackView.addArrangedSubview(shippingTitle)
         shippingStackView.addArrangedSubview(shippingStandard)
         shippingStackView.addArrangedSubview(shippingExpress)
         shippingStackView.addArrangedSubview(shippingDescription)
+        contentView.addSubview(paymentTitle)
+        contentView.addSubview(paymentDetail)
     }
     
     func setupItems() {
@@ -54,6 +66,12 @@ class PaymentViewController: UIViewController {
             let itemView = ItemView(item: item)
             itemsStackView.addArrangedSubview(itemView)
         }
+    }
+    
+    func setScrollView() {
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        contentView.translatesAutoresizingMaskIntoConstraints = false
+        scrollView.showsVerticalScrollIndicator = false
     }
     
     func setShippingDescription() {
@@ -64,7 +82,19 @@ class PaymentViewController: UIViewController {
         shippingDescription.textColor = .black
     }
     
+    
+    
     func setConstraints() {
+        scrollView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+
+        contentView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+            make.width.equalToSuperview()
+            make.bottom.equalTo(shippingStackView.snp.bottom).offset(200)
+        }
+        
         shippingDetails.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(80)
             make.leading.equalToSuperview().offset(20)
@@ -94,6 +124,16 @@ class PaymentViewController: UIViewController {
             make.top.equalTo(itemsStackView.snp.bottom).offset(40)
             make.leading.equalToSuperview().offset(20)
             make.trailing.equalToSuperview().offset(-20)
+        }
+        
+        paymentTitle.snp.makeConstraints { make in
+            make.top.equalTo(shippingStackView.snp.bottom).offset(20)
+            make.leading.equalToSuperview().offset(20)
+        }
+        
+        paymentDetail.snp.makeConstraints { make in
+            make.top.equalTo(paymentTitle.snp.bottom).offset(10)
+            make.leading.equalToSuperview().offset(20)
         }
     }
 }
