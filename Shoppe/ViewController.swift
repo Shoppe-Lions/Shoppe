@@ -24,8 +24,12 @@ class ViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        loadProducts { Products in
-            print(Products?[0].image)
+        loadProducts { products in
+            if let products {
+                for product in products {
+                    print(product.subcategory)
+                }
+            }
         }
     }
 
