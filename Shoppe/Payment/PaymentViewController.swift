@@ -34,6 +34,8 @@ class PaymentViewController: UIViewController {
     lazy var paymentTitle = HeadingLabel(title: "Payment Method")
     lazy var paymentDetail = PaymentDetailView()
     
+    lazy var totalView = TotalView()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupViews()
@@ -59,6 +61,7 @@ class PaymentViewController: UIViewController {
         shippingStackView.addArrangedSubview(shippingDescription)
         contentView.addSubview(paymentTitle)
         contentView.addSubview(paymentDetail)
+        view.addSubview(totalView)
     }
     
     func setupItems() {
@@ -72,6 +75,8 @@ class PaymentViewController: UIViewController {
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         contentView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.showsVerticalScrollIndicator = false
+        scrollView.alwaysBounceVertical = false
+        scrollView.contentInsetAdjustmentBehavior = .never
     }
     
     func setShippingDescription() {
@@ -81,8 +86,6 @@ class PaymentViewController: UIViewController {
         shippingDescription.textAlignment = .left
         shippingDescription.textColor = .black
     }
-    
-    
     
     func setConstraints() {
         scrollView.snp.makeConstraints { make in
@@ -134,6 +137,12 @@ class PaymentViewController: UIViewController {
         paymentDetail.snp.makeConstraints { make in
             make.top.equalTo(paymentTitle.snp.bottom).offset(10)
             make.leading.equalToSuperview().offset(20)
+        }
+        
+        totalView.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
+            make.height.equalTo(60)
         }
     }
 }
