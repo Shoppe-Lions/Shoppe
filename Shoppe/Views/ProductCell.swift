@@ -10,64 +10,6 @@ import SnapKit
 
 class ProductCell: UICollectionViewCell {
     
-    private let nameLabel: UILabel = {
-        let label = UILabel()
-        label.font = .systemFont(ofSize: 17, weight: .medium)
-        label.textColor = .label
-        label.numberOfLines = 0
-        label.lineBreakMode = .byWordWrapping
-        var paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.lineHeightMultiple = 0.98
-        label.attributedText = NSMutableAttributedString(string: "Lorem ipsum dolor sit amet consectetur", attributes: [NSAttributedString.Key.paragraphStyle: paragraphStyle])
-        //TODO: добавить шрифт
-        label.font = UIFont(name: "NunitoSans-Regular", size: 12)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }() // CGRect(x: 0, y: 0, width: 138, height: 36)
-    
-    
-    private let priceLabel: UILabel = {
-        let label = UILabel()
-        label.textColor = .customBlack
-        var paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.lineHeightMultiple = 1.05
-        label.attributedText = NSMutableAttributedString(string: "$17,00", attributes: [NSAttributedString.Key.kern: -0.17, NSAttributedString.Key.paragraphStyle: paragraphStyle])
-        //TODO: добавить шрифт
-        label.font = UIFont(name: "Raleway-Bold", size: 17)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    //CGRect(x: 0, y: 0, width: 52, height: 21)
-    // Line height: 21 pt
-    // (identical to box height)
-    
-    private let addToCartButton: UIButton = {
-        let button = UIButton()
-        button.setTitle("Add to cart", for: .normal)
-        button.setTitleColor(.white, for: .normal)
-        button.titleLabel?.textAlignment = .center // Line height: 12.1 pt
-        //TODO: добавить шрифт
-        button.titleLabel?.font = UIFont(name: "Inter-Regular", size: 10)
-        button.backgroundColor = .customBlue
-        button.layer.cornerRadius = 4
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
-    }()
-    //button CGRect(x: 0, y: 0, width: 120, height: 31)
-    //title CGRect(x: 0, y: 0, width: 118, height: 31)
-    //title.widthAnchor.constraint(equalToConstant: 118).isActive = true
-    //title.heightAnchor.constraint(equalToConstant: 31).isActive = true
-    
-    
-    private let wishlistButton: UIButton = {
-        let button = UIButton()
-        button.setImage(UIImage(named: "wishlist_off"), for: .normal)
-        button.backgroundColor = .white
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
-    }()
-    //heart CGRect(x: 0, y: 0, width: 22.02, height: 20.64)
-    
     private let photoContainerView: UIView = {
         let view = UIView()
         view.backgroundColor = .white
@@ -78,8 +20,7 @@ class ProductCell: UICollectionViewCell {
         view.layer.cornerRadius = 9
         view.layer.shadowColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.1).cgColor
         return view
-    }()//CGRect(x: 0, y: 0, width: 165, height: 181)
-    
+    }()
     
     private let photoImageView: UIImageView = {
         let imageView = UIImageView(image: .testPhoto)
@@ -88,8 +29,54 @@ class ProductCell: UICollectionViewCell {
         imageView.clipsToBounds = true
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
-    }()// CGRect(x: 0, y: 0, width: 165, height: 181)
+    }()
     
+    private let nameLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 17, weight: .medium)
+        label.textColor = .label
+        label.numberOfLines = 0
+        label.lineBreakMode = .byWordWrapping
+        var paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.lineHeightMultiple = 0.98
+        label.attributedText = NSMutableAttributedString(string: "Lorem ipsum dolor sit amet consectetur", attributes: [NSAttributedString.Key.paragraphStyle: paragraphStyle])
+        label.font = UIFont(name: "NunitoSans10pt-Regular", size: 12)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    private let priceLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = .customBlack
+        var paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.lineHeightMultiple = 1.05
+        label.attributedText = NSMutableAttributedString(string: "$17,00", attributes: [NSAttributedString.Key.kern: -0.17, NSAttributedString.Key.paragraphStyle: paragraphStyle])
+        label.font = UIFont(name: "Raleway-Bold", size: 17)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    private let addToCartButton: UIButton = {
+        let button = UIButton()
+        button.setTitle("Add to cart", for: .normal)
+        button.setTitleColor(.white, for: .normal)
+        button.titleLabel?.textAlignment = .center
+        button.titleLabel?.font = UIFont(name: "Inter18pt-Regular", size: 10)
+        button.backgroundColor = .customBlue
+        button.layer.cornerRadius = 4
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+
+    private let wishlistButton: UIButton = {
+        let button = UIButton()
+        button.setImage(UIImage(named: "wishlist_on"), for: .normal)
+        button.backgroundColor = .white
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    
+    // MARK: Init
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupUI()
@@ -111,9 +98,11 @@ class ProductCell: UICollectionViewCell {
     }
     
     private func setupConstraints() {
-        photoContainerView.snp.makeConstraints { make in //CGRect(x: 0, y: 0, width: 165, height: 181)
-            make.top.leading.trailing.equalToSuperview().inset(5)
-            make.height.equalTo(contentView.frame.width - 10)
+        photoContainerView.snp.makeConstraints { make in
+            make.top.equalToSuperview().inset(15)
+            make.centerX.equalToSuperview()
+            make.height.equalTo(181)
+            make.width.equalTo(165)
         }
 
         photoImageView.snp.makeConstraints { make in
@@ -122,33 +111,37 @@ class ProductCell: UICollectionViewCell {
         
         nameLabel.snp.makeConstraints { make in
             make.top.equalTo(photoContainerView.snp.bottom).offset(8)
-            make.leading.trailing.equalToSuperview().inset(5)
+            make.leading.equalTo(photoContainerView)
+            make.trailing.equalTo(photoContainerView)
         }
         
         priceLabel.snp.makeConstraints { make in
-            make.top.equalTo(nameLabel.snp.bottom).offset(4)
-            make.leading.equalToSuperview().inset(5)
+            make.top.equalTo(nameLabel.snp.bottom).offset(1)
+            make.leading.equalTo(photoContainerView)
+            make.trailing.equalTo(photoContainerView)
         }
         
         addToCartButton.snp.makeConstraints { make in
-            make.top.equalTo(priceLabel.snp.bottom).offset(8)
-            make.leading.bottom.equalToSuperview().inset(5)
-            make.height.equalTo(36)
+            make.top.equalTo(priceLabel.snp.bottom).offset(5)
+            make.height.equalTo(31)
+            make.leading.equalTo(photoContainerView)
+            make.bottom.equalToSuperview()
         }
         
         wishlistButton.snp.makeConstraints { make in
             make.centerY.equalTo(addToCartButton)
-            make.leading.equalTo(addToCartButton.snp.trailing).offset(8)
-            make.trailing.equalToSuperview().inset(5)
-            make.width.height.equalTo(36)
+            make.leading.equalTo(addToCartButton.snp.trailing).offset(19)
+            make.trailing.equalTo(photoContainerView)
+            make.height.equalTo(22)
+            make.width.equalTo(22)
         }
     }
     
+    // MARK: Configure
     // Метод для обновления данных в ячейке
     func configure(with product: Product) {
         photoImageView.image = UIImage(named: product.image)
         nameLabel.text = product.title
         priceLabel.text = "$\(product.price)"
     }
-    
 }
