@@ -31,6 +31,7 @@ final class WishlistViewController: UIViewController {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
         layout.minimumLineSpacing = 20 // Расстояние между строками коллекции
+        layout.minimumInteritemSpacing = 0 // Расстояние между ячейками в строке
         
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.largeContentTitle = "Wishlist"
