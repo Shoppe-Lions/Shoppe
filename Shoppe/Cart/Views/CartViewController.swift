@@ -51,6 +51,34 @@ final class CartViewController: UIViewController {
         return element
     }()
     
+    private lazy var bottomStackView: UIStackView = {
+        let element = UIStackView()
+        element.axis = .horizontal
+        element.backgroundColor = UIColor(red: 249/255, green: 249/255, blue: 249/255, alpha: 1)
+        element.isLayoutMarginsRelativeArrangement = true
+        element.layoutMargins = UIEdgeInsets(top: 15, left: 20, bottom: 10, right: 20)
+        element.distribution = .fill
+        element.alignment = .center
+        element.translatesAutoresizingMaskIntoConstraints = false
+        return element
+    }()
+    
+    private lazy var totalCountLabel: UILabel = {
+        let element = UILabel()
+        element.text = "Total $34.00"
+        element.translatesAutoresizingMaskIntoConstraints = false
+        return element
+    }()
+    
+    private lazy var checkoutButton: UIButton = {
+        let element = UIButton(type: .system)
+        element.setTitle("Checkout", for: .normal)
+        element.backgroundColor = .systemBlue
+        element.tintColor = .white
+        element.layer.cornerRadius = 11
+        element.translatesAutoresizingMaskIntoConstraints = false
+        return element
+    }()
     // MARK: - Life Circle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -100,6 +128,10 @@ private extension CartViewController {
         topStackView.addArrangedSubview(cartCountLabel)
         
         view.addSubview(cartTableView)
+        
+        view.addSubview(bottomStackView)
+        bottomStackView.addArrangedSubview(totalCountLabel)
+        bottomStackView.addArrangedSubview(checkoutButton)
     }
     
     func setupConstraints() {
@@ -115,7 +147,15 @@ private extension CartViewController {
         cartTableView.snp.makeConstraints { make in
             make.top.equalTo(topStackView.snp.bottom).inset(-15)
             make.trailing.leading.equalTo(view.safeAreaLayoutGuide).inset(15)
-            make.bottom.equalTo(view.safeAreaLayoutGuide).inset(15)
+            make.bottom.equalTo(bottomStackView.snp.top).inset(15)
+        }
+        
+        bottomStackView.snp.makeConstraints { make in
+            make.bottom.leading.trailing.equalToSuperview()        }
+        
+        checkoutButton.snp.makeConstraints { make in
+            make.width.equalTo(130)
+            make.height.equalTo(40)
         }
     }
 }

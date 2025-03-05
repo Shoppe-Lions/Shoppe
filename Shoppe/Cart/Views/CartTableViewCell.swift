@@ -26,9 +26,9 @@ final class CartTableViewCell: UITableViewCell {
         return element
     }()
     
-    private lazy var deleteProductImageView: UIImageView = {
-        let element = UIImageView()
-        element.image = UIImage(named: "DeleteProduct")
+    private lazy var deleteProductImageView: UIButton = {
+        let element = UIButton(type: .custom)
+        element.setImage(UIImage(named: "DeleteProduct"), for: .normal)
         element.translatesAutoresizingMaskIntoConstraints = false
         return element
     }()
