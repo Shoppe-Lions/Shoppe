@@ -15,8 +15,13 @@ class ItemView: UIView {
     lazy var imageView: UIImageView = {
         let image = UIImageView()
         image.image = UIImage(named: "mockImage")
+        image.layer.cornerRadius = 25
+        image.layer.borderWidth = 5
+        image.layer.borderColor = UIColor.white.cgColor
+        image.clipsToBounds = true
         image.contentMode = .scaleAspectFit
         image.translatesAutoresizingMaskIntoConstraints = false
+        
         return image
     }()
     

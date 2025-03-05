@@ -7,7 +7,13 @@
 
 import UIKit
 
+enum shippingType {
+    case standard, express
+}
+
 class ShippingDetailView: UIView {
+    var type: shippingType
+    
     lazy var button: UIButton = {
         let button = UIButton()
         let image = UIImage(systemName: "checkmark.circle.fill")?
@@ -21,7 +27,7 @@ class ShippingDetailView: UIView {
     lazy var typeLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "Standard"
+        label.text = type == .standard ? "Standard" : "Express"
         label.font = .systemFont(ofSize: 16, weight: .bold)
         label.textAlignment = .left
         return label
@@ -30,7 +36,7 @@ class ShippingDetailView: UIView {
     lazy var durationLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "5-7 days"
+        label.text = type == .standard ? "5-7 days" : "1-2 days"
         label.font = .systemFont(ofSize: 13, weight: .regular)
         label.textAlignment = .right
         return label
@@ -39,14 +45,15 @@ class ShippingDetailView: UIView {
     lazy var priceLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "FREE"
-        label.font = .systemFont(ofSize: 16, weight: .regular)
+        label.text = type == .standard ? "FREE" : "$12,00"
+        label.font = .systemFont(ofSize: 16, weight: .bold)
         label.textAlignment = .right
         return label
     }()
     
 
-    init() {
+    init(type: shippingType) {
+        self.type = type
         super.init(frame: .zero)
         setupViews()
         setConstraints()

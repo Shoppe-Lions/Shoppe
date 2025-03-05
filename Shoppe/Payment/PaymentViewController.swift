@@ -22,17 +22,19 @@ class PaymentViewController: UIViewController {
     lazy var shippingDetails = DetailsView(type: .shipping)
     lazy var deliveryDetails = DetailsView(type: .contacts)
     lazy var itemTitle = HeadingLabel(title: "Items")
+    lazy var itemsNumber = CountCircleView(number: 2, size: 15)
     lazy var itemsStackView = SH_VerticalStackView()
     
     // Shipping Options
     lazy var shippingStackView = SH_VerticalStackView()
     lazy var shippingTitle = HeadingLabel(title: "Shipping Options")
-    lazy var shippingStandard = ShippingDetailView()
-    lazy var shippingExpress = ShippingDetailView()
+    lazy var shippingStandard = ShippingDetailView(type: .standard)
+    lazy var shippingExpress = ShippingDetailView(type: .express)
     lazy var shippingDescription = UILabel()
     
     lazy var paymentTitle = HeadingLabel(title: "Payment Method")
     lazy var paymentDetail = PaymentDetailView()
+    lazy var paymentEditButton = EditButton()
     
     lazy var totalView = TotalView()
     
@@ -51,6 +53,7 @@ class PaymentViewController: UIViewController {
         contentView.addSubview(shippingDetails)
         contentView.addSubview(deliveryDetails)
         contentView.addSubview(itemTitle)
+        contentView.addSubview(itemsNumber)
         contentView.addSubview(shippingTitle)
         contentView.addSubview(itemsStackView)
         contentView.addSubview(shippingStackView)
@@ -61,6 +64,7 @@ class PaymentViewController: UIViewController {
         shippingStackView.addArrangedSubview(shippingDescription)
         contentView.addSubview(paymentTitle)
         contentView.addSubview(paymentDetail)
+        contentView.addSubview(paymentEditButton)
         view.addSubview(totalView)
     }
     
@@ -117,6 +121,11 @@ class PaymentViewController: UIViewController {
             make.leading.equalToSuperview().offset(20)
         }
         
+        itemsNumber.snp.makeConstraints { make in
+            make.trailing.equalTo(itemTitle.snp.trailing).offset(90)
+            make.top.equalTo(deliveryDetails.snp.bottom).offset(15)
+        }
+        
         itemsStackView.snp.makeConstraints { make in
             make.top.equalTo(itemTitle.snp.bottom).offset(10)
             make.leading.equalToSuperview().offset(20)
@@ -137,6 +146,11 @@ class PaymentViewController: UIViewController {
         paymentDetail.snp.makeConstraints { make in
             make.top.equalTo(paymentTitle.snp.bottom).offset(10)
             make.leading.equalToSuperview().offset(20)
+        }
+        
+        paymentEditButton.snp.makeConstraints { make in
+            make.trailing.equalToSuperview().offset(-20)
+            make.centerY.equalTo(paymentTitle.snp.centerY)
         }
         
         totalView.snp.makeConstraints { make in

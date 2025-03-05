@@ -56,6 +56,8 @@ class DetailsView: UIView {
         return label
     }()
     
+    lazy var editButton = EditButton()
+    
     init(type: DetailsViewType) {
         self.type = type
         super.init(frame: .zero)
@@ -75,6 +77,7 @@ class DetailsView: UIView {
         self.addSubview(addressLabel)
         self.addSubview(phoneLabel)
         self.addSubview(emailLabel)
+        self.addSubview(editButton)
         
         addressLabel.isHidden = type != .shipping
         phoneLabel.isHidden = type != .contacts
@@ -89,7 +92,7 @@ class DetailsView: UIView {
         
         addressLabel.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(20)
-            make.trailing.equalToSuperview().offset(-20)
+            make.trailing.equalToSuperview().offset(-50)
             make.top.equalTo(titleLabel.snp.bottom).offset(10)
         }
         
@@ -103,6 +106,11 @@ class DetailsView: UIView {
             make.leading.equalToSuperview().offset(20)
             make.trailing.equalToSuperview().offset(-20)
             make.top.equalTo(phoneLabel.snp.bottom).offset(10)
+        }
+        
+        editButton.snp.makeConstraints { make in
+            make.trailing.equalToSuperview().offset(-10)
+            make.bottom.equalToSuperview().offset(-10)
         }
         
     }
