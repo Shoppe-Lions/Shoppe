@@ -51,7 +51,7 @@ class ProductCell: UICollectionViewCell {
         var paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineHeightMultiple = 1.05
         label.attributedText = NSMutableAttributedString(string: "$17,00", attributes: [NSAttributedString.Key.kern: -0.17, NSAttributedString.Key.paragraphStyle: paragraphStyle])
-        label.font = UIFont(name: "Raleway-Bold", size: 17)
+        label.font = UIFont(name: Fonts.Raleway.bold, size: 17)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -61,7 +61,7 @@ class ProductCell: UICollectionViewCell {
         button.setTitle("Add to cart", for: .normal)
         button.setTitleColor(.white, for: .normal)
         button.titleLabel?.textAlignment = .center
-        button.titleLabel?.font = UIFont(name: "Inter18pt-Regular", size: 10)
+        button.titleLabel?.font = UIFont(name: Fonts.Inter.regular, size: 10)
         button.backgroundColor = .customBlue
         button.layer.cornerRadius = 4
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -142,6 +142,6 @@ class ProductCell: UICollectionViewCell {
     func configure(with product: Product) {
         photoImageView.image = UIImage(named: product.image)
         nameLabel.text = product.title
-        priceLabel.text = "$\(product.price)"
+        priceLabel.text = "$\(product.price)" //todo: в идеале форматирование строки с ценой должно быть во viewModel
     }
 }

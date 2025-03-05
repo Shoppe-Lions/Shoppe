@@ -12,8 +12,10 @@ protocol WishlistViewProtocol: AnyObject {
     func showWishListProducts(_ products: [Product])
 }
 
-final class WishlistViewController: UIViewController, WishlistViewProtocol {
+final class WishlistViewController: UIViewController {
     
+    //MARK: Properties
+    //TODO: удалить тестовые данные, включая картинку "testPhotoImage" в ассетах
     private var products: [Product] = [
         Product(id: 1, title: "Lorem ipsum dolor sit amet consectetur", price: 199.99, description: "", category: "", image: "testPhotoImage", rating: Rating(rate: 5, count: 25)),
         Product(id: 1, title: "Lorem ipsum dolor sit amet consectetur", price: 199.99, description: "", category: "", image: "testPhotoImage", rating: Rating(rate: 5, count: 25)),
@@ -28,8 +30,7 @@ final class WishlistViewController: UIViewController, WishlistViewProtocol {
     private let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
-        layout.minimumLineSpacing = 20 // Расстояние между строками
-        layout.minimumInteritemSpacing = 0 // Расстояние между ячейками в строке
+        layout.minimumLineSpacing = 20 // Расстояние между строками коллекции
         
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.largeContentTitle = "Wishlist"
@@ -50,21 +51,14 @@ final class WishlistViewController: UIViewController, WishlistViewProtocol {
         return label
     }()
     
-
-    func didTapWishListButton() {
-        //todo
-    }
     
-    func showWishListProducts(_ products: [Product]) {
-        //todo
-    }
-    
+    //MARK: Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupCollectionView()
+        setupUI()
     }
     
-    private func setupCollectionView() {
+    private func setupUI() {
         view.addSubview(collectionView)
         view.addSubview(titleLabel)
        
@@ -85,7 +79,7 @@ final class WishlistViewController: UIViewController, WishlistViewProtocol {
     }
 }
 
-
+// MARK: CollectionView delegates
 extension WishlistViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         products.count
@@ -102,10 +96,17 @@ extension WishlistViewController: UICollectionViewDelegate, UICollectionViewData
     
     // Размер ячейки
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-            let totalPadding: CGFloat = 0//19 + 19 + 15 // Левые и правые отступы + отступ между ячейками
-            let availableWidth = collectionView.bounds.width - totalPadding
-            let cellWidth = availableWidth / 2 // Две колонки
-            return CGSize(width: cellWidth, height: 282 + 15) // Высота фиксированная
+            let cellWidth = collectionView.bounds.width / 2 // Две колонки
+            return CGSize(width: cellWidth, height: 282 + 15) // Высота фиксированная: высота по макету 282 + 15 - это отступ сверху в ячейке, для корректного отображения тени
         }
+}
+
+extension WishlistViewController: WishlistViewProtocol {
+    func didTapWishListButton() {
+        //todo
+    }
     
+    func showWishListProducts(_ products: [Product]) {
+        //todo
+    }
 }
