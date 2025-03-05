@@ -13,4 +13,11 @@ struct Product: Decodable {
     let category: String
     let image: String
     let rating: Rating
+    var subcategory: String?
+    var like: Bool?
+}
+
+struct Rating: Decodable {
+    let rate: Double
+    let count: Int
 }
