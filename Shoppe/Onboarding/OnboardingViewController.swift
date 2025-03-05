@@ -11,7 +11,7 @@ import UIKit
 
 class OnboardingViewController: UIViewController {
     
-   // создаем листалку
+    // создаем листалку
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.translatesAutoresizingMaskIntoConstraints = false
@@ -24,11 +24,18 @@ class OnboardingViewController: UIViewController {
     private let pageControl: UIPageControl = {
         let pageControl = UIPageControl()
         pageControl.numberOfPages = 4
-        pageControl.pageIndicatorTintColor = .systemGray
-        pageControl.currentPageIndicatorTintColor = .blue
+        pageControl.pageIndicatorTintColor = UIColor(named: "CustomLightGray")
+        pageControl.currentPageIndicatorTintColor = UIColor(named: "CustomBlue")
         pageControl.transform = CGAffineTransform(scaleX: 3, y: 3)
         pageControl.translatesAutoresizingMaskIntoConstraints = false
         return pageControl
+    }()
+    
+    private let backgroundImage: UIImageView = {
+        let image = UIImageView(image: UIImage(named: "BubblesBackground"))
+        image.contentMode = .scaleAspectFill
+        image.translatesAutoresizingMaskIntoConstraints = false
+        return image
     }()
     
     // массив для нашей вью
@@ -46,9 +53,10 @@ class OnboardingViewController: UIViewController {
     private func setupView() {
         // здесь собираем элементы вью
         view.backgroundColor = .white
+        view.addSubview(backgroundImage)
         view.addSubview(scrollView)
         view.addSubview(pageControl)
-
+        
     }
     
     private func setDeligates() {
@@ -61,20 +69,28 @@ class OnboardingViewController: UIViewController {
         firstOnboardingView.setPageLabeltext(text: "Welcome!")
         firstOnboardingView.setPageDescriptiontext(text: "Discover a fast and easy way to shop online.")
         firstOnboardingView.setImage(image: UIImage(named: "OnboardingOne")!)
-
+        firstOnboardingView.hideButton(true)
+        
         
         let secondOnboardingView = OnboardingView()
         secondOnboardingView.setPageLabeltext(text: "SmartSearch & Favorites")
         secondOnboardingView.setPageDescriptiontext(text: "Find products instatnly and save favorites for later.")
+        secondOnboardingView.setImage(image: UIImage(named: "OnboardingTwo")!)
+        secondOnboardingView.hideButton(true)
         
         let thirdOnboardingView = OnboardingView()
         thirdOnboardingView.setPageLabeltext(text: "Easy Checkout")
         thirdOnboardingView.setPageDescriptiontext(text: "Add to cart, choose payment, and order in seconds.")
+        thirdOnboardingView.setImage(image: UIImage(named: "OnboardingThree")!)
+        thirdOnboardingView.hideButton(true)
+        
         
         let fourthOnboardingView = OnboardingView()
         fourthOnboardingView.setPageLabeltext(text: "Manage Your Store")
         fourthOnboardingView.setPageDescriptiontext(text: "Become a manager, add products, and control your catalog!")
-        
+        fourthOnboardingView.setImage(image: UIImage(named: "OnboardingFour")!)
+        fourthOnboardingView.setButton(text: "Начать", target: self, action: #selector(startButtonTapped))
+
         return [firstOnboardingView, secondOnboardingView, thirdOnboardingView, fourthOnboardingView]
     }
     
@@ -85,11 +101,14 @@ class OnboardingViewController: UIViewController {
         
         for i in 0..<slides.count {
             slides[i].frame = CGRect(x: view.frame.width * CGFloat(i),
-                               y: 0, width: view.frame.width,
-                               height: view.frame.height)
+                                     y: 0, width: view.frame.width,
+                                     height: view.frame.height)
             scrollView.addSubview(slides[i])
         }
         
+    }
+    @objc func startButtonTapped() {
+        print("Кнопка 'Начать' нажата!")
     }
     
 }
@@ -105,7 +124,7 @@ extension OnboardingViewController: UIScrollViewDelegate {
 
 //MARK: - Set Constraints
 extension OnboardingViewController {
- 
+    
     
     private func setupCostraints() {
         NSLayoutConstraint.activate ([
@@ -117,7 +136,12 @@ extension OnboardingViewController {
             pageControl.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -40),
             pageControl.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30),
             pageControl.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30),
-            pageControl.heightAnchor.constraint(equalToConstant: 50)
+            pageControl.heightAnchor.constraint(equalToConstant: 50),
+            
+            backgroundImage.topAnchor.constraint(equalTo: view.topAnchor),
+            backgroundImage.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            backgroundImage.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            backgroundImage.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
     }
 }

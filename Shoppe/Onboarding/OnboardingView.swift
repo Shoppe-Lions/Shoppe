@@ -25,10 +25,16 @@ class OnboardingView: UIView {
     
     private let pageLabel: UILabel = {
         let label = UILabel()
+        let baseFont = UIFont(name: Fonts.Raleway.bold, size: 28) ?? UIFont.systemFont(ofSize: 28)
+        let scaledFont = UIFontMetrics.default.scaledFont(for: baseFont)
+
         label.textColor = .black
-        label.font = UIFont.systemFont(ofSize: 20, weight: .bold)
+        //label.font = UIFont(name: Fonts.Raleway.bold, size: 28)
         label.textAlignment = .center
-        label.numberOfLines = 0
+        label.font = scaledFont
+        label.adjustsFontSizeToFitWidth = true
+        label.minimumScaleFactor = 0.7
+        label.numberOfLines = 1
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -36,7 +42,7 @@ class OnboardingView: UIView {
     private let pageDescription: UILabel = {
         let label = UILabel()
         label.textColor = .black
-        label.font = UIFont.systemFont(ofSize: 16, weight: .regular)
+        label.font = UIFont(name: Fonts.NunitoSans.light, size: 19)
         label.textAlignment = .center
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -51,6 +57,16 @@ class OnboardingView: UIView {
     }()
     
     
+    private let pageButton: UIButton = {
+        let button = UIButton()
+        button.titleLabel?.font = UIFont(name: Fonts.NunitoSans.light, size: 18)
+        button.backgroundColor = .systemBlue
+        button.titleLabel?.textColor = .white
+        button.layer.cornerRadius = 20
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    
     
     
     override init (frame: CGRect) {
@@ -60,6 +76,7 @@ class OnboardingView: UIView {
         pageView.addSubview(pageLabel)
         pageView.addSubview(pageDescription)
         pageView.addSubview(pageImageView)
+        pageView.addSubview(pageButton)
         setupConstraints()
     }
     
@@ -83,30 +100,44 @@ class OnboardingView: UIView {
         return pageView
     }
     
+    public func setButton(text: String, target: Any?, action: Selector?) {
+        pageButton.setTitle(text, for: .normal)
+        if let target = target, let action = action {
+        pageButton.addTarget(target, action: action, for: .touchUpInside)
+        }
+    }
+    
+    public func hideButton(_ isHidden: Bool) {
+        pageButton.isHidden = isHidden
+    }
+    
     private func setupConstraints() {
         NSLayoutConstraint.activate([
             
-            pageView.topAnchor.constraint(equalTo: topAnchor, constant: 100),
-            pageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 30),
-            pageView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -30),
-            pageView.heightAnchor.constraint(equalToConstant: 615),
+            pageView.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: 55),
+            pageView.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor, constant: 30),
+            pageView.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor, constant: -30),
+            pageView.heightAnchor.constraint(equalTo: heightAnchor, multiplier: 0.7),
             
             pageImageView.topAnchor.constraint(equalTo: pageView.topAnchor, constant: 0),
             pageImageView.leadingAnchor.constraint(equalTo: pageView.leadingAnchor, constant: 0),
             pageImageView.trailingAnchor.constraint(equalTo: pageView.trailingAnchor, constant: 0),
             //pageImageView.heightAnchor.constraint(equalToConstant: 300),
             
-            pageLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 30),
-            pageLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -30),
+            pageLabel.leadingAnchor.constraint(equalTo: pageView.leadingAnchor, constant: 30),
+            pageLabel.trailingAnchor.constraint(equalTo: pageView.trailingAnchor, constant: -30),
             pageLabel.topAnchor.constraint(equalTo: pageImageView.bottomAnchor, constant: 30),
-            pageLabel.heightAnchor.constraint(equalToConstant: 80),
+            pageLabel.heightAnchor.constraint(equalToConstant: 70),
             
-            pageDescription.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 30),
-            pageDescription.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -30),
-            pageDescription.topAnchor.constraint(equalTo: pageLabel.bottomAnchor, constant: 16),
-            pageDescription.bottomAnchor.constraint(lessThanOrEqualTo: bottomAnchor, constant: -30),
+            pageDescription.leadingAnchor.constraint(equalTo: pageView.leadingAnchor, constant: 10),
+            pageDescription.trailingAnchor.constraint(equalTo: pageView.trailingAnchor, constant: -10),
+            pageDescription.topAnchor.constraint(equalTo: pageLabel.bottomAnchor, constant: 0),
+            pageDescription.bottomAnchor.constraint(lessThanOrEqualTo: pageView.bottomAnchor, constant: -10),
             
-
+            pageButton.leadingAnchor.constraint(equalTo: pageView.leadingAnchor, constant: 60),
+            pageButton.trailingAnchor.constraint(equalTo: pageView.trailingAnchor, constant: -60),
+            pageButton.heightAnchor.constraint(equalToConstant: 50),
+            pageButton.bottomAnchor.constraint(lessThanOrEqualTo: pageView.bottomAnchor, constant: -20)
         ])
     }
     
