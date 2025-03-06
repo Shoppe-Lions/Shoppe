@@ -37,13 +37,20 @@ final class PaymentPresenter: AnyPaymentPresenter {
         view?.setupItems(with: result)
         items = result
         calculateTotalPrice()
+        
+        let deliveryDates = getFutureDates()
+        view?.updateDeliveryDate(date: deliveryDates.1)
     }
     
     func viewDidSelectDelivery() {
+        let deliveryDates = getFutureDates()
+        
         if view?.shippingType == .standard {
             view?.shippingType = .express
+            view?.updateDeliveryDate(date: deliveryDates.0)
         } else {
             view?.shippingType = .standard
+            view?.updateDeliveryDate(date: deliveryDates.1)
         }
         calculateTotalPrice()
     }
@@ -52,5 +59,21 @@ final class PaymentPresenter: AnyPaymentPresenter {
         var itemsTotal = items.reduce(0) { $0 + $1.price }
         if view?.shippingType == .express { itemsTotal += 12 }
         view?.updateTotalPrice(with: itemsTotal)
+    }
+    
+    func getFutureDates() -> (String, String) {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "EEEE, d MMMM yyyy"
+        
+        let currentDate = Date()
+        let calendar = Calendar.current
+        
+        let twoDaysLater = calendar.date(byAdding: .day, value: 2, to: currentDate)!
+        let sevenDaysLater = calendar.date(byAdding: .day, value: 7, to: currentDate)!
+        
+        let twoDaysString = dateFormatter.string(from: twoDaysLater)
+        let sevenDaysString = dateFormatter.string(from: sevenDaysLater)
+        
+        return (twoDaysString, sevenDaysString)
     }
 }

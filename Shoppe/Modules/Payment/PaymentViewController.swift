@@ -16,6 +16,7 @@ protocol AnyPaymentView: AnyObject {
     var shippingType: shippingType { get set }
     func setupItems(with items:[Product])
     func updateTotalPrice(with total: Double)
+    func updateDeliveryDate(date: String)
 }
 
 final class PaymentViewController: UIViewController, AnyPaymentView {
@@ -126,6 +127,10 @@ extension PaymentViewController {
     func updateTotalPrice(with total: Double) {
         totalView.totalPrice.text = String(format: "Total $%.2f", total)
     }
+    
+    func updateDeliveryDate(date: String) {
+        shippingDescription.text = "Delivered on or before \(date)"
+    }
 }
 
 
@@ -140,7 +145,7 @@ extension PaymentViewController {
     }
     
     func setShippingDescription() {
-        shippingDescription.text = "Delivered on or before Thursday, 23 April 2020"
+        //shippingDescription.text = "Delivered on or before Thursday, 23 April 2020"
         shippingDescription.translatesAutoresizingMaskIntoConstraints = false
         shippingDescription.font = .systemFont(ofSize: 12, weight: .thin)
         shippingDescription.textAlignment = .left
