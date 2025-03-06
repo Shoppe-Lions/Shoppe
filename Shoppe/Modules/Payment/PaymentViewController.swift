@@ -8,9 +8,6 @@
 import UIKit
 import SnapKit
 
-
-
-
 protocol AnyPaymentView: AnyObject {
     var presenter: AnyPaymentPresenter? { get set }
     var shippingType: shippingType { get set }
@@ -20,6 +17,7 @@ protocol AnyPaymentView: AnyObject {
 }
 
 final class PaymentViewController: UIViewController, AnyPaymentView {
+    // MARK: - Properties
     var presenter: AnyPaymentPresenter?
     var shippingType: shippingType = .standard {
         didSet {
@@ -37,7 +35,6 @@ final class PaymentViewController: UIViewController, AnyPaymentView {
     lazy var itemsStackView = SH_VerticalStackView()
     lazy var voucherButton = UIButton()
     
-    // Shipping Options
     lazy var shippingStackView = SH_VerticalStackView()
     lazy var shippingTitle = HeadingLabel(title: "Shipping Options")
     lazy var shippingStandard = ShippingDetailView(type: .standard)
@@ -50,6 +47,7 @@ final class PaymentViewController: UIViewController, AnyPaymentView {
     
     lazy var totalView = TotalView()
     
+    // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         setupViews()
@@ -62,6 +60,7 @@ final class PaymentViewController: UIViewController, AnyPaymentView {
         presenter?.viewDidLoad()
     }
     
+    // MARK: - UI Setup
     func setupViews() {
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
@@ -93,7 +92,7 @@ final class PaymentViewController: UIViewController, AnyPaymentView {
     }
 }
 
-// UPDATE UI
+// MARK: - Update UI
 extension PaymentViewController {
     func setupItems(with items:[Product]) {
         for item in items {
@@ -105,23 +104,9 @@ extension PaymentViewController {
     }
     
     func updateShippingUI() {
-        if shippingType == .standard {
-            shippingStandard.backgroundColor = .customLightGray
-            let imageChecked = UIImage(named: "Check")
-            shippingStandard.button.setImage(imageChecked, for: .normal)
-            
-            shippingExpress.backgroundColor = .customGray
-            let imageUnchecked = UIImage(named: "CheckEmpty")
-            shippingExpress.button.setImage(imageUnchecked, for: .normal)
-        } else {
-            shippingStandard.backgroundColor = .customGray
-            let imageUnchecked = UIImage(named: "CheckEmpty")
-            shippingStandard.button.setImage(imageUnchecked, for: .normal)
-            
-            shippingExpress.backgroundColor = .customLightGray
-            let imageChecked = UIImage(named: "Check")
-            shippingExpress.button.setImage(imageChecked, for: .normal)
-        }
+        let isStandardSelected = (shippingType == .standard)
+        updateShippingOption(view: shippingStandard, isSelected: isStandardSelected)
+        updateShippingOption(view: shippingExpress, isSelected: !isStandardSelected)
     }
     
     func updateTotalPrice(with total: Double) {
@@ -134,7 +119,7 @@ extension PaymentViewController {
 }
 
 
-// SETTING THE VIEWS
+// MARK: - Setting Views
 extension PaymentViewController {
     func setScrollView() {
         scrollView.translatesAutoresizingMaskIntoConstraints = false
@@ -145,7 +130,6 @@ extension PaymentViewController {
     }
     
     func setShippingDescription() {
-        //shippingDescription.text = "Delivered on or before Thursday, 23 April 2020"
         shippingDescription.translatesAutoresizingMaskIntoConstraints = false
         shippingDescription.font = .systemFont(ofSize: 12, weight: .thin)
         shippingDescription.textAlignment = .left
@@ -166,7 +150,7 @@ extension PaymentViewController {
     }
 }
 
-// SETTING CONSTRAINTS
+// MARK: - Setting constraints
 extension PaymentViewController {
     func setConstraints() {
         scrollView.snp.makeConstraints { make in
@@ -244,3 +228,13 @@ extension PaymentViewController {
         }
     }
 }
+
+// MARK: - Helper Method
+extension PaymentViewController {
+    private func updateShippingOption(view: ShippingDetailView, isSelected: Bool) {
+        view.backgroundColor = isSelected ? .customLightGray : .customGray
+        let imageName = isSelected ? "Check" : "CheckEmpty"
+        view.button.setImage(UIImage(named: imageName), for: .normal)
+    }
+}
+
