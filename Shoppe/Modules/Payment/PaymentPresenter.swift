@@ -19,7 +19,6 @@ protocol AnyPaymentPresenter: AnyObject {
 
 final class PaymentPresenter: AnyPaymentPresenter {
     weak var view: AnyPaymentView?
-    var items: [Product] = []
     var router: AnyPaymentRouter?
     var interactor: AnyPaymentIntercator?
     
@@ -31,49 +30,36 @@ final class PaymentPresenter: AnyPaymentPresenter {
     
     func viewDidLoad() {
         interactor?.getBasketItems()
+        getViewUpdateTotalPriceAndDelivery()
     }
     
     func interactorDidFetchBasketItems(with result: [Product]) {
         view?.setupItems(with: result)
-        items = result
-        calculateTotalPrice()
-        
-        let deliveryDates = getFutureDates()
-        view?.updateDeliveryDate(date: deliveryDates.1)
+        getViewUpdateTotalPriceAndDelivery()
     }
     
     func viewDidSelectDelivery() {
-        let deliveryDates = getFutureDates()
+        toggleShippingType()
+        getViewUpdateTotalPriceAndDelivery()
         
-        if view?.shippingType == .standard {
-            view?.shippingType = .express
-            view?.updateDeliveryDate(date: deliveryDates.0)
-        } else {
-            view?.shippingType = .standard
-            view?.updateDeliveryDate(date: deliveryDates.1)
-        }
-        calculateTotalPrice()
     }
+}
+
+// MARK: - Helper Methods
+private extension PaymentPresenter {
     
-    func calculateTotalPrice() {
-        var itemsTotal = items.reduce(0) { $0 + $1.price }
-        if view?.shippingType == .express { itemsTotal += 12 }
+    func getViewUpdateTotalPriceAndDelivery() {
+        guard let shippingType = view?.shippingType else { return }
+        
+        let itemsTotal = interactor?.calculateTotalPrice(shippingType: shippingType) ?? 0.0
         view?.updateTotalPrice(with: itemsTotal)
+        
+        let deliveryDates = interactor?.getFutureDates()
+        let deliveryDate = (shippingType == .express) ? deliveryDates?.0 : deliveryDates?.1
+        view?.updateDeliveryDate(date: deliveryDate ?? "soon")
     }
     
-    func getFutureDates() -> (String, String) {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "EEEE, d MMMM yyyy"
-        
-        let currentDate = Date()
-        let calendar = Calendar.current
-        
-        let twoDaysLater = calendar.date(byAdding: .day, value: 2, to: currentDate)!
-        let sevenDaysLater = calendar.date(byAdding: .day, value: 7, to: currentDate)!
-        
-        let twoDaysString = dateFormatter.string(from: twoDaysLater)
-        let sevenDaysString = dateFormatter.string(from: sevenDaysLater)
-        
-        return (twoDaysString, sevenDaysString)
+    func toggleShippingType() {
+        view?.shippingType = (view?.shippingType == .standard) ? .express : .standard
     }
 }
