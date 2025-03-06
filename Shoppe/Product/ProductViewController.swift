@@ -25,14 +25,12 @@ final class ProductViewController: UIViewController, ProductViewProtocol {
         let element = UIStackView()
         element.axis = .vertical
         element.spacing = spasingElements
-        element.translatesAutoresizingMaskIntoConstraints = false
         return element
     }()
     
     private lazy var productImageView: UIImageView = {
         let element = UIImageView()
         element.contentMode = .scaleAspectFit
-        element.translatesAutoresizingMaskIntoConstraints = false
         return element
     }()
     
@@ -40,14 +38,12 @@ final class ProductViewController: UIViewController, ProductViewProtocol {
         let element = UILabel()
         element.font = UIFont(name: Fonts.Raleway.extraBold, size: 26)
         element.numberOfLines = 0
-        element.translatesAutoresizingMaskIntoConstraints = false
         return element
     }()
     
     private lazy var priceStackView: UIStackView = {
         let element = UIStackView()
         element.axis = .horizontal
-        element.translatesAutoresizingMaskIntoConstraints = false
         return element
     }()
     
@@ -55,14 +51,11 @@ final class ProductViewController: UIViewController, ProductViewProtocol {
         let element = UILabel()
         element.font = UIFont(name: Fonts.Raleway.extraBold, size: 26)
         element.textAlignment = .left
-        element.translatesAutoresizingMaskIntoConstraints = false
         return element
     }()
     
     private lazy var likeImageView: UIImageView = {
         let element = UIImageView()
-        element.backgroundColor = .red
-        element.translatesAutoresizingMaskIntoConstraints = false
         return element
     }()
     
@@ -70,14 +63,47 @@ final class ProductViewController: UIViewController, ProductViewProtocol {
         let element = UILabel()
         element.font = UIFont(name: Fonts.NunitoSans.regular, size: 15)
         element.numberOfLines = 0
-        element.translatesAutoresizingMaskIntoConstraints = false
+        return element
+    }()
+    
+    private lazy var variationsStackView: UIStackView = {
+        let element = UIStackView()
+        element.axis = .horizontal
+        element.spacing = 10
+        return element
+    }()
+    
+    private lazy var variationsLabel: UILabel = {
+        let element = UILabel()
+        element.text = "Variations"
+        element.font = UIFont(name: Fonts.Raleway.extraBold, size: 20)
+        return element
+    }()
+    
+    private lazy var subcategoryContainerView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .customLightGray
+        view.layer.cornerRadius = 4
+        return view
+    }()
+    
+    private lazy var subcategoryLabel: UILabel = {
+        let element = UILabel()
+        element.text = "Subcategory"
+        element.backgroundColor = .customLightGray
+        element.layer.cornerRadius = 4
+        element.textAlignment = .center
+        element.font = UIFont(name: Fonts.Raleway.medium, size: 14)
+        return element
+    }()
+    
+    private lazy var variationsFakeView: UIView = {
+        let element = UIView()
         return element
     }()
     
     private lazy var likeButton: UIButton = {
         let element = UIButton(type: .system)
-        element.backgroundColor = .red
-        element.translatesAutoresizingMaskIntoConstraints = false
         return element
     }()
     
@@ -87,7 +113,6 @@ final class ProductViewController: UIViewController, ProductViewProtocol {
         element.titleLabel?.font = UIFont(name: Fonts.NunitoSans.light, size: 16)
         element.backgroundColor = .black
         element.tintColor = .white
-        element.translatesAutoresizingMaskIntoConstraints = false
         return element
     }()
     
@@ -97,7 +122,6 @@ final class ProductViewController: UIViewController, ProductViewProtocol {
         element.titleLabel?.font = UIFont(name: Fonts.NunitoSans.light, size: 16)
         element.backgroundColor = .blue
         element.tintColor = .white
-        element.translatesAutoresizingMaskIntoConstraints = false
         return element
     }()
     
@@ -111,6 +135,8 @@ final class ProductViewController: UIViewController, ProductViewProtocol {
     func showProduct(_ product: Product) {
         nameProductLabel.text = product.title
         priceLabel.text = "$\(product.price)"
+        //Исправить like
+        likeImageView.image = UIImage(named: "wishlist_off")
         descriptionLabel.text = product.description
         print(product)
     }
@@ -136,6 +162,12 @@ private extension ProductViewController {
         priceStackView.addArrangedSubview(likeImageView)
         
         mainStackView.addArrangedSubview(descriptionLabel)
+        
+        mainStackView.addArrangedSubview(variationsStackView)
+        variationsStackView.addArrangedSubview(variationsLabel)
+        variationsStackView.addArrangedSubview(subcategoryContainerView)
+        subcategoryContainerView.addSubview(subcategoryLabel)
+        variationsStackView.addArrangedSubview(variationsFakeView)
     }
     
     func setupConstraints() {
@@ -150,6 +182,10 @@ private extension ProductViewController {
         
         likeImageView.snp.makeConstraints { make in
             make.height.width.equalTo(30)
+        }
+        
+        subcategoryLabel.snp.makeConstraints { make in
+            make.edges.equalToSuperview().inset(8)
         }
         
         
