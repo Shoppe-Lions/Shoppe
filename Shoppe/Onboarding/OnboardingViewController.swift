@@ -7,8 +7,6 @@
 
 import UIKit
 
-// здесь в перспективе не будет никакой логики, только отображение того что на экранчике
-
 class OnboardingViewController: UIViewController {
     
     // создаем листалку
