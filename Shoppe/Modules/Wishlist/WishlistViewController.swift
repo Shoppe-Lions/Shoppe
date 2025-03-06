@@ -8,7 +8,7 @@
 import UIKit
 
 protocol WishlistViewProtocol: AnyObject {
-    func showWishListProducts(_ products: [Product])
+    func reloadData()
 }
 
 final class WishlistViewController: UIViewController {
@@ -16,8 +16,6 @@ final class WishlistViewController: UIViewController {
     //MARK: Properties
     
     var presenter: WishlistPresenterProtocol?
-    
-    private var products: [Product] = []
     
     private let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -55,7 +53,7 @@ final class WishlistViewController: UIViewController {
     private func setupUI() {
         view.addSubview(collectionView)
         view.addSubview(titleLabel)
-       
+        
         titleLabel.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
             make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
@@ -71,38 +69,57 @@ final class WishlistViewController: UIViewController {
         collectionView.dataSource = self
         collectionView.delegate = self
     }
+    
+   
 }
 
 // MARK: CollectionView delegates
 extension WishlistViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        products.count
+        guard let presenter = presenter else { return 0 }
+        return presenter.products.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ProductCell", for: indexPath) as? ProductCell else {
             return UICollectionViewCell()
         }
-        let product = products[indexPath.row]
+        guard let presenter = presenter,
+                indexPath.row < presenter.products.count
+        else {
+            return UICollectionViewCell()
+        }
+        let product = presenter.products[indexPath.row]
         cell.configure(with: product)
+        cell.delegate = self
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let product = products[indexPath.row]
-        presenter?.didSelectProduct(product)
+        guard let presenter = presenter,
+              indexPath.row < presenter.products.count
+        else {
+            return
+        }
+        let product = presenter.products[indexPath.row]
+        presenter.didSelectProduct(product)
     }
     
     // Размер ячейки
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-            let cellWidth = collectionView.bounds.width / 2 // Две колонки
-            return CGSize(width: cellWidth, height: 282 + 15) // Высота фиксированная: высота по макету 282 + 15 - это отступ сверху в ячейке, для корректного отображения тени
-        }
+        let cellWidth = collectionView.bounds.width / 2 // Две колонки
+        return CGSize(width: cellWidth, height: 282 + 15) // Высота фиксированная: высота по макету 282 + 15 - это отступ сверху в ячейке, для корректного отображения тени
+    }
 }
 
 extension WishlistViewController: WishlistViewProtocol {
-    
-    func showWishListProducts(_ products: [Product]) {
-        self.products = products
+    func reloadData() {
+        collectionView.reloadData()
+    }
+}
+
+extension WishlistViewController: ProductCellDelegate {
+    func didTapWishlistButton(for product: Product) {
+        presenter?.toggleWishlist(for: product)
     }
 }

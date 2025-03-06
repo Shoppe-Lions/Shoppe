@@ -9,9 +9,11 @@ import Foundation
 
 protocol WishlistInteractorProtocol {
     func fetchWishlistProducts()
+    func toggleWishlistStatus(for product: Product)
 }
 
 final class WishlistInteractor: WishlistInteractorProtocol {
+  
     weak var presenter: WishlistPresenterProtocol?
     
     func fetchWishlistProducts() {
@@ -26,5 +28,11 @@ final class WishlistInteractor: WishlistInteractorProtocol {
             Product(id: 1, title: "Red dress", price: 199.99, description: "", category: "", image: "testPhotoImage", rating: Rating(rate: 5, count: 25), subcategory: "test", like: false)
         ]
         presenter?.didFetchWishlistProducts(sampleProducts)
+    }
+    
+    func toggleWishlistStatus(for product: Product) {
+      // todo
+        
+        print("Wishlist updated")
     }
 }

@@ -8,7 +8,17 @@
 import UIKit
 import SnapKit
 
+let wishlistOnImage = UIImage(named: "wishlist_on")
+let wishlistOffImage = UIImage(named: "wishlist_off")
+
+protocol ProductCellDelegate: AnyObject {
+    func didTapWishlistButton(for product: Product)
+}
+
 class ProductCell: UICollectionViewCell {
+    
+    weak var delegate: ProductCellDelegate?
+    var product: Product?
     
     private let photoContainerView: UIView = {
         let view = UIView()
@@ -70,7 +80,7 @@ class ProductCell: UICollectionViewCell {
 
     private let wishlistButton: UIButton = {
         let button = UIButton()
-        button.setImage(UIImage(named: "wishlist_on"), for: .normal)
+        button.setImage(wishlistOnImage, for: .normal)
         button.backgroundColor = .white
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
@@ -80,6 +90,7 @@ class ProductCell: UICollectionViewCell {
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupUI()
+        wishlistButton.addTarget(self, action: #selector(handleWishlistButtonTapped), for: .touchUpInside)
     }
     
     required init?(coder: NSCoder) {
@@ -140,8 +151,15 @@ class ProductCell: UICollectionViewCell {
     // MARK: Configure
     // Метод для обновления данных в ячейке
     func configure(with product: Product) {
+        self.product = product
         photoImageView.image = UIImage(named: product.image)
         nameLabel.text = product.title
         priceLabel.text = "$\(product.price)" //todo: в идеале форматирование строки с ценой должно быть во viewModel
+        wishlistButton.setImage(product.like ? wishlistOnImage : wishlistOffImage, for: .normal)
+    }
+    
+    @objc func handleWishlistButtonTapped() {
+        guard let product = product else { print("no product"); return }
+        delegate?.didTapWishlistButton(for: product)
     }
 }
