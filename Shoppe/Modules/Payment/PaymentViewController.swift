@@ -28,6 +28,7 @@ final class PaymentViewController: UIViewController, AnyPaymentView {
     lazy var scrollView = UIScrollView()
     lazy var contentView = UIView()
     
+    lazy var titleLabel = UILabel()
     lazy var shippingDetails = DetailsView(type: .shipping)
     lazy var deliveryDetails = DetailsView(type: .contacts)
     lazy var itemTitle = HeadingLabel(title: "Items")
@@ -53,6 +54,7 @@ final class PaymentViewController: UIViewController, AnyPaymentView {
         setupViews()
         setConstraints()
         setScrollView()
+        setTitleLabel()
         setVaucherButton()
         setShippingDescription()
         updateShippingUI()
@@ -64,6 +66,7 @@ final class PaymentViewController: UIViewController, AnyPaymentView {
     func setupViews() {
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
+        contentView.addSubview(titleLabel)
         contentView.addSubview(shippingDetails)
         contentView.addSubview(deliveryDetails)
         contentView.addSubview(itemTitle)
@@ -129,6 +132,17 @@ extension PaymentViewController {
         scrollView.contentInsetAdjustmentBehavior = .never
     }
     
+    func setTitleLabel() {
+        titleLabel.textColor = .customBlack
+        titleLabel.textAlignment = .left
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.lineHeightMultiple = 1.1
+        paragraphStyle.alignment = .center
+        titleLabel.attributedText = NSMutableAttributedString(string: "Payment", attributes: [NSAttributedString.Key.kern: -0.28, NSAttributedString.Key.paragraphStyle: paragraphStyle])
+        titleLabel.font = UIFont(name: "Raleway-Bold", size: 28)
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+    }
+    
     func setShippingDescription() {
         shippingDescription.translatesAutoresizingMaskIntoConstraints = false
         shippingDescription.font = .systemFont(ofSize: 12, weight: .thin)
@@ -154,7 +168,8 @@ extension PaymentViewController {
 extension PaymentViewController {
     func setConstraints() {
         scrollView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
+            make.bottom.leading.trailing.equalToSuperview()
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
         }
 
         contentView.snp.makeConstraints { make in
@@ -163,8 +178,13 @@ extension PaymentViewController {
             make.bottom.equalTo(shippingStackView.snp.bottom).offset(200)
         }
         
+        titleLabel.snp.makeConstraints { make in
+            make.top.equalToSuperview()
+            make.leading.equalToSuperview().offset(20)
+        }
+        
         shippingDetails.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(80)
+            make.top.equalTo(titleLabel.snp.bottom).offset(20)
             make.leading.equalToSuperview().offset(20)
             make.trailing.equalToSuperview().offset(-20)
             make.height.equalTo(100)
