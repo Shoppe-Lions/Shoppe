@@ -11,6 +11,7 @@ import SnapKit
 
 class CountCircleView: UIView {
     var size: Int
+    var radius: Int
     var number: Int = 0 {
         didSet {
             label.text = "\(number)"
@@ -18,8 +19,9 @@ class CountCircleView: UIView {
     }
     let label = UILabel()
 
-    init(size: Int) {
+    init(size: Int, radius: Int) {
         self.size = size
+        self.radius = radius
         super.init(frame: .zero)
         setupViews(size: size)
         setConstraints()
@@ -31,21 +33,24 @@ class CountCircleView: UIView {
 
     func setupViews(size: Int) {
         self.backgroundColor = .customLightGray
-        self.layer.cornerRadius = CGFloat(size)
+        self.layer.cornerRadius = CGFloat(radius)*1.5
         self.clipsToBounds = true
 
         label.text = "2"
-        label.font = .systemFont(ofSize: CGFloat(size), weight: .bold)
+        label.font = UIFont(name: "Raleway-Bold", size: CGFloat(size))
         label.textAlignment = .center
         label.textColor = .black
         label.translatesAutoresizingMaskIntoConstraints = false
+        
+        self.layer.borderWidth = 4
+        self.layer.borderColor = UIColor.white.cgColor
 
         self.addSubview(label)
     }
 
     func setConstraints() {
         self.snp.makeConstraints { make in
-            make.width.height.equalTo(CGFloat(size*2))
+            make.width.height.equalTo(CGFloat(radius*3))
         }
 
         label.snp.makeConstraints { make in

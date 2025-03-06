@@ -11,7 +11,7 @@ class ShadowImageView: UIView {
     
     lazy var imageView: UIImageView = {
         let image = UIImageView()
-        image.layer.cornerRadius = 25
+        image.layer.cornerRadius = 30
         image.layer.borderWidth = 5
         image.layer.borderColor = UIColor.white.cgColor
         image.clipsToBounds = true
@@ -27,7 +27,7 @@ class ShadowImageView: UIView {
         self.layer.shadowOpacity = 0.3
         self.layer.shadowOffset = CGSize(width: -3, height: 0) // Тень слева
         self.layer.shadowRadius = 5
-        self.layer.cornerRadius = 25
+        self.layer.cornerRadius = 30
         
         addSubview(imageView)
         

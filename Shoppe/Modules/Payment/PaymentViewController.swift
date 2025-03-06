@@ -32,7 +32,7 @@ final class PaymentViewController: UIViewController, AnyPaymentView {
     lazy var shippingDetails = DetailsView(type: .shipping)
     lazy var deliveryDetails = DetailsView(type: .contacts)
     lazy var itemTitle = HeadingLabel(title: "Items")
-    lazy var itemsNumber = CountCircleView(size: 15)
+    lazy var itemsNumber = CountCircleView(size: 16, radius: 13)
     lazy var itemsStackView = SH_VerticalStackView()
     lazy var voucherButton = UIButton()
     
@@ -145,7 +145,7 @@ extension PaymentViewController {
     
     func setShippingDescription() {
         shippingDescription.translatesAutoresizingMaskIntoConstraints = false
-        shippingDescription.font = .systemFont(ofSize: 12, weight: .thin)
+        shippingDescription.font = UIFont(name: "NunitoSans10pt-Regular", size: 13)
         shippingDescription.textAlignment = .left
         shippingDescription.textColor = .black
     }
@@ -153,9 +153,9 @@ extension PaymentViewController {
     func setVaucherButton() {
         voucherButton.setTitle("Add voucher", for: .normal)
         voucherButton.setTitleColor(.customBlue, for: .normal)
-        voucherButton.titleLabel?.font = .systemFont(ofSize: 15, weight: .regular)
+        voucherButton.titleLabel?.font = UIFont(name: "NunitoSans10pt-Regular", size: 15)
             
-        voucherButton.layer.borderWidth = 2
+        voucherButton.layer.borderWidth = 1
         voucherButton.layer.borderColor = UIColor.customBlue.cgColor
         voucherButton.layer.cornerRadius = 10
             
@@ -184,17 +184,17 @@ extension PaymentViewController {
         }
         
         shippingDetails.snp.makeConstraints { make in
-            make.top.equalTo(titleLabel.snp.bottom).offset(20)
+            make.top.equalTo(titleLabel.snp.bottom).offset(10)
             make.leading.equalToSuperview().offset(20)
             make.trailing.equalToSuperview().offset(-20)
-            make.height.equalTo(100)
+            make.height.equalTo(85)
         }
         
         deliveryDetails.snp.makeConstraints { make in
-            make.top.equalTo(shippingDetails.snp.bottom).offset(20)
+            make.top.equalTo(shippingDetails.snp.bottom).offset(10)
             make.leading.equalToSuperview().offset(20)
             make.trailing.equalToSuperview().offset(-20)
-            make.height.equalTo(100)
+            make.height.equalTo(85)
         }
         
         itemTitle.snp.makeConstraints { make in
@@ -203,12 +203,12 @@ extension PaymentViewController {
         }
         
         itemsNumber.snp.makeConstraints { make in
-            make.trailing.equalTo(itemTitle.snp.trailing).offset(90)
+            make.leading.equalTo(itemTitle.snp.trailing).offset(70)
             make.top.equalTo(deliveryDetails.snp.bottom).offset(15)
         }
         
         itemsStackView.snp.makeConstraints { make in
-            make.top.equalTo(itemTitle.snp.bottom).offset(10)
+            make.top.equalTo(itemTitle.snp.bottom).offset(20)
             make.leading.equalToSuperview().offset(20)
             make.trailing.equalToSuperview().offset(-20)
         }
@@ -217,17 +217,17 @@ extension PaymentViewController {
             make.centerY.equalTo(itemTitle.snp.centerY)
             make.trailing.equalToSuperview().offset(-20)
             make.width.equalTo(120)
-            make.height.equalTo(30)
+            make.height.equalTo(35)
         }
         
         shippingStackView.snp.makeConstraints { make in
-            make.top.equalTo(itemsStackView.snp.bottom).offset(40)
+            make.top.equalTo(itemsStackView.snp.bottom).offset(30)
             make.leading.equalToSuperview().offset(20)
             make.trailing.equalToSuperview().offset(-20)
         }
         
         paymentTitle.snp.makeConstraints { make in
-            make.top.equalTo(shippingStackView.snp.bottom).offset(20)
+            make.top.equalTo(shippingStackView.snp.bottom).offset(30)
             make.leading.equalToSuperview().offset(20)
         }
         

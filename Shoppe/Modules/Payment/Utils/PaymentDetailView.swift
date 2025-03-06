@@ -24,11 +24,11 @@ class PaymentDetailView: UIView {
     
     func setupViews() {
         self.backgroundColor = .customLightGray
-        self.layoutMargins = UIEdgeInsets(top: 10, left: 20, bottom: 10, right: 20)
-        self.layer.cornerRadius = 15
+        self.layoutMargins = UIEdgeInsets(top: 8, left: 22, bottom: 8, right: 22)
+        self.layer.cornerRadius = 17
         
         label.text = "Card"
-        label.font = .systemFont(ofSize: 15, weight: .bold)
+        label.font = UIFont(name: "Raleway-Bold", size: 15)
         label.textColor = .customBlue
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false

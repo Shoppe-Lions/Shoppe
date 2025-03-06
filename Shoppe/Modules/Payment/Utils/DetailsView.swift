@@ -20,7 +20,7 @@ class DetailsView: UIView {
     lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 14, weight: .bold)
+        label.font = UIFont(name: "Raleway-Bold", size: 15)
         label.textAlignment = .center
         label.numberOfLines = 0
         return label
@@ -30,7 +30,7 @@ class DetailsView: UIView {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "26, Duong So 2, Thao Dien Ward, An Phu, District 2, Ho Chi Minh city"
-        label.font = .systemFont(ofSize: 14, weight: .regular)
+        label.font = UIFont(name: "NunitoSans10pt-Regular", size: 12)
         label.textAlignment = .left
         label.numberOfLines = 0
         return label
@@ -40,7 +40,7 @@ class DetailsView: UIView {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "+84932000000"
-        label.font = .systemFont(ofSize: 14, weight: .regular)
+        label.font = UIFont(name: "NunitoSans10pt-Regular", size: 12)
         label.textAlignment = .left
         label.numberOfLines = 0
         return label
@@ -50,7 +50,7 @@ class DetailsView: UIView {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "amandamorgan@example.com"
-        label.font = .systemFont(ofSize: 14, weight: .regular)
+        label.font = UIFont(name: "NunitoSans10pt-Regular", size: 12)
         label.textAlignment = .left
         label.numberOfLines = 0
         return label
@@ -86,31 +86,31 @@ class DetailsView: UIView {
     
     func setConstraints() {
         titleLabel.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(20)
-            make.top.equalToSuperview().offset(20)
+            make.leading.equalToSuperview().offset(15)
+            make.top.equalToSuperview().offset(10)
         }
         
         addressLabel.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(20)
-            make.trailing.equalToSuperview().offset(-50)
-            make.top.equalTo(titleLabel.snp.bottom).offset(10)
+            make.leading.equalToSuperview().offset(15)
+            make.trailing.equalToSuperview().offset(-100)
+            make.top.equalTo(titleLabel.snp.bottom).offset(5)
         }
         
         phoneLabel.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(20)
-            make.trailing.equalToSuperview().offset(-20)
-            make.top.equalTo(titleLabel.snp.bottom).offset(10)
+            make.leading.equalToSuperview().offset(15)
+            make.trailing.equalToSuperview().offset(-15)
+            make.top.equalTo(titleLabel.snp.bottom).offset(5)
         }
         
         emailLabel.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(20)
-            make.trailing.equalToSuperview().offset(-20)
-            make.top.equalTo(phoneLabel.snp.bottom).offset(10)
+            make.leading.equalToSuperview().offset(15)
+            make.trailing.equalToSuperview().offset(-15)
+            make.top.equalTo(phoneLabel.snp.bottom).offset(0)
         }
         
         editButton.snp.makeConstraints { make in
-            make.trailing.equalToSuperview().offset(-10)
-            make.bottom.equalToSuperview().offset(-10)
+            make.trailing.equalToSuperview().offset(-15)
+            make.bottom.equalToSuperview().offset(-15)
         }
         
     }

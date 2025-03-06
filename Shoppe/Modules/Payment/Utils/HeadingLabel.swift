@@ -16,7 +16,7 @@ class HeadingLabel: UIView {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = title
-        label.font = .systemFont(ofSize: 21, weight: .bold)
+        label.font = UIFont(name: "Raleway-Bold", size: 23)
         label.textAlignment = .left
         return label
     }()

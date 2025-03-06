@@ -12,7 +12,7 @@ class SH_VerticalStackView: UIStackView {
         super.init(frame: .zero)
         self.axis = .vertical
         self.alignment = .fill
-        self.spacing = 12
+        self.spacing = 8
         self.distribution = .fill
     }
         

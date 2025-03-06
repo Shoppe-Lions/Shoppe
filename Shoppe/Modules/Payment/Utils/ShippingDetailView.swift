@@ -27,7 +27,7 @@ class ShippingDetailView: UIView {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = type == .standard ? "Standard" : "Express"
-        label.font = .systemFont(ofSize: 16, weight: .bold)
+        label.font = UIFont(name: "Raleway-SemiBold", size: 16)
         label.textAlignment = .left
         return label
     }()
@@ -36,7 +36,8 @@ class ShippingDetailView: UIView {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = type == .standard ? "5-7 days" : "1-2 days"
-        label.font = .systemFont(ofSize: 13, weight: .regular)
+        label.font = UIFont(name: "Raleway-Regular", size: 13)
+        label.textColor = .customBlue
         label.textAlignment = .right
         return label
     }()
@@ -45,7 +46,7 @@ class ShippingDetailView: UIView {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = type == .standard ? "FREE" : "$12,00"
-        label.font = .systemFont(ofSize: 16, weight: .bold)
+        label.font = UIFont(name: "Raleway-Bold", size: 16)
         label.textAlignment = .right
         return label
     }()
@@ -72,15 +73,14 @@ class ShippingDetailView: UIView {
         
     func setConstraints() {
         button.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(5)
-            make.leading.equalToSuperview().offset(5)
-            make.leading.equalToSuperview().offset(20)
-            make.width.height.equalTo(40)
+            make.top.equalToSuperview().offset(10)
+            make.leading.equalToSuperview().offset(15)
+            make.width.height.equalTo(30)
         }
         
         typeLabel.snp.makeConstraints { make in
             make.top.equalToSuperview()
-            make.leading.equalTo(button.snp.trailing).offset(20)
+            make.leading.equalTo(button.snp.trailing).offset(10)
             make.centerY.equalTo(button)
         }
         
@@ -92,12 +92,12 @@ class ShippingDetailView: UIView {
         
         priceLabel.snp.makeConstraints { make in
             make.top.equalToSuperview()
-            make.trailing.equalToSuperview().offset(-20)
+            make.trailing.equalToSuperview().offset(-21)
             make.centerY.equalTo(button)
         }
         
         self.snp.makeConstraints { make in
-            make.bottom.equalTo(button.snp.bottom).offset(5)
+            make.bottom.equalTo(button.snp.bottom).offset(10)
         }
     }
 }
