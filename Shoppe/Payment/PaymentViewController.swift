@@ -8,13 +8,15 @@
 import UIKit
 import SnapKit
 
-let mockData: [Product] = [
-    Product(id: 1, title: "", price: 17.00, description: "26, Duong So 2, Thao Dien Ward, An Phu, District 2, Ho Chi Minh city", category: "", image: "mockImage", rating: Rating(rate: 22.00, count: 1)),
-    Product(id: 1, title: "", price: 15.00, description: "60, Duong So 2, Thao Dien Ward, An Phu, District 2, Ho Chi Minh city", category: "", image: "mockImage", rating: Rating(rate: 22.00, count: 1)),
-    Product(id: 1, title: "", price: 15.00, description: "60, Duong So 2, Thao Dien Ward, An Phu, District 2, Ho Chi Minh city", category: "", image: "mockImage", rating: Rating(rate: 22.00, count: 1))
-]
 
-class PaymentViewController: UIViewController {
+protocol AnyPaymentView: AnyObject {
+    var presenter: AnyPaymentPresenter? { get set }
+    func setupItems(with items:[Product])
+    //func didSelectDelivery()
+}
+
+final class PaymentViewController: UIViewController, AnyPaymentView {
+    var presenter: AnyPaymentPresenter?
     
     lazy var scrollView = UIScrollView()
     lazy var contentView = UIView()
@@ -43,8 +45,9 @@ class PaymentViewController: UIViewController {
         setupViews()
         setConstraints()
         setScrollView()
-        setupItems()
         setShippingDescription()
+        
+        presenter?.viewDidLoad()
     }
     
     func setupViews() {
@@ -67,14 +70,21 @@ class PaymentViewController: UIViewController {
         contentView.addSubview(paymentEditButton)
         view.addSubview(totalView)
     }
-    
-    func setupItems() {
-        for item in mockData {
+}
+
+// UPDATE UI
+extension PaymentViewController {
+    func setupItems(with items:[Product]) {
+        for item in items {
             let itemView = ItemView(item: item)
             itemsStackView.addArrangedSubview(itemView)
         }
     }
-    
+}
+
+
+// SETTING THE VIEWS
+extension PaymentViewController {
     func setScrollView() {
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         contentView.translatesAutoresizingMaskIntoConstraints = false
@@ -90,7 +100,10 @@ class PaymentViewController: UIViewController {
         shippingDescription.textAlignment = .left
         shippingDescription.textColor = .black
     }
-    
+}
+
+// SETTING CONSTRAINTS
+extension PaymentViewController {
     func setConstraints() {
         scrollView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
