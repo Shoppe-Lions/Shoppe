@@ -25,14 +25,19 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         loadProducts { products in
-            if let products {
-                for product in products {
-                    print(product.subcategory)
-                }
+            guard let products = products, !products.isEmpty else {
+                return
+            }
+            
+            // Печатаем лайки для всех продуктов
+            for product in products {
+                print(product.like)
+            }
+            if products.count > 1 {
+                let product = products[1]
+                self.apiService.toggleLike(for: product)
             }
         }
     }
-
-
 }
 
