@@ -34,6 +34,7 @@ final class PaymentViewController: UIViewController, AnyPaymentView {
     lazy var itemTitle = HeadingLabel(title: "Items")
     lazy var itemsNumber = CountCircleView(size: 15)
     lazy var itemsStackView = SH_VerticalStackView()
+    lazy var voucherButton = UIButton()
     
     // Shipping Options
     lazy var shippingStackView = SH_VerticalStackView()
@@ -53,6 +54,7 @@ final class PaymentViewController: UIViewController, AnyPaymentView {
         setupViews()
         setConstraints()
         setScrollView()
+        setVaucherButton()
         setShippingDescription()
         updateShippingUI()
         
@@ -65,6 +67,7 @@ final class PaymentViewController: UIViewController, AnyPaymentView {
         contentView.addSubview(shippingDetails)
         contentView.addSubview(deliveryDetails)
         contentView.addSubview(itemTitle)
+        contentView.addSubview(voucherButton)
         contentView.addSubview(itemsNumber)
         contentView.addSubview(shippingTitle)
         contentView.addSubview(itemsStackView)
@@ -143,6 +146,19 @@ extension PaymentViewController {
         shippingDescription.textAlignment = .left
         shippingDescription.textColor = .black
     }
+    
+    func setVaucherButton() {
+        voucherButton.setTitle("Add voucher", for: .normal)
+        voucherButton.setTitleColor(.customBlue, for: .normal)
+        voucherButton.titleLabel?.font = .systemFont(ofSize: 15, weight: .regular)
+            
+        voucherButton.layer.borderWidth = 2
+        voucherButton.layer.borderColor = UIColor.customBlue.cgColor
+        voucherButton.layer.cornerRadius = 10
+            
+        voucherButton.backgroundColor = .clear
+        voucherButton.translatesAutoresizingMaskIntoConstraints = false
+    }
 }
 
 // SETTING CONSTRAINTS
@@ -186,6 +202,13 @@ extension PaymentViewController {
             make.top.equalTo(itemTitle.snp.bottom).offset(10)
             make.leading.equalToSuperview().offset(20)
             make.trailing.equalToSuperview().offset(-20)
+        }
+        
+        voucherButton.snp.makeConstraints { make in
+            make.centerY.equalTo(itemTitle.snp.centerY)
+            make.trailing.equalToSuperview().offset(-20)
+            make.width.equalTo(120)
+            make.height.equalTo(30)
         }
         
         shippingStackView.snp.makeConstraints { make in

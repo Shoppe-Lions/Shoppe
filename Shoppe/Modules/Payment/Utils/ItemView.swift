@@ -11,19 +11,11 @@ import SnapKit
 
 class ItemView: UIView {
     let item: Product
-    
-    lazy var imageView: UIImageView = {
-        let image = UIImageView()
-        image.image = UIImage(named: item.image)
-        image.layer.cornerRadius = 25
-        image.layer.borderWidth = 5
-        image.layer.borderColor = UIColor.white.cgColor
-        image.clipsToBounds = true
-        image.contentMode = .scaleAspectFit
-        image.translatesAutoresizingMaskIntoConstraints = false
         
-        return image
-    }()
+    lazy var imageView = ShadowImageView(imageName: item.image)
+    
+    lazy var itemsNumber = CountCircleView(size: 10)
+
     
     lazy var descriptionLabel: UILabel = {
         let label = UILabel()
@@ -66,6 +58,7 @@ class ItemView: UIView {
     
     func setupViews() {
         addSubview(stackView)
+        addSubview(itemsNumber)
     }
     
     func setConstraints() {
@@ -79,6 +72,11 @@ class ItemView: UIView {
         
         descriptionLabel.snp.makeConstraints { make in
             make.width.equalTo(230)
+        }
+        
+        itemsNumber.snp.makeConstraints { make in
+            make.leading.equalTo(imageView.snp.trailing).offset(-10)
+            make.top.equalTo(imageView.snp.top).offset(-5)
         }
         
         
