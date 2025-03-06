@@ -17,8 +17,17 @@ protocol ProductViewProtocol: AnyObject {
 final class ProductViewController: UIViewController, ProductViewProtocol {
     
     var presenter: ProductPresenterProtocol!
+    var spasingElements: CGFloat = 20
     
     // MARK: - UI Elements
+    
+    private lazy var mainStackView: UIStackView = {
+        let element = UIStackView()
+        element.axis = .vertical
+        element.spacing = spasingElements
+        element.translatesAutoresizingMaskIntoConstraints = false
+        return element
+    }()
     
     private lazy var productImageView: UIImageView = {
         let element = UIImageView()
@@ -29,14 +38,23 @@ final class ProductViewController: UIViewController, ProductViewProtocol {
     
     private lazy var nameProductLabel: UILabel = {
         let element = UILabel()
-        
+        element.font = UIFont(name: Fonts.Raleway.extraBold, size: 26)
+        element.numberOfLines = 0
+        element.translatesAutoresizingMaskIntoConstraints = false
+        return element
+    }()
+    
+    private lazy var priceStackView: UIStackView = {
+        let element = UIStackView()
+        element.axis = .horizontal
         element.translatesAutoresizingMaskIntoConstraints = false
         return element
     }()
     
     private lazy var priceLabel: UILabel = {
         let element = UILabel()
-        
+        element.font = UIFont(name: Fonts.Raleway.extraBold, size: 26)
+        element.textAlignment = .left
         element.translatesAutoresizingMaskIntoConstraints = false
         return element
     }()
@@ -50,7 +68,8 @@ final class ProductViewController: UIViewController, ProductViewProtocol {
     
     private lazy var descriptionLabel: UILabel = {
         let element = UILabel()
-        
+        element.font = UIFont(name: Fonts.NunitoSans.regular, size: 15)
+        element.numberOfLines = 0
         element.translatesAutoresizingMaskIntoConstraints = false
         return element
     }()
@@ -65,6 +84,7 @@ final class ProductViewController: UIViewController, ProductViewProtocol {
     private lazy var addToCartButton: UIButton = {
         let element = UIButton(type: .system)
         element.setTitle("Add to cart", for: .normal)
+        element.titleLabel?.font = UIFont(name: Fonts.NunitoSans.light, size: 16)
         element.backgroundColor = .black
         element.tintColor = .white
         element.translatesAutoresizingMaskIntoConstraints = false
@@ -74,6 +94,7 @@ final class ProductViewController: UIViewController, ProductViewProtocol {
     private lazy var buyNowButton: UIButton = {
         let element = UIButton(type: .system)
         element.setTitle("Buy now", for: .normal)
+        element.titleLabel?.font = UIFont(name: Fonts.NunitoSans.light, size: 16)
         element.backgroundColor = .blue
         element.tintColor = .white
         element.translatesAutoresizingMaskIntoConstraints = false
@@ -106,13 +127,32 @@ final class ProductViewController: UIViewController, ProductViewProtocol {
 private extension ProductViewController {
     
     func setViews() {
-        view.addSubview(productImageView)
+        view.addSubview(mainStackView)
+        mainStackView.addArrangedSubview(productImageView)
+        mainStackView.addArrangedSubview(nameProductLabel)
+        
+        mainStackView.addArrangedSubview(priceStackView)
+        priceStackView.addArrangedSubview(priceLabel)
+        priceStackView.addArrangedSubview(likeImageView)
+        
+        mainStackView.addArrangedSubview(descriptionLabel)
     }
     
     func setupConstraints() {
+        
+        mainStackView.snp.makeConstraints { make in
+            make.edges.equalTo(view.safeAreaLayoutGuide).inset(spasingElements)
+        }
+        
         productImageView.snp.makeConstraints { make in
-            make.leading.trailing.top.equalTo(view.safeAreaLayoutGuide)
             make.height.equalTo(view.safeAreaLayoutGuide).multipliedBy(0.5)
         }
+        
+        likeImageView.snp.makeConstraints { make in
+            make.height.width.equalTo(30)
+        }
+        
+        
+        
     }
 }
