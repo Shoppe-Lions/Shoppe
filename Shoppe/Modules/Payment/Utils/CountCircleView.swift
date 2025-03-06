@@ -10,11 +10,14 @@ import SnapKit
 
 
 class CountCircleView: UIView {
-    let number: Int
+    var number: Int = 0 {
+        didSet {
+            label.text = "\(number)"
+        }
+    }
     let label = UILabel()
 
-    init(number: Int, size: Int) {
-        self.number = number
+    init(size: Int) {
         super.init(frame: .zero)
         setupViews(size: size)
         setConstraints()

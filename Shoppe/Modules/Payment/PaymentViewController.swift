@@ -9,14 +9,22 @@ import UIKit
 import SnapKit
 
 
+
+
 protocol AnyPaymentView: AnyObject {
     var presenter: AnyPaymentPresenter? { get set }
+    var shippingType: shippingType { get set }
     func setupItems(with items:[Product])
-    //func didSelectDelivery()
+    func updateTotalPrice(with total: Double)
 }
 
 final class PaymentViewController: UIViewController, AnyPaymentView {
     var presenter: AnyPaymentPresenter?
+    var shippingType: shippingType = .standard {
+        didSet {
+            updateShippingUI()
+        }
+    }
     
     lazy var scrollView = UIScrollView()
     lazy var contentView = UIView()
@@ -24,7 +32,7 @@ final class PaymentViewController: UIViewController, AnyPaymentView {
     lazy var shippingDetails = DetailsView(type: .shipping)
     lazy var deliveryDetails = DetailsView(type: .contacts)
     lazy var itemTitle = HeadingLabel(title: "Items")
-    lazy var itemsNumber = CountCircleView(number: 2, size: 15)
+    lazy var itemsNumber = CountCircleView(size: 15)
     lazy var itemsStackView = SH_VerticalStackView()
     
     // Shipping Options
@@ -46,6 +54,7 @@ final class PaymentViewController: UIViewController, AnyPaymentView {
         setConstraints()
         setScrollView()
         setShippingDescription()
+        updateShippingUI()
         
         presenter?.viewDidLoad()
     }
@@ -69,6 +78,14 @@ final class PaymentViewController: UIViewController, AnyPaymentView {
         contentView.addSubview(paymentDetail)
         contentView.addSubview(paymentEditButton)
         view.addSubview(totalView)
+        
+        shippingStandard.button.addTarget(self, action: #selector(didSelectDelivery), for: .touchUpInside)
+        shippingExpress.button.addTarget(self, action: #selector(didSelectDelivery), for: .touchUpInside)
+        
+    }
+    
+    @objc func didSelectDelivery() {
+        presenter?.viewDidSelectDelivery()
     }
 }
 
@@ -79,6 +96,32 @@ extension PaymentViewController {
             let itemView = ItemView(item: item)
             itemsStackView.addArrangedSubview(itemView)
         }
+        
+        itemsNumber.number = items.count
+    }
+    
+    func updateShippingUI() {
+        if shippingType == .standard {
+            shippingStandard.backgroundColor = .customLightGray
+            let imageChecked = UIImage(named: "Check")
+            shippingStandard.button.setImage(imageChecked, for: .normal)
+            
+            shippingExpress.backgroundColor = .customGray
+            let imageUnchecked = UIImage(named: "CheckEmpty")
+            shippingExpress.button.setImage(imageUnchecked, for: .normal)
+        } else {
+            shippingStandard.backgroundColor = .customGray
+            let imageUnchecked = UIImage(named: "CheckEmpty")
+            shippingStandard.button.setImage(imageUnchecked, for: .normal)
+            
+            shippingExpress.backgroundColor = .customLightGray
+            let imageChecked = UIImage(named: "Check")
+            shippingExpress.button.setImage(imageChecked, for: .normal)
+        }
+    }
+    
+    func updateTotalPrice(with total: Double) {
+        totalView.totalPrice.text = String(format: "Total $%.2f", total)
     }
 }
 

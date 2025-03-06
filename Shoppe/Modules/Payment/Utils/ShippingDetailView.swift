@@ -13,19 +13,13 @@ enum shippingType {
 
 class ShippingDetailView: UIView {
     var type: shippingType
-    var isChecked = true {
-        didSet {
-            updateUI()
-        }
-    }
     
     lazy var button: UIButton = {
         let button = UIButton()
-        let image = UIImage(named: isChecked ? "Check" : "CheckEmpty")
+        let image = UIImage(named: "Check")
         button.setImage(image, for: .normal)
         button.tintColor = .blue
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.addTarget(self, action: #selector(checkedButtonClicked), for: .touchUpInside)
         return button
     }()
     
@@ -69,26 +63,13 @@ class ShippingDetailView: UIView {
     }
     
     func setupViews() {
-        self.backgroundColor = isChecked ? .customLightGray : .customGray
         self.layer.cornerRadius = 12
         addSubview(button)
         addSubview(typeLabel)
         addSubview(durationLabel)
         addSubview(priceLabel)
     }
-    
-    @objc func checkedButtonClicked () {
-        isChecked.toggle()
-    }
-    
-    func updateUI() {
-        self.backgroundColor = isChecked ? .customLightGray : .customGray
         
-        let image = UIImage(named: isChecked ? "Check" : "CheckEmpty")
-        button.setImage(image, for: .normal)
-    }
-    
-    
     func setConstraints() {
         button.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(5)

@@ -14,7 +14,7 @@ class ItemView: UIView {
     
     lazy var imageView: UIImageView = {
         let image = UIImageView()
-        image.image = UIImage(named: "mockImage")
+        image.image = UIImage(named: item.image)
         image.layer.cornerRadius = 25
         image.layer.borderWidth = 5
         image.layer.borderColor = UIColor.white.cgColor
@@ -28,7 +28,7 @@ class ItemView: UIView {
     lazy var descriptionLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "26, Duong So 2, Thao Dien Ward, An Phu, District 2, Ho Chi Minh city"
+        label.text = item.description
         label.font = .systemFont(ofSize: 14, weight: .regular)
         label.textAlignment = .left
         label.numberOfLines = 2
@@ -38,7 +38,7 @@ class ItemView: UIView {
     lazy var priceLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "$17,00"
+        label.text = String(format: "$%.2f", item.price)
         label.font = .systemFont(ofSize: 14, weight: .bold)
         label.textAlignment = .right
         return label

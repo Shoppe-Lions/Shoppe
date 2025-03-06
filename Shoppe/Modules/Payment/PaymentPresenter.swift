@@ -14,10 +14,12 @@ protocol AnyPaymentPresenter: AnyObject {
     var interactor: AnyPaymentIntercator? { get set }
     func interactorDidFetchBasketItems(with result:[Product])
     func viewDidLoad()
+    func viewDidSelectDelivery()
 }
 
 final class PaymentPresenter: AnyPaymentPresenter {
     weak var view: AnyPaymentView?
+    var items: [Product] = []
     var router: AnyPaymentRouter?
     var interactor: AnyPaymentIntercator?
     
@@ -33,5 +35,22 @@ final class PaymentPresenter: AnyPaymentPresenter {
     
     func interactorDidFetchBasketItems(with result: [Product]) {
         view?.setupItems(with: result)
+        items = result
+        calculateTotalPrice()
+    }
+    
+    func viewDidSelectDelivery() {
+        if view?.shippingType == .standard {
+            view?.shippingType = .express
+        } else {
+            view?.shippingType = .standard
+        }
+        calculateTotalPrice()
+    }
+    
+    func calculateTotalPrice() {
+        var itemsTotal = items.reduce(0) { $0 + $1.price }
+        if view?.shippingType == .express { itemsTotal += 12 }
+        view?.updateTotalPrice(with: itemsTotal)
     }
 }

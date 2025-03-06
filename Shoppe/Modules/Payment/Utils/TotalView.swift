@@ -13,7 +13,6 @@ class TotalView: UIView {
     lazy var totalPrice: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "Total $34"
         label.font = .systemFont(ofSize: 20, weight: .bold)
         label.textAlignment = .left
         return label
