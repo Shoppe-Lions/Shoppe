@@ -10,6 +10,7 @@ import SnapKit
 
 protocol CartViewProtocol: AnyObject {
     func showCartProducts(_ products: [Product])
+    func updateProduct(at index: Int, product: Product, quantity: Int)
 }
 
 final class CartViewController: UIViewController {
@@ -126,8 +127,14 @@ final class CartViewController: UIViewController {
 extension CartViewController: CartViewProtocol {
     func showCartProducts(_ products: [Product]) {
         self.products = products
-        print("Reloading table view with \(products.count) products")
         cartTableView.reloadData()
+    }
+    
+    func updateProduct(at index: Int, product: Product, quantity: Int) {
+        products[index] = product
+        if let cell = cartTableView.cellForRow(at: IndexPath(row: index + 1, section: 0)) as? CartTableViewCell {
+            cell.updateQuantity(quantity)
+        }
     }
 }
 // MARK: - UITableViewDataSource and UITableViewDelegate
@@ -149,7 +156,9 @@ extension CartViewController: UITableViewDataSource, UITableViewDelegate {
             
             let product = products[indexPath.row - 1]
             
-            cell.configure(with: product)
+            if let presenter  {
+                cell.configure(with: product, at: indexPath.row - 1, presenter: presenter)
+            }
             cell.selectionStyle = .none
             return cell
         }
@@ -201,7 +210,8 @@ private extension CartViewController {
         }
         
         bottomStackView.snp.makeConstraints { make in
-            make.bottom.leading.trailing.equalToSuperview()        }
+            make.bottom.leading.trailing.equalToSuperview()
+        }
         
         checkoutButton.snp.makeConstraints { make in
             make.width.equalTo(130)

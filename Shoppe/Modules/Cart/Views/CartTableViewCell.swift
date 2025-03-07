@@ -9,7 +9,11 @@ import UIKit
 import SnapKit
 
 final class CartTableViewCell: UITableViewCell {
-
+    
+    private var product: Product?
+    private var index: Int?
+    weak var presenter: CartPresenterProtocol?
+    
     // MARK: - UI
     private lazy var cellStackView: UIStackView = {
         let element = UIStackView()
@@ -81,6 +85,7 @@ final class CartTableViewCell: UITableViewCell {
     private lazy var lessButton: UIButton = {
         let element = UIButton(type: .custom)
         element.setImage(UIImage(named: "Less"), for: .normal)
+        element.addTarget(self, action: #selector(decreaseQuantity), for: .touchUpInside)
         return element
     }()
     
@@ -98,6 +103,7 @@ final class CartTableViewCell: UITableViewCell {
     private lazy var moreButton: UIButton = {
         let element = UIButton(type: .custom)
         element.setImage(UIImage(named: "More"), for: .normal)
+        element.addTarget(self, action: #selector(increaseQuantity), for: .touchUpInside)
         return element
     }()
     // MARK: - Init
@@ -112,24 +118,48 @@ final class CartTableViewCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func configure(with product: Product) {
+    func configure(with product: Product, at index: Int, presenter: CartPresenterProtocol) {
+        self.product = product
+        self.index = index
+        self.presenter = presenter
+        
         cellImageView.image = UIImage(named: product.image)
         nameProductLabel.text = product.title
-        priceLabel.text = "$\(product.price)"
+        let quantity = presenter.getQuantity(for: product.id)
+        let totalPrice = product.price * Double(quantity)
+        priceLabel.text = String(format: "$%.2f", totalPrice)
+        counterLabel.text = "\(quantity)"
+    }
+    
+    func updateQuantity(_ quantity: Int) {
+        guard let product else { return }
+        counterLabel.text = "\(quantity)"
+        let totalPrice = product.price * Double(quantity)
+        priceLabel.text = String(format: "$%.2f", totalPrice)
+    }
+    
+    @objc private func increaseQuantity() {
+        guard let index else { return }
+        presenter?.increaseProductQuantity(at: index)
+    }
+    
+    @objc private func decreaseQuantity() {
+        guard let index else { return }
+        presenter?.decreaseProductQuantity(at: index)
     }
 }
 
 private extension CartTableViewCell {
     func setupViews() {
         contentView.addSubview(cellStackView)
-
+        
         cellStackView.addArrangedSubview(cellImageView)
         cellStackView.addArrangedSubview(productStackView)
         
         productStackView.addArrangedSubview(topInfoProductStacView)
         topInfoProductStacView.addArrangedSubview(nameProductLabel)
         topInfoProductStacView.addArrangedSubview(infoLabel)
-
+        
         productStackView.addArrangedSubview(bottomInfoStackView)
         bottomInfoStackView.addArrangedSubview(priceLabel)
         bottomInfoStackView.addArrangedSubview(counterStackView)
@@ -165,7 +195,7 @@ private extension CartTableViewCell {
         lessButton.snp.makeConstraints { make in
             make.width.height.equalTo(30)
         }
-
+        
         moreButton.snp.makeConstraints { make in
             make.width.height.equalTo(30)
         }
