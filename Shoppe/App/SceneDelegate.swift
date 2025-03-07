@@ -21,7 +21,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let tabBarController = UITabBarController()
         
      
-        let homeViewController = ViewController()
+        let homeViewController = PaymentRouter.createModule()
         let wishlistViewController = WishlistRouter.createModule()
         let unknownViewController = ProductRouter.createModule() // Что это за экран??)
         let cartViewController = CartViewController()
@@ -68,7 +68,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         tabBarController.tabBar.unselectedItemTintColor = .blue
         
-        window?.rootViewController = ProductRouter.createModule() // сюда вставить свой контроллер OnboardingViewController()
+        window?.rootViewController = tabBarController // сюда вставить свой контроллер OnboardingViewController()
         window?.makeKeyAndVisible()
     }
 
