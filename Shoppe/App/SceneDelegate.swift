@@ -68,7 +68,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         tabBarController.tabBar.unselectedItemTintColor = .blue
         
-        window?.rootViewController = tabBarController // сюда вставить свой контроллер OnboardingViewController()
+        window?.rootViewController = ProductRouter.createModule() // сюда вставить свой контроллер OnboardingViewController()
         window?.makeKeyAndVisible()
     }
 
