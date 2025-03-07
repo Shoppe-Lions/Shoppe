@@ -48,6 +48,10 @@ final class PaymentViewController: UIViewController, AnyPaymentView {
     
     lazy var totalView = TotalView()
     
+    lazy var alertView = CustomAlertView(title: "Done!",
+                                         message: "Your card has been successfully charged",
+                                         buttonText: "Track My Order")
+    
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -87,11 +91,23 @@ final class PaymentViewController: UIViewController, AnyPaymentView {
         
         shippingStandard.button.addTarget(self, action: #selector(didSelectDelivery), for: .touchUpInside)
         shippingExpress.button.addTarget(self, action: #selector(didSelectDelivery), for: .touchUpInside)
+        totalView.button.addTarget(self, action: #selector(showAlert), for: .touchUpInside)
+        alertView.button.addTarget(self, action: #selector(dismissAlert), for: .touchUpInside)
         
     }
     
     @objc func didSelectDelivery() {
         presenter?.viewDidSelectDelivery()
+    }
+    
+    //
+    @objc func showAlert() {
+        alertView.show()
+    }
+    
+    //
+    @objc func dismissAlert() {
+        alertView.dismiss()
     }
 }
 
