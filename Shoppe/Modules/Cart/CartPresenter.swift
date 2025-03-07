@@ -15,6 +15,7 @@ protocol CartPresenterProtocol: AnyObject {
     func decreaseProductQuantity(at index: Int)
     func getQuantity(for productId: Int) -> Int
     func updateCartCount()
+    func updateTotalPrice()
 }
 
 final class CartPresenter: CartPresenterProtocol {
@@ -43,10 +44,12 @@ final class CartPresenter: CartPresenterProtocol {
     
     func increaseProductQuantity(at index: Int) {
         interactor.increaseProductQuantity(at: index)
+        updateTotalPrice()
     }
     
     func decreaseProductQuantity(at index: Int) {
         interactor.decreaseProductQuantity(at: index)
+        updateTotalPrice()
     }
     
     func getQuantity(for productId: Int) -> Int {
@@ -56,5 +59,10 @@ final class CartPresenter: CartPresenterProtocol {
     func updateCartCount() {
         let totalCount = interactor.getTotalProductCount()
         view?.updateCartCount(totalCount)
+    }
+    
+    func updateTotalPrice() {
+        let totalPrice = interactor.calculateTotalPrice()
+        view?.updateTotalPrice(totalPrice)
     }
 }

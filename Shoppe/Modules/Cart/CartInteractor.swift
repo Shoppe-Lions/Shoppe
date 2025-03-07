@@ -14,6 +14,7 @@ protocol CartInteractorProtocol: AnyObject {
     func decreaseProductQuantity(at index: Int)
     func getQuantity(for productId: Int) -> Int
     func getTotalProductCount() -> Int
+    func calculateTotalPrice() -> Double
 }
 
 final class CartInteractor: CartInteractorProtocol {
@@ -60,5 +61,14 @@ final class CartInteractor: CartInteractorProtocol {
     
     func getTotalProductCount() -> Int {
         products.count
+    }
+    
+    func calculateTotalPrice() -> Double {
+        var totalPrice = 0.0
+        for product in products {
+            let quantity = productQuantities[product.id] ?? 0
+            totalPrice += Double(product.price) * Double(quantity)
+        }
+        return totalPrice
     }
 }

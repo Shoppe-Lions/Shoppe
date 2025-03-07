@@ -12,6 +12,7 @@ protocol CartViewProtocol: AnyObject {
     func showCartProducts(_ products: [Product])
     func updateProduct(at index: Int, product: Product, quantity: Int)
     func updateCartCount(_ count: Int)
+    func updateTotalPrice(_ totalPrice: Double)
 }
 
 final class CartViewController: UIViewController {
@@ -120,6 +121,7 @@ final class CartViewController: UIViewController {
         
         presenter?.viewDidLoad()
         presenter?.updateCartCount()
+        presenter?.updateTotalPrice()
         
         setupViews()
         setupConstraints()
@@ -142,6 +144,10 @@ extension CartViewController: CartViewProtocol {
     
     func updateCartCount(_ count: Int) {
         cartCountLabel.text = "\(count)"
+    }
+    
+    func updateTotalPrice(_ totalPrice: Double) {
+        totalPriceLabel.text = String(format: "$%.2f", totalPrice)
     }
 }
 // MARK: - UITableViewDataSource and UITableViewDelegate
