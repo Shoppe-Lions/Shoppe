@@ -21,12 +21,14 @@ final class CartInteractor: CartInteractorProtocol {
     private var productQuantities: [Int: Int] = [:]
     
     var sampleProducts = [
-        Product(id: 1, title: "Lorem ipsum dolor sit amet consectetur", price: 199.99, description: "", category: "", image: "testPhotoImage", rating: Rating(rate: 5, count: 25), subcategory: "test", like: false),
+        Product(id: 1, title: "Lorem ipsum dolor sit amet consectetur", price: 200, description: "", category: "", image: "testPhotoImage", rating: Rating(rate: 5, count: 25), subcategory: "test", like: false),
         Product(id: 232, title: "Lorem ipsum dolor sit amet consectetur", price: 199.99, description: "", category: "", image: "testPhotoImage", rating: Rating(rate: 5, count: 25), subcategory: "test", like: false),
     ]
     
     func fetchCartProducts() {
-        print("Fetching cart products...")
+        sampleProducts.forEach { product in
+            productQuantities[product.id] = 1
+        }
         presenter?.didFetchCartProducts(sampleProducts)
     }
     
