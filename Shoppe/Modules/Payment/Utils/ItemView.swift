@@ -21,7 +21,7 @@ class ItemView: UIView {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = item.description
-        label.font = UIFont(name: "NunitoSans10pt-Regular", size: 12)
+        label.font = UIFont(name: "NunitoSans10pt-Regular", size: PFontSize.small)
         label.textAlignment = .left
         label.numberOfLines = 0
         return label
@@ -31,7 +31,7 @@ class ItemView: UIView {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = String(format: "$%.2f", item.price)
-        label.font = UIFont(name: "Raleway-Bold", size: 20)
+        label.font = UIFont(name: "Raleway-Bold", size: PFontSize.medium)
         label.textAlignment = .right
         return label
     }()
@@ -67,16 +67,16 @@ class ItemView: UIView {
         }
                 
         imageView.snp.makeConstraints { make in
-            make.width.height.equalTo(60)
+            make.width.height.equalTo(PLayout.totalViewHeight)
         }
         
         descriptionLabel.snp.makeConstraints { make in
-            make.width.equalTo(170)
+            make.width.equalTo(PLayout.descriptionLabel)
         }
         
         itemsNumber.snp.makeConstraints { make in
-            make.leading.equalTo(imageView.snp.trailing).offset(-15)
-            make.top.equalTo(imageView.snp.top).offset(3)
+            make.leading.equalTo(imageView.snp.trailing).offset(-PLayout.paddingM)
+            make.top.equalTo(imageView.snp.top).offset(PLayout.paddingXS)
         }
         
         

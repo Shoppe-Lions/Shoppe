@@ -13,7 +13,7 @@ class TotalView: UIView {
     lazy var totalPrice: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = UIFont(name: "Raleway-Bold", size: 20)
+        label.font = UIFont(name: "Raleway-Bold", size: PFontSize.medium)
         label.textAlignment = .left
         return label
     }()
@@ -22,7 +22,7 @@ class TotalView: UIView {
         let button = UIButton()
         button.setTitle("Pay", for: .normal)
         button.setTitleColor(.white, for: .normal)
-        button.titleLabel?.font = UIFont(name: "NunitoSans10pt-Regular", size: 18)
+        button.titleLabel?.font = UIFont(name: "NunitoSans10pt-Regular", size: PFontSize.medium)
         button.backgroundColor = .black
         button.layer.cornerRadius = 10
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -48,14 +48,13 @@ class TotalView: UIView {
     
     func setConstraints() {
         totalPrice.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(20)
+            make.leading.equalToSuperview().offset(PLayout.horizontalPadding)
             make.centerY.equalToSuperview()
         }
         
         button.snp.makeConstraints { make in
-            make.trailing.equalToSuperview().offset(-20)
-            make.height.equalTo(40)
-            make.width.equalTo(125)
+            make.trailing.equalToSuperview().offset(-PLayout.horizontalPadding)
+            make.size.equalTo(PLayout.payButtonSize)
             make.centerY.equalToSuperview()
         }
     }

@@ -28,7 +28,7 @@ class PaymentDetailView: UIView {
         self.layer.cornerRadius = 17
         
         label.text = "Card"
-        label.font = UIFont(name: "Raleway-Bold", size: 15)
+        label.font = UIFont(name: "Raleway-Bold", size: PFontSize.normal)
         label.textColor = .customBlue
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false

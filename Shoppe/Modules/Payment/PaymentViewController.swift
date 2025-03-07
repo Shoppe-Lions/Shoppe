@@ -139,13 +139,13 @@ extension PaymentViewController {
         paragraphStyle.lineHeightMultiple = 1.1
         paragraphStyle.alignment = .center
         titleLabel.attributedText = NSMutableAttributedString(string: "Payment", attributes: [NSAttributedString.Key.kern: -0.28, NSAttributedString.Key.paragraphStyle: paragraphStyle])
-        titleLabel.font = UIFont(name: "Raleway-Bold", size: 28)
+        titleLabel.font = UIFont(name: "Raleway-Bold", size: PFontSize.extraLarge)
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
     }
     
     func setShippingDescription() {
         shippingDescription.translatesAutoresizingMaskIntoConstraints = false
-        shippingDescription.font = UIFont(name: "NunitoSans10pt-Regular", size: 13)
+        shippingDescription.font = UIFont(name: "NunitoSans10pt-Regular", size: PFontSize.small)
         shippingDescription.textAlignment = .left
         shippingDescription.textColor = .black
     }
@@ -153,7 +153,7 @@ extension PaymentViewController {
     func setVaucherButton() {
         voucherButton.setTitle("Add voucher", for: .normal)
         voucherButton.setTitleColor(.customBlue, for: .normal)
-        voucherButton.titleLabel?.font = UIFont(name: "NunitoSans10pt-Regular", size: 15)
+        voucherButton.titleLabel?.font = UIFont(name: "NunitoSans10pt-Regular", size: PFontSize.normal)
             
         voucherButton.layer.borderWidth = 1
         voucherButton.layer.borderColor = UIColor.customBlue.cgColor
@@ -175,76 +175,75 @@ extension PaymentViewController {
         contentView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
             make.width.equalToSuperview()
-            make.bottom.equalTo(shippingStackView.snp.bottom).offset(200)
+            make.bottom.equalTo(shippingStackView.snp.bottom).offset(PLayout.contentBottomOffset)
         }
         
         titleLabel.snp.makeConstraints { make in
             make.top.equalToSuperview()
-            make.leading.equalToSuperview().offset(20)
+            make.leading.equalToSuperview().offset(PLayout.horizontalPadding)
         }
         
         shippingDetails.snp.makeConstraints { make in
-            make.top.equalTo(titleLabel.snp.bottom).offset(10)
-            make.leading.equalToSuperview().offset(20)
-            make.trailing.equalToSuperview().offset(-20)
-            make.height.equalTo(85)
+            make.top.equalTo(titleLabel.snp.bottom).offset(PLayout.paddingM)
+            make.leading.equalToSuperview().offset(PLayout.horizontalPadding)
+            make.trailing.equalToSuperview().offset(-PLayout.horizontalPadding)
+            make.height.equalTo(PLayout.detailsHeight)
         }
         
         deliveryDetails.snp.makeConstraints { make in
-            make.top.equalTo(shippingDetails.snp.bottom).offset(10)
-            make.leading.equalToSuperview().offset(20)
-            make.trailing.equalToSuperview().offset(-20)
-            make.height.equalTo(85)
+            make.top.equalTo(shippingDetails.snp.bottom).offset(PLayout.paddingS)
+            make.leading.equalToSuperview().offset(PLayout.horizontalPadding)
+            make.trailing.equalToSuperview().offset(-PLayout.horizontalPadding)
+            make.height.equalTo(PLayout.detailsHeight)
         }
         
         itemTitle.snp.makeConstraints { make in
-            make.top.equalTo(deliveryDetails.snp.bottom).offset(20)
-            make.leading.equalToSuperview().offset(20)
+            make.top.equalTo(deliveryDetails.snp.bottom).offset(PLayout.horizontalPadding)
+            make.leading.equalToSuperview().offset(PLayout.horizontalPadding)
         }
         
         itemsNumber.snp.makeConstraints { make in
-            make.leading.equalTo(itemTitle.snp.trailing).offset(70)
-            make.top.equalTo(deliveryDetails.snp.bottom).offset(15)
+            make.leading.equalTo(itemTitle.snp.trailing).offset(PLayout.horizontalPadding*3.5)
+            make.top.equalTo(deliveryDetails.snp.bottom).offset(PLayout.paddingM)
         }
         
         itemsStackView.snp.makeConstraints { make in
-            make.top.equalTo(itemTitle.snp.bottom).offset(20)
-            make.leading.equalToSuperview().offset(20)
-            make.trailing.equalToSuperview().offset(-20)
+            make.top.equalTo(itemTitle.snp.bottom).offset(PLayout.horizontalPadding)
+            make.leading.equalToSuperview().offset(PLayout.horizontalPadding)
+            make.trailing.equalToSuperview().offset(-PLayout.horizontalPadding)
         }
         
         voucherButton.snp.makeConstraints { make in
             make.centerY.equalTo(itemTitle.snp.centerY)
-            make.trailing.equalToSuperview().offset(-20)
-            make.width.equalTo(120)
-            make.height.equalTo(35)
+            make.trailing.equalToSuperview().offset(-PLayout.horizontalPadding)
+            make.size.equalTo(PLayout.voucherButtonSize)
         }
         
         shippingStackView.snp.makeConstraints { make in
-            make.top.equalTo(itemsStackView.snp.bottom).offset(30)
-            make.leading.equalToSuperview().offset(20)
-            make.trailing.equalToSuperview().offset(-20)
+            make.top.equalTo(itemsStackView.snp.bottom).offset(PLayout.paddingL)
+            make.leading.equalToSuperview().offset(PLayout.horizontalPadding)
+            make.trailing.equalToSuperview().offset(-PLayout.horizontalPadding)
         }
         
         paymentTitle.snp.makeConstraints { make in
-            make.top.equalTo(shippingStackView.snp.bottom).offset(30)
-            make.leading.equalToSuperview().offset(20)
+            make.top.equalTo(shippingStackView.snp.bottom).offset(PLayout.paddingL)
+            make.leading.equalToSuperview().offset(PLayout.horizontalPadding)
         }
         
         paymentDetail.snp.makeConstraints { make in
-            make.top.equalTo(paymentTitle.snp.bottom).offset(10)
-            make.leading.equalToSuperview().offset(20)
+            make.top.equalTo(paymentTitle.snp.bottom).offset(PLayout.paddingS)
+            make.leading.equalToSuperview().offset(PLayout.horizontalPadding)
         }
         
         paymentEditButton.snp.makeConstraints { make in
-            make.trailing.equalToSuperview().offset(-20)
+            make.trailing.equalToSuperview().offset(-PLayout.horizontalPadding)
             make.centerY.equalTo(paymentTitle.snp.centerY)
         }
         
         totalView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
             make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
-            make.height.equalTo(60)
+            make.height.equalTo(PLayout.totalViewHeight)
         }
     }
 }
