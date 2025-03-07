@@ -25,7 +25,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let wishlistViewController = WishlistRouter.createModule()
         let unknownViewController = ViewController() // Что это за экран??)
         let cartViewController = CartViewController()
-        let profileViewController = ViewController()
+        let profileViewController = ProfileViewController()
         
         tabBarController.viewControllers = [
             homeViewController,
@@ -68,7 +68,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         tabBarController.tabBar.unselectedItemTintColor = .blue
         
-        window?.rootViewController = OnboardingViewController() // сюда вставить свой контроллер OnboardingViewController()
+        window?.rootViewController = profileViewController // сюда вставить свой контроллер OnboardingViewController()
         window?.makeKeyAndVisible()
     }
 
