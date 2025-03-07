@@ -9,6 +9,8 @@ import UIKit
 
 class OnboardingViewController: UIViewController {
     
+    var didFinishOnboarding: (() -> Void)?
+    
     // создаем листалку
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -107,6 +109,7 @@ class OnboardingViewController: UIViewController {
     }
     @objc func startButtonTapped() {
         print("Кнопка 'Начать' нажата!")
+        didFinishOnboarding?()
     }
     
 }
