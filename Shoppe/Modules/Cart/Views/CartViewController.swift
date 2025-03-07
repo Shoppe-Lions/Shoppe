@@ -8,8 +8,15 @@
 import UIKit
 import SnapKit
 
+protocol CartViewProtocol: AnyObject {
+    func showCartProducts(_ products: [Product])
+}
+
 final class CartViewController: UIViewController {
     
+    var presenter: CartPresenterProtocol?
+    
+    private var products: [Product] = []
     // MARK: - UI
     private lazy var topStackView: UIStackView = {
         let element = UIStackView()
@@ -108,17 +115,26 @@ final class CartViewController: UIViewController {
     // MARK: - Life Circle
     override func viewDidLoad() {
         super.viewDidLoad()
+        presenter?.viewDidLoad()
         
         setupViews()
         setupConstraints()
     }
 }
 
+// MARK: - CartViewProtocol
+extension CartViewController: CartViewProtocol {
+    func showCartProducts(_ products: [Product]) {
+        self.products = products
+        print("Reloading table view with \(products.count) products")
+        cartTableView.reloadData()
+    }
+}
 // MARK: - UITableViewDataSource and UITableViewDelegate
 
 extension CartViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        10
+        products.count + 1
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -130,6 +146,10 @@ extension CartViewController: UITableViewDataSource, UITableViewDelegate {
             return cell
         } else {
             let cell = tableView.dequeueReusableCell(withIdentifier: "CartTableViewCell", for: indexPath) as! CartTableViewCell
+            
+            let product = products[indexPath.row - 1]
+            
+            cell.configure(with: product)
             cell.selectionStyle = .none
             return cell
         }

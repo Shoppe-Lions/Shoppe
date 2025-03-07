@@ -112,6 +112,11 @@ final class CartTableViewCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
+    func configure(with product: Product) {
+        cellImageView.image = UIImage(named: product.image)
+        nameProductLabel.text = product.title
+        priceLabel.text = "$\(product.price)"
+    }
 }
 
 private extension CartTableViewCell {
