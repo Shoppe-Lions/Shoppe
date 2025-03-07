@@ -32,7 +32,7 @@ class ShippingDetailView: UIView {
         return label
     }()
     
-    lazy var durationLabel: UIView = {
+    lazy var durationContainer: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = .customGray
@@ -41,7 +41,7 @@ class ShippingDetailView: UIView {
         return view
     }()
     
-    lazy var durationLabeltext: UILabel = {
+    lazy var durationLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = type == .standard ? "5-7 days" : "1-2 days"
@@ -76,8 +76,8 @@ class ShippingDetailView: UIView {
         self.layer.cornerRadius = 12
         addSubview(button)
         addSubview(typeLabel)
-        addSubview(durationLabel)
-        durationLabel.addSubview(durationLabeltext)
+        addSubview(durationContainer)
+        durationContainer.addSubview(durationLabel)
         addSubview(priceLabel)
     }
         
@@ -93,13 +93,13 @@ class ShippingDetailView: UIView {
             make.leading.equalTo(button.snp.trailing).offset(PLayout.paddingS)
         }
         
-        durationLabel.snp.makeConstraints { make in
+        durationContainer.snp.makeConstraints { make in
             make.leading.equalTo(typeLabel.snp.trailing).offset(PLayout.horizontalPadding)
             make.centerY.equalToSuperview()
             make.size.equalTo(PLayout.deliveryDurationSize)
         }
         
-        durationLabeltext.snp.makeConstraints { make in
+        durationLabel.snp.makeConstraints { make in
             make.centerY.equalToSuperview()
             make.centerX.equalToSuperview()
         }

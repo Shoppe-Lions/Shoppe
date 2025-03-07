@@ -92,7 +92,7 @@ class DetailsView: UIView {
         
         addressLabel.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(PLayout.paddingM)
-            make.trailing.equalToSuperview().offset(-100)
+            make.trailing.equalToSuperview().offset(-PLayout.horizontalPadding*5)
             make.top.equalTo(titleLabel.snp.bottom).offset(PLayout.paddingXS)
         }
         
