@@ -20,6 +20,7 @@ enum PLayout {
     static let descriptionLabel: CGFloat = 170
     static let voucherButtonSize = CGSize(width: 130, height: 35)
     static let payButtonSize = CGSize(width: 125, height: 40)
+    static let deliveryDurationSize = CGSize(width: 80, height: 30)
 }
 
 // MARK: - Font Constants

@@ -23,7 +23,7 @@ class ShippingDetailView: UIView {
         return button
     }()
     
-    lazy var typeLabel: UILabel = {
+    lazy var typeLabel: UIView = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = type == .standard ? "Standard" : "Express"
@@ -32,7 +32,16 @@ class ShippingDetailView: UIView {
         return label
     }()
     
-    lazy var durationLabel: UILabel = {
+    lazy var durationLabel: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = .customGray
+        view.layer.cornerRadius = 8
+        view.layer.masksToBounds = true
+        return view
+    }()
+    
+    lazy var durationLabeltext: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = type == .standard ? "5-7 days" : "1-2 days"
@@ -68,6 +77,7 @@ class ShippingDetailView: UIView {
         addSubview(button)
         addSubview(typeLabel)
         addSubview(durationLabel)
+        durationLabel.addSubview(durationLabeltext)
         addSubview(priceLabel)
     }
         
@@ -79,15 +89,19 @@ class ShippingDetailView: UIView {
         }
         
         typeLabel.snp.makeConstraints { make in
-            make.top.equalToSuperview()
+            make.centerY.equalToSuperview()
             make.leading.equalTo(button.snp.trailing).offset(PLayout.paddingS)
-            make.centerY.equalTo(button)
         }
         
         durationLabel.snp.makeConstraints { make in
-            make.top.equalToSuperview()
             make.leading.equalTo(typeLabel.snp.trailing).offset(PLayout.horizontalPadding)
-            make.centerY.equalTo(button)
+            make.centerY.equalToSuperview()
+            make.size.equalTo(PLayout.deliveryDurationSize)
+        }
+        
+        durationLabeltext.snp.makeConstraints { make in
+            make.centerY.equalToSuperview()
+            make.centerX.equalToSuperview()
         }
         
         priceLabel.snp.makeConstraints { make in
