@@ -11,6 +11,7 @@ import SnapKit
 protocol CartViewProtocol: AnyObject {
     func showCartProducts(_ products: [Product])
     func updateProduct(at index: Int, product: Product, quantity: Int)
+    func updateCartCount(_ count: Int)
 }
 
 final class CartViewController: UIViewController {
@@ -116,7 +117,9 @@ final class CartViewController: UIViewController {
     // MARK: - Life Circle
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         presenter?.viewDidLoad()
+        presenter?.updateCartCount()
         
         setupViews()
         setupConstraints()
@@ -135,6 +138,10 @@ extension CartViewController: CartViewProtocol {
         if let cell = cartTableView.cellForRow(at: IndexPath(row: index + 1, section: 0)) as? CartTableViewCell {
             cell.updateQuantity(quantity)
         }
+    }
+    
+    func updateCartCount(_ count: Int) {
+        cartCountLabel.text = "\(count)"
     }
 }
 // MARK: - UITableViewDataSource and UITableViewDelegate
