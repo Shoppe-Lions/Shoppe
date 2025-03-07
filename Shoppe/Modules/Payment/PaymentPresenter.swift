@@ -7,6 +7,7 @@
 
 
 import Foundation
+import UIKit
 
 protocol AnyPaymentPresenter: AnyObject {
     var view: AnyPaymentView? { get set }
@@ -15,6 +16,8 @@ protocol AnyPaymentPresenter: AnyObject {
     func interactorDidFetchBasketItems(with result:[Product])
     func viewDidLoad()
     func viewDidSelectDelivery()
+    func viewDidShowAlert()
+    func viewDidDismissAlert()
 }
 
 final class PaymentPresenter: AnyPaymentPresenter {
@@ -41,7 +44,16 @@ final class PaymentPresenter: AnyPaymentPresenter {
     func viewDidSelectDelivery() {
         toggleShippingType()
         getViewUpdateTotalPriceAndDelivery()
-        
+    }
+    
+    func viewDidShowAlert() {
+        view?.showAlert()
+    }
+    
+    func viewDidDismissAlert() {
+        view?.dismissAlert()
+        guard let viewController = view as? UIViewController else { return }
+        router?.navigateToCart(from: viewController)
     }
 }
 
