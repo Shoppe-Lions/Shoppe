@@ -7,7 +7,9 @@
 import Foundation
 
 protocol ProductPresenterProtocol: AnyObject {
-    func viewDidLoad()
+    func viewDidLoad(id: Int)
+    func toggleLike(id: Int)
+    func setLike(by like: Bool)
 }
 
 class ProductPresenter: ProductPresenterProtocol {
@@ -23,12 +25,13 @@ class ProductPresenter: ProductPresenterProtocol {
         self.router = router
     }
     
-    func viewDidLoad() {
+    func viewDidLoad(id: Int) {
         interactor.loadProducts { products in
             self.products = products
         }
         
-        interactor.fetchProduct { product in
+        interactor.fetchProduct(id: id) { product in
+            // Хочу удалить гвард
             guard let product = product else {
                 self.view?.showError("Ошибка загрузки товара")
                 return
@@ -41,5 +44,13 @@ class ProductPresenter: ProductPresenterProtocol {
                 self.view?.showSubcategoryes(count: count - 1)
             }
         }
+    }
+    
+    func toggleLike(id: Int) {
+        interactor.toggleLike(id: id)
+    }
+    
+    func setLike(by like: Bool) {
+        view?.setLike(by: like)
     }
 }

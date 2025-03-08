@@ -12,13 +12,14 @@ protocol ProductViewProtocol: AnyObject {
     func showProduct(_ product: Product)
     func showError(_ message: String)
     func showSubcategoryes(count: Int)
+    func setLike(by like: Bool)
 }
 
 final class ProductViewController: UIViewController, ProductViewProtocol {
     
     var presenter: ProductPresenterProtocol!
     var spasingElements: CGFloat = 20
-    var product: Product?
+    var id = 1
     
     // MARK: - UI Elements
     
@@ -136,6 +137,7 @@ final class ProductViewController: UIViewController, ProductViewProtocol {
         element.layer.cornerRadius = 11
         element.backgroundColor = .customLightGray
         element.setImage(UIImage(named: "wishlist_off"), for: .normal)
+        element.addTarget(self, action: #selector(likeButtonPressed), for: .touchUpInside)
         return element
     }()
     
@@ -160,15 +162,28 @@ final class ProductViewController: UIViewController, ProductViewProtocol {
         return element
     }()
     
-    @objc func test() {
-        print(product?.localImagePath)
+    @objc private func likeButtonPressed(_ sender: UIButton) {
+        print("Tap like")
+        presenter.toggleLike(id: id)
     }
+    
+    func setLike(by like: Bool) {
+        if like {
+            likeImageView.image = UIImage(named: "wishlist_on")
+            likeButton.setImage(UIImage(named: "wishlist_on"), for: .normal)
+        } else {
+            likeImageView.image = UIImage(named: "wishlist_off")
+            likeButton.setImage(UIImage(named: "wishlist_off"), for: .normal)
+        }
+    }
+    
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
         setViews()
         setupConstraints()
-        presenter.viewDidLoad()
+        presenter.viewDidLoad(id: id)
     }
     
     func showProduct(_ product: Product) {
@@ -176,10 +191,7 @@ final class ProductViewController: UIViewController, ProductViewProtocol {
         productImageView.image = UIImage(contentsOfFile: product.localImagePath)
         nameProductLabel.text = product.title
         priceLabel.text = "$\(product.price)"
-        if product.like {
-            likeImageView.image = UIImage(named: "wishlist_on")
-            likeButton.setImage(UIImage(named: "wishlist_on"), for: .normal)
-        }
+        setLike(by: product.like)
         descriptionLabel.text = product.description
         subcategoryLabel.text = product.subcategory
         print(product)

@@ -6,8 +6,9 @@
 //
 
 protocol ProductInteractorProtocol: AnyObject {
-    func fetchProduct(completion: @escaping (Product?) -> Void)
+    func fetchProduct(id: Int, completion: @escaping (Product?) -> Void)
     func loadProducts(completion: @escaping ([Product]?) -> Void)
+    func toggleLike(id: Int)
 }
 
 final class ProductInteractor: ProductInteractorProtocol {
@@ -15,8 +16,8 @@ final class ProductInteractor: ProductInteractorProtocol {
     
     private let apiService = APIService()
     
-    func fetchProduct(completion: @escaping (Product?) -> Void) {
-        apiService.fetchProduct(by: 2) { result in
+    func fetchProduct(id: Int, completion: @escaping (Product?) -> Void) {
+        apiService.fetchProduct(by: id) { result in
             switch result {
             case .success(let product):
                 completion(product)
@@ -33,6 +34,18 @@ final class ProductInteractor: ProductInteractorProtocol {
                 completion(products)
             case .failure:
                 completion(nil)
+            }
+        }
+    }
+    
+    func toggleLike(id: Int) {
+        apiService.fetchProduct(by: id) { result in
+            switch result {
+            case .success(let product):
+                self.apiService.toggleLike(for: product)
+                self.presenter?.setLike(by: product.like)
+            case .failure:
+                print("Не удалось загрузить продукт для изменения лайка")
             }
         }
     }
