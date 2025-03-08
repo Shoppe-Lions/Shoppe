@@ -9,47 +9,82 @@ import Foundation
 
 final class APIService {
     private let baseURL = "https://fakestoreapi.com/products"
-
+    private let defaults = UserDefaults.standard
+    private let likeKey = "likedProducts"
+    private let productsKey = "cachedProducts"
+    
+    var cachedProducts: [Product] = []
+    
+    init() {
+        loadCachedProducts()
+    }
+    
+    private func loadCachedProducts() {
+        if let data = defaults.data(forKey: productsKey),
+           let products = try? JSONDecoder().decode([Product].self, from: data) {
+            cachedProducts = products
+        }
+    }
+    
+    private func saveProductsToCache(_ products: [Product]) {
+        if let data = try? JSONEncoder().encode(products) {
+            defaults.set(data, forKey: productsKey)
+        }
+    }
+    
     func fetchProducts(completion: @escaping (Result<[Product], NetworkError>) -> Void) {
-            NetworkManager.shared.fetchData(from: baseURL) { (result: Result<[Product], NetworkError>) in
-                switch result {
-                case .success(var products):
-                    
-                    for (index, _) in products.enumerated() {
-                        switch index {
-                        case 0:
-                            products[index].subcategory = "Backpacks"
-                        case 1...3:
-                            products[index].subcategory = "Clothing"
-                        case 4, 7:
-                            products[index].subcategory = "Cheap"
-                        case 5...6:
-                            products[index].subcategory = "Expensive"
-                        case 8...11:
-                            products[index].subcategory = "Hard Drives"
-                        case 12...13:
-                            products[index].subcategory = "Monitors"
-                        case 14...16:
-                            products[index].subcategory = "Warm Clothing"
-                        case 17...19:
-                            products[index].subcategory = "Light Clothing"
-                        default:
-                            products[index].subcategory = nil
-                        }
-                    }
-                    
-                    for index in products.indices {
-                        products[index].like = false
-                    }
-                    completion(.success(products))
-                case .failure(let error):
-                    completion(.failure(error))
-                }
+//        UserDefaults.standard.removePersistentDomain(forName: Bundle.main.bundleIdentifier!)
+        if !cachedProducts.isEmpty {
+            print("Returning cached products")
+            completion(.success(cachedProducts))
+            return
+        }
+        
+        print("Fetching products from network...")
+        NetworkManager.shared.fetchData(from: baseURL) { (result: Result<[Product], NetworkError>) in
+            switch result {
+            case .success(let products):
+                self.cachedProducts = products
+                self.saveProductsToCache(products)
+                
+                completion(.success(products))
+            case .failure(let error):
+                completion(.failure(error))
             }
         }
-
+    }
+    
     func fetchProduct(by id: Int, completion: @escaping (Result<Product, NetworkError>) -> Void) {
+        if let cachedProduct = cachedProducts.first(where: { $0.id == id }) {
+            print("Returning cached product")
+            completion(.success(cachedProduct))
+            return
+        }
+        
         let url = "\(baseURL)/\(id)"
-        NetworkManager.shared.fetchData(from: url, completion: completion)
+        print("Fetching product from network...")
+        
+        NetworkManager.shared.fetchData(from: url) { (result: Result<Product, NetworkError>) in
+            switch result {
+            case .success(var product):
+                let likedProducts = self.defaults.object(forKey: self.likeKey) as? [Int] ?? []
+                product.like = likedProducts.contains(product.id)
+
+                completion(.success(product))
+
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+    
+    func toggleLike(for product: Product) {
+        var updatedProduct = product
+        updatedProduct.toggleLike()
+        
+        if let index = cachedProducts.firstIndex(where: { $0.id == updatedProduct.id }) {
+            cachedProducts[index] = updatedProduct
+            saveProductsToCache(cachedProducts)
+        }
     }
 }
