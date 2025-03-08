@@ -65,6 +65,7 @@ class ProductCell: UICollectionViewCell {
         button.backgroundColor = .customBlue
         button.layer.cornerRadius = 4
         button.translatesAutoresizingMaskIntoConstraints = false
+        button.isHidden = true
         return button
     }()
 
@@ -73,6 +74,7 @@ class ProductCell: UICollectionViewCell {
         button.setImage(UIImage(named: "wishlist_on"), for: .normal)
         button.backgroundColor = .white
         button.translatesAutoresizingMaskIntoConstraints = false
+        button.isHidden = true
         return button
     }()
     
@@ -94,20 +96,38 @@ class ProductCell: UICollectionViewCell {
         contentView.addSubview(addToCartButton)
         contentView.addSubview(wishlistButton)
         
-        setupConstraints()
     }
     
-    private func setupConstraints() {
-        photoContainerView.snp.makeConstraints { make in
-            make.top.equalToSuperview().inset(15)
-            make.centerX.equalToSuperview()
-            make.height.equalTo(181)
-            make.width.equalTo(165)
-        }
+    private func setupConstraints(isPopular: Bool) {
+        
+        if isPopular {
+                  // Констрейнты для popular секции
+                  photoContainerView.snp.remakeConstraints { make in
+                      make.top.equalToSuperview()
+                      make.centerX.equalToSuperview()
+                      make.width.height.equalTo(140)
+                  }
+                  
+            photoImageView.snp.remakeConstraints { make in
+                      make.center.equalToSuperview()
+                      make.width.height.equalTo(130)
+                  }
+              } else {
+                  // Стандартные констрейнты
+                  photoContainerView.snp.remakeConstraints { make in
+                      make.top.leading.trailing.equalToSuperview()
+                      make.height.equalTo(photoContainerView.snp.width)
+                  }
+                  
+                  photoImageView.snp.remakeConstraints { make in
+                      make.center.equalToSuperview()
+                      make.width.height.equalToSuperview().multipliedBy(0.9)
+                  }
+              }
+        
+        
+        
 
-        photoImageView.snp.makeConstraints { make in
-            make.edges.equalToSuperview().inset(5) 
-        }
         
         nameLabel.snp.makeConstraints { make in
             make.top.equalTo(photoContainerView.snp.bottom).offset(8)
@@ -139,9 +159,19 @@ class ProductCell: UICollectionViewCell {
     
     // MARK: Configure
     // Метод для обновления данных в ячейке
-    func configure(with product: Product) {
+    func configure(with product: Product, isPopularSection: Bool = false){
         photoImageView.image = UIImage(named: product.imageURL)
         nameLabel.text = product.title
         priceLabel.text = "$\(product.price)" //todo: в идеале форматирование строки с ценой должно быть во viewModel
-    }
+        
+        
+        addToCartButton.isHidden = isPopularSection
+        wishlistButton.isHidden = isPopularSection
+        
+        
+        setupConstraints(isPopular: isPopularSection)
+
+    
+        }
+    
 }
