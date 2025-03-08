@@ -10,6 +10,7 @@ protocol ProductPresenterProtocol: AnyObject {
     func viewDidLoad(id: Int)
     func toggleLike(id: Int)
     func setLike(by like: Bool)
+    func buyNow(by id: Int)
 }
 
 class ProductPresenter: ProductPresenterProtocol {
@@ -52,5 +53,9 @@ class ProductPresenter: ProductPresenterProtocol {
     
     func setLike(by like: Bool) {
         view?.setLike(by: like)
+    }
+    
+    func buyNow(by id: Int) {
+        router.goToBuyNow(by: id)
     }
 }

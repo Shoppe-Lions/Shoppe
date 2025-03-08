@@ -11,6 +11,7 @@ import SnapKit
 protocol ProductViewProtocol: AnyObject {
     func showProduct(_ product: Product)
     func showError(_ message: String)
+    func showImage(_ image: UIImage?)
     func showSubcategoryes(count: Int)
     func setLike(by like: Bool)
 }
@@ -158,14 +159,22 @@ final class ProductViewController: UIViewController, ProductViewProtocol {
         element.backgroundColor = .blue
         element.tintColor = .white
         element.layer.cornerRadius = 11
-        element.addTarget(self, action: #selector(test), for: .touchUpInside)
+        element.addTarget(self, action: #selector(buyNowButtonTapped), for: .touchUpInside)
         return element
     }()
     
-    @objc private func likeButtonPressed(_ sender: UIButton) {
-        print("Tap like")
+    @objc private func likeButtonPressed() {
         presenter.toggleLike(id: id)
     }
+    
+    @objc private func buyNowButtonTapped() {
+        presenter.buyNow(by: id)
+    }
+    
+    @objc private func backButtonTapped() {
+        dismiss(animated: true, completion: nil)
+    }
+
     
     func setLike(by like: Bool) {
         if like {
@@ -181,20 +190,25 @@ final class ProductViewController: UIViewController, ProductViewProtocol {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        navigationController?.setNavigationBarHidden(false, animated: true)
+        let backButton = UIBarButtonItem(title: "Back", style: .plain, target: self, action: #selector(backButtonTapped))
+        navigationItem.leftBarButtonItem = backButton
         setViews()
         setupConstraints()
         presenter.viewDidLoad(id: id)
     }
     
     func showProduct(_ product: Product) {
-        self.product = product
-        productImageView.image = UIImage(contentsOfFile: product.localImagePath)
         nameProductLabel.text = product.title
         priceLabel.text = "$\(product.price)"
         setLike(by: product.like)
         descriptionLabel.text = product.description
         subcategoryLabel.text = product.subcategory
         print(product)
+    }
+    
+    func showImage(_ image: UIImage?) {
+        productImageView.image = image
     }
     
     func showSubcategoryes(count: Int) {

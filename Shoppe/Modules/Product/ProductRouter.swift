@@ -8,6 +8,7 @@ import UIKit
 
 protocol ProductRouterProtocol: AnyObject {
     static func createModule() -> UIViewController
+    func goToBuyNow(by id: Int)
 }
 
 class ProductRouter: ProductRouterProtocol {
@@ -21,5 +22,9 @@ class ProductRouter: ProductRouterProtocol {
         interactor.presenter = presenter
 
         return view
+    }
+    
+    func goToBuyNow(by id: Int) {
+        
     }
 }
