@@ -12,7 +12,7 @@ import SnapKit
 class ItemView: UIView {
     let item: Product
         
-    lazy var imageView = ShadowImageView(imageName: item.image)
+    lazy var imageView = ShadowImageView(imageName: item.imageURL)
     
     lazy var itemsNumber = CountCircleView(size: 12, radius: 9)
 
