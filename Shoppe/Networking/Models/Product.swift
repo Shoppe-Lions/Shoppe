@@ -18,10 +18,11 @@ struct Product: Codable {
     let price: Double
     let description: String
     let category: String
-    let image: String
+    let imageURL: String
     let rating: Rating
     var subcategory: String
     var like: Bool
+    var localImagePath: String
     
     enum CodingKeys: String, CodingKey {
         case id
@@ -29,22 +30,24 @@ struct Product: Codable {
         case price
         case description
         case category
-        case image
+        case imageURL = "image"
         case rating
         case subcategory
         case like
+        case localImagePath
     }
     
-    init(id: Int, title: String, price: Double, description: String, category: String, image: String, rating: Rating, subcategory: String = "Other", like: Bool = false) {
+    init(id: Int, title: String, price: Double, description: String, category: String, imageURL: String, rating: Rating, subcategory: String = "Other", like: Bool = false, localImagePath: String = "Path") {
         self.id = id
         self.title = title
         self.price = price
         self.description = description
         self.category = category
-        self.image = image
+        self.imageURL = imageURL
         self.rating = rating
         self.subcategory = subcategory
         self.like = like
+        self.localImagePath = localImagePath
     }
     
     init(from decoder: Decoder) throws {
@@ -55,11 +58,12 @@ struct Product: Codable {
         self.price = try container.decode(Double.self, forKey: .price)
         self.description = try container.decode(String.self, forKey: .description)
         self.category = try container.decode(String.self, forKey: .category)
-        self.image = try container.decode(String.self, forKey: .image)
+        self.imageURL = try container.decode(String.self, forKey: .imageURL)
         self.rating = try container.decode(Rating.self, forKey: .rating)
         
         self.subcategory = "Other"
         self.like = false
+        self.localImagePath = "Path"
         
         subcategory = getSubcategory(for: id)
         like = self.isLiked()

@@ -160,7 +160,7 @@ class ProductCell: UICollectionViewCell {
     // MARK: Configure
     // Метод для обновления данных в ячейке
     func configure(with product: Product, isPopularSection: Bool = false){
-        photoImageView.image = UIImage(named: product.image)
+        photoImageView.image = UIImage(named: product.imageURL)
         nameLabel.text = product.title
         priceLabel.text = "$\(product.price)" //todo: в идеале форматирование строки с ценой должно быть во viewModel
         
