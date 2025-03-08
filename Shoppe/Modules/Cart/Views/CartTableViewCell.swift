@@ -13,7 +13,6 @@ final class CartTableViewCell: UITableViewCell {
     private var product: Product?
     private var index: Int?
     weak var presenter: CartPresenterProtocol?
-    
     // MARK: - UI
     private lazy var cellStackView: UIStackView = {
         let element = UIStackView()
@@ -28,7 +27,7 @@ final class CartTableViewCell: UITableViewCell {
         return element
     }()
     
-    private lazy var deleteProductImageView: UIButton = {
+    private(set) lazy var deleteProductButton: UIButton = {
         let element = UIButton(type: .custom)
         element.setImage(UIImage(named: "DeleteProduct"), for: .normal)
         return element
@@ -138,6 +137,7 @@ final class CartTableViewCell: UITableViewCell {
         priceLabel.text = String(format: "$%.2f", totalPrice)
     }
     
+    // MARK: - Action
     @objc private func increaseQuantity() {
         guard let index else { return }
         presenter?.increaseProductQuantity(at: index)
@@ -168,7 +168,8 @@ private extension CartTableViewCell {
         counterStackView.addArrangedSubview(counterLabel)
         counterStackView.addArrangedSubview(moreButton)
         
-        cellImageView.addSubview(deleteProductImageView)
+        cellImageView.addSubview(deleteProductButton)
+        
     }
     
     func setupConstraints() {
@@ -182,7 +183,7 @@ private extension CartTableViewCell {
             make.height.equalTo(101)
         }
         
-        deleteProductImageView.snp.makeConstraints { make in
+        deleteProductButton.snp.makeConstraints { make in
             make.bottom.equalTo(cellImageView.snp.bottom).inset(6)
             make.leading.equalTo(cellImageView.snp.leading).inset(6)
         }

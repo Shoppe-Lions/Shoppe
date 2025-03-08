@@ -9,10 +9,13 @@ import UIKit
 
 protocol CartRouterProtocol {
     static func createModule() -> UIViewController
-    
+    func showPaymentViewController()
 }
 
 final class CartRouter: CartRouterProtocol {
+    
+    weak var view: UIViewController?
+    
     static func createModule() -> UIViewController {
         let view = CartViewController()
         let router = CartRouter()
@@ -21,7 +24,14 @@ final class CartRouter: CartRouterProtocol {
 
         view.presenter = presenter
         interactor.presenter = presenter
-
+        router.view = view
+        
         return view
+    }
+    
+    func showPaymentViewController() {
+        let paymentVC = PaymentRouter.createModule()
+        
+        view?.navigationController?.pushViewController(paymentVC, animated: true)
     }
 }

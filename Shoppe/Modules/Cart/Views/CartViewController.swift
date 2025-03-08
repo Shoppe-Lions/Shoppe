@@ -20,6 +20,8 @@ final class CartViewController: UIViewController {
     var presenter: CartPresenterProtocol?
     
     private var products: [Product] = []
+    
+
     // MARK: - UI
     private lazy var topStackView: UIStackView = {
         let element = UIStackView()
@@ -106,6 +108,7 @@ final class CartViewController: UIViewController {
             name: Fonts.NunitoSans.light,
             size: 16
         )
+        element.addTarget(self, action: #selector(showPaymentScreen), for: .touchUpInside)
         element.layer.cornerRadius = 11
         return element
     }()
@@ -125,6 +128,12 @@ final class CartViewController: UIViewController {
         
         setupViews()
         setupConstraints()
+    }
+    
+    // MARK: - Action
+    
+    @objc func showPaymentScreen() {
+        presenter?.didTapCheckoutButton()
     }
 }
 
@@ -150,6 +159,8 @@ extension CartViewController: CartViewProtocol {
         totalPriceLabel.text = String(format: "$%.2f", totalPrice)
     }
 }
+
+
 // MARK: - UITableViewDataSource and UITableViewDelegate
 
 extension CartViewController: UITableViewDataSource, UITableViewDelegate {
@@ -204,6 +215,7 @@ private extension CartViewController {
         totalPriceStackView.addArrangedSubview(spacerView)
         
         bottomStackView.addArrangedSubview(checkoutButton)
+        
     }
     
     func setupConstraints() {

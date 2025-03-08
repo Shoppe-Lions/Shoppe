@@ -16,6 +16,7 @@ protocol CartPresenterProtocol: AnyObject {
     func getQuantity(for productId: Int) -> Int
     func updateCartCount()
     func updateTotalPrice()
+    func didTapCheckoutButton()
 }
 
 final class CartPresenter: CartPresenterProtocol {
@@ -64,5 +65,9 @@ final class CartPresenter: CartPresenterProtocol {
     func updateTotalPrice() {
         let totalPrice = interactor.calculateTotalPrice()
         view?.updateTotalPrice(totalPrice)
+    }
+    
+    func didTapCheckoutButton() {
+        router.showPaymentViewController()
     }
 }
