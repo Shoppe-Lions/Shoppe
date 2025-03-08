@@ -20,7 +20,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         let tabBarController = UITabBarController()
         
-        let homeViewController = ViewController()
+        let homeViewController = HomeViewController()
         let wishlistViewController = WishlistViewController()
         let unknownViewController = ViewController() // Что это за экран??)
         let cartViewController = CartViewController()
