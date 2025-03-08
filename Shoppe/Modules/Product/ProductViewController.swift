@@ -251,13 +251,12 @@ private extension ProductViewController {
     func setupConstraints() {
         
         scrollView.snp.makeConstraints { make in
-            make.top.leading.trailing.equalTo(view.safeAreaLayoutGuide)
+            make.top.leading.trailing.equalTo(view.safeAreaLayoutGuide).inset(spasingElements)
             make.bottom.equalTo(buttonStackView.snp.top).offset(-spasingElements)
         }
         
         mainStackView.snp.makeConstraints { make in
             make.top.bottom.equalTo(scrollView).inset(spasingElements)
-            make.leading.trailing.equalTo(view).inset(spasingElements)
             make.width.equalTo(scrollView)
         }
         
