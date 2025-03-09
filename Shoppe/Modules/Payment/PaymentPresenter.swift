@@ -7,6 +7,7 @@
 
 
 import Foundation
+import UIKit
 
 protocol AnyPaymentPresenter: AnyObject {
     var view: AnyPaymentView? { get set }
@@ -15,9 +16,18 @@ protocol AnyPaymentPresenter: AnyObject {
     func interactorDidFetchBasketItems(with result:[Product])
     func viewDidLoad()
     func viewDidSelectDelivery()
+    func viewDidShowAlert()
+    func viewDidDismissAlert()
+    func viewDidShowEditAddressAlert()
+    func viewDidDismissEditAddressAlert()
+    func viewDidShowEditContactsAlert()
+    func viewDidDismissEditContactsAlert()
+    func viewDidShowVoucherAlert()
+    func viewDidDismissVoucherAlert()
 }
 
 final class PaymentPresenter: AnyPaymentPresenter {
+    
     weak var view: AnyPaymentView?
     var router: AnyPaymentRouter?
     var interactor: AnyPaymentIntercator?
@@ -41,7 +51,40 @@ final class PaymentPresenter: AnyPaymentPresenter {
     func viewDidSelectDelivery() {
         toggleShippingType()
         getViewUpdateTotalPriceAndDelivery()
-        
+    }
+    
+    func viewDidShowAlert() {
+        view?.showAlert()
+    }
+    
+    func viewDidDismissAlert() {
+        view?.dismissAlert()
+        guard let viewController = view as? UIViewController else { return }
+        router?.navigateToCart(from: viewController)
+    }
+    
+    func viewDidShowEditAddressAlert() {
+        view?.showEditAddressAlert()
+    }
+    
+    func viewDidDismissEditAddressAlert() {
+        view?.dismissEditAddressAlert()
+    }
+    
+    func viewDidShowEditContactsAlert() {
+        view?.showEditContactsAlert()
+    }
+    
+    func viewDidDismissEditContactsAlert() {
+        view?.dismissEditContactsAlert()
+    }
+    
+    func viewDidShowVoucherAlert() {
+        view?.showVoucherAlert()
+    }
+    
+    func viewDidDismissVoucherAlert() {
+        view?.dismissVoucherAlert()
     }
 }
 

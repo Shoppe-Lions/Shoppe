@@ -11,7 +11,6 @@ import SnapKit
 protocol ProductViewProtocol: AnyObject {
     func showProduct(_ product: Product)
     func showError(_ message: String)
-    func showImage(_ image: UIImage?)
     func showSubcategoryes(count: Int)
 }
 
@@ -19,6 +18,7 @@ final class ProductViewController: UIViewController, ProductViewProtocol {
     
     var presenter: ProductPresenterProtocol!
     var spasingElements: CGFloat = 20
+    var product: Product?
     
     // MARK: - UI Elements
     
@@ -156,8 +156,13 @@ final class ProductViewController: UIViewController, ProductViewProtocol {
         element.backgroundColor = .blue
         element.tintColor = .white
         element.layer.cornerRadius = 11
+        element.addTarget(self, action: #selector(test), for: .touchUpInside)
         return element
     }()
+    
+    @objc func test() {
+        print(product?.localImagePath)
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -167,6 +172,8 @@ final class ProductViewController: UIViewController, ProductViewProtocol {
     }
     
     func showProduct(_ product: Product) {
+        self.product = product
+        productImageView.image = UIImage(contentsOfFile: product.localImagePath)
         nameProductLabel.text = product.title
         priceLabel.text = "$\(product.price)"
         if product.like {
@@ -176,10 +183,6 @@ final class ProductViewController: UIViewController, ProductViewProtocol {
         descriptionLabel.text = product.description
         subcategoryLabel.text = product.subcategory
         print(product)
-    }
-    
-    func showImage(_ image: UIImage?) {
-        productImageView.image = image
     }
     
     func showSubcategoryes(count: Int) {
