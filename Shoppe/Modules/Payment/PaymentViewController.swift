@@ -14,6 +14,14 @@ protocol AnyPaymentView: AnyObject {
     func setupItems(with items:[Product])
     func updateTotalPrice(with total: Double)
     func updateDeliveryDate(date: String)
+    func showAlert()
+    func dismissAlert()
+    func showEditAddressAlert()
+    func dismissEditAddressAlert()
+    func showEditContactsAlert()
+    func dismissEditContactsAlert()
+    func showVoucherAlert()
+    func dismissVoucherAlert()
 }
 
 final class PaymentViewController: UIViewController, AnyPaymentView {
@@ -52,6 +60,12 @@ final class PaymentViewController: UIViewController, AnyPaymentView {
                                          message: "Your card has been successfully charged",
                                          buttonText: "Track My Order")
     
+    lazy var editAddressView = TextFieldAlertView(title: "Change address", message: "Your shipping address", buttonText: "Change")
+    
+    lazy var editContactsView = TextFieldAlertView(title: "Change contacts", message: "Your contact information", buttonText: "Change")
+    
+    lazy var addVoucherView = TextFieldAlertView(title: "Add Voucher", message: "Your voucher details", buttonText: "Apply")
+    
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -68,6 +82,8 @@ final class PaymentViewController: UIViewController, AnyPaymentView {
     
     // MARK: - UI Setup
     func setupViews() {
+        view.backgroundColor = .white
+        
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
         contentView.addSubview(titleLabel)
@@ -91,8 +107,14 @@ final class PaymentViewController: UIViewController, AnyPaymentView {
         
         shippingStandard.button.addTarget(self, action: #selector(didSelectDelivery), for: .touchUpInside)
         shippingExpress.button.addTarget(self, action: #selector(didSelectDelivery), for: .touchUpInside)
-        totalView.button.addTarget(self, action: #selector(showAlert), for: .touchUpInside)
-        alertView.button.addTarget(self, action: #selector(dismissAlert), for: .touchUpInside)
+        totalView.button.addTarget(self, action: #selector(didShowAlert), for: .touchUpInside)
+        alertView.button.addTarget(self, action: #selector(didDismissAlert), for: .touchUpInside)
+        shippingDetails.editButton.addTarget(self, action: #selector(didShowEditAddress), for: .touchUpInside)
+        editAddressView.button.addTarget(self, action: #selector(didDismissEditAddressAlert), for: .touchUpInside)
+        deliveryDetails.editButton.addTarget(self, action: #selector(didShowEditContacts), for: .touchUpInside)
+        editContactsView.button.addTarget(self, action: #selector(didDismissEditContactsAlert), for: .touchUpInside)
+        voucherButton.addTarget(self, action: #selector(didShowVoucher), for: .touchUpInside)
+        addVoucherView.button.addTarget(self, action: #selector(didDismissVoucherAlert), for: .touchUpInside)
         
     }
     
@@ -100,15 +122,40 @@ final class PaymentViewController: UIViewController, AnyPaymentView {
         presenter?.viewDidSelectDelivery()
     }
     
-    //
-    @objc func showAlert() {
-        alertView.show()
+
+    @objc func didShowAlert() {
+        presenter?.viewDidShowAlert()
     }
     
-    //
-    @objc func dismissAlert() {
-        alertView.dismiss()
+    @objc func didDismissAlert() {
+        presenter?.viewDidDismissAlert()
     }
+    
+    @objc func didShowEditAddress() {
+        presenter?.viewDidShowEditAddressAlert()
+    }
+    
+    @objc func didDismissEditAddressAlert() {
+        presenter?.viewDidDismissEditAddressAlert()
+    }
+    
+    @objc func didShowEditContacts() {
+        presenter?.viewDidShowEditContactsAlert()
+    }
+    
+    @objc func didDismissEditContactsAlert() {
+        presenter?.viewDidDismissEditContactsAlert()
+    }
+    
+    @objc func didShowVoucher() {
+        presenter?.viewDidShowVoucherAlert()
+    }
+    
+    @objc func didDismissVoucherAlert() {
+        presenter?.viewDidDismissVoucherAlert()
+    }
+    
+    
 }
 
 // MARK: - Update UI
@@ -134,6 +181,38 @@ extension PaymentViewController {
     
     func updateDeliveryDate(date: String) {
         shippingDescription.text = "Delivered on or before \(date)"
+    }
+    
+    func showAlert() {
+        alertView.show()
+    }
+    
+    func dismissAlert() {
+        alertView.dismiss()
+    }
+    
+    func showEditAddressAlert() {
+        editAddressView.show()
+    }
+    
+    func dismissEditAddressAlert() {
+        editAddressView.dismiss()
+    }
+    
+    func showEditContactsAlert() {
+        editContactsView.show()
+    }
+    
+    func dismissEditContactsAlert() {
+        editContactsView.dismiss()
+    }
+    
+    func showVoucherAlert() {
+        addVoucherView.show()
+    }
+    
+    func dismissVoucherAlert() {
+        addVoucherView.dismiss()
     }
 }
 
