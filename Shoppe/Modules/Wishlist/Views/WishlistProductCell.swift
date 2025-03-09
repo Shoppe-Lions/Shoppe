@@ -1,23 +1,21 @@
 //
-//  ProductCell.swift
+//  WishlistProductCell.swift
 //  Shoppe
 //
-//  Created by ordoko on 04.03.2025.
+//  Created by ordoko on 09.03.2025.
 //
 
 import UIKit
 import SnapKit
 
-let wishlistOnImage = UIImage(named: "wishlist_on")
-let wishlistOffImage = UIImage(named: "wishlist_off")
 
-protocol ProductCellDelegate: AnyObject {
+protocol WishlistProductCellDelegate: AnyObject {
     func didTapWishlistButton(for product: Product)
 }
 
-class ProductCell: UICollectionViewCell {
+class WishlistProductCell: UICollectionViewCell {
     
-    weak var delegate: ProductCellDelegate?
+    weak var delegate: WishlistProductCellDelegate?
     var product: Product?
     
     private let photoContainerView: UIView = {
@@ -75,16 +73,14 @@ class ProductCell: UICollectionViewCell {
         button.backgroundColor = .customBlue
         button.layer.cornerRadius = 4
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.isHidden = true
         return button
     }()
-
+    
     private let wishlistButton: UIButton = {
         let button = UIButton()
         button.setImage(wishlistOnImage, for: .normal)
         button.backgroundColor = .white
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.isHidden = true
         return button
     }()
     
@@ -106,39 +102,20 @@ class ProductCell: UICollectionViewCell {
         contentView.addSubview(priceLabel)
         contentView.addSubview(addToCartButton)
         contentView.addSubview(wishlistButton)
-        
+        setupConstraints()
     }
     
-    private func setupConstraints(isPopular: Bool) {
-        
-        if isPopular {
-                  // Констрейнты для popular секции
-                  photoContainerView.snp.remakeConstraints { make in
-                      make.top.equalToSuperview()
-                      make.centerX.equalToSuperview()
-                      make.width.height.equalTo(140)
-                  }
-                  
-            photoImageView.snp.remakeConstraints { make in
-                      make.center.equalToSuperview()
-                      make.width.height.equalTo(130)
-                  }
-              } else {
-                  // Стандартные констрейнты
-                  photoContainerView.snp.remakeConstraints { make in
-                      make.top.leading.trailing.equalToSuperview()
-                      make.height.equalTo(photoContainerView.snp.width)
-                  }
-                  
-                  photoImageView.snp.remakeConstraints { make in
-                      make.center.equalToSuperview()
-                      make.width.height.equalToSuperview().multipliedBy(0.9)
-                  }
-              }
-        
-        
-        
+    private func setupConstraints() {
+        photoContainerView.snp.makeConstraints { make in
+            make.top.equalToSuperview().inset(15)
+            make.centerX.equalToSuperview()
+            make.height.equalTo(181)
+            make.width.equalTo(165)
+        }
 
+        photoImageView.snp.makeConstraints { make in
+            make.edges.equalToSuperview().inset(5)
+        }
         
         nameLabel.snp.makeConstraints { make in
             make.top.equalTo(photoContainerView.snp.bottom).offset(8)
@@ -170,21 +147,19 @@ class ProductCell: UICollectionViewCell {
     
     // MARK: Configure
     // Метод для обновления данных в ячейке
-    func configure(with product: Product, isPopularSection: Bool = false){
+    func configure(with product: Product) {
         self.product = product
-        photoImageView.image = UIImage(named: product.imageURL)
+        if let img = UIImage(contentsOfFile: product.localImagePath) {
+            photoImageView.image = UIImage(contentsOfFile: product.localImagePath)
+        } else {
+            print("no image")
+        }
+       
         nameLabel.text = product.title
         priceLabel.text = "$\(product.price)" //todo: в идеале форматирование строки с ценой должно быть во viewModel
         wishlistButton.setImage(product.like ? wishlistOnImage : wishlistOffImage, for: .normal)
-        
-        addToCartButton.isHidden = isPopularSection
-        wishlistButton.isHidden = isPopularSection
-        
-        
-        setupConstraints(isPopular: isPopularSection)
-
+    }
     
-        }
     @objc func handleWishlistButtonTapped() {
         guard let product = product else { print("no product"); return }
         delegate?.didTapWishlistButton(for: product)

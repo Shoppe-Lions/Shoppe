@@ -9,22 +9,29 @@ import Foundation
 
 protocol WishlistInteractorProtocol {
     func fetchWishlistProducts()
+    func toggleWishlistStatus(for product: Product)
 }
 
 final class WishlistInteractor: WishlistInteractorProtocol {
+  
     weak var presenter: WishlistPresenterProtocol?
+    private let apiService = APIService()
     
     func fetchWishlistProducts() {
-        let sampleProducts = [
-            Product(id: 1, title: "Lorem ipsum dolor sit amet consectetur", price: 199.99, description: "", category: "", imageURL: "testPhotoImage", rating: Rating(rate: 5, count: 25), subcategory: "test", like: false),
-            Product(id: 1, title: "Lorem ipsum dolor sit amet consectetur", price: 199.99, description: "", category: "", imageURL: "testPhotoImage", rating: Rating(rate: 5, count: 25), subcategory: "test", like: false),
-            Product(id: 1, title: "Red dress", price: 199.99, description: "", category: "", imageURL: "testPhotoImage", rating: Rating(rate: 5, count: 25), subcategory: "test", like: false),
-            Product(id: 1, title: "Red dress", price: 199.99, description: "", category: "", imageURL: "testPhotoImage", rating: Rating(rate: 5, count: 25), subcategory: "test", like: false),
-            Product(id: 1, title: "Red dress", price: 199.99, description: "", category: "", imageURL: "testPhotoImage", rating: Rating(rate: 5, count: 25), subcategory: "test", like: false),
-            Product(id: 1, title: "Red dress", price: 199.99, description: "", category: "", imageURL: "testPhotoImage", rating: Rating(rate: 5, count: 25), subcategory: "test", like: false),
-            Product(id: 1, title: "Red dress", price: 199.99, description: "", category: "", imageURL: "testPhotoImage", rating: Rating(rate: 5, count: 25), subcategory: "test", like: false),
-            Product(id: 1, title: "Red dress", price: 199.99, description: "", category: "", imageURL: "testPhotoImage", rating: Rating(rate: 5, count: 25), subcategory: "test", like: false)
-        ]
-        presenter?.didFetchWishlistProducts(sampleProducts)
+        apiService.fetchProducts { [weak self] result in
+            switch result {
+            case .success(let products):
+                let wishlistProducts = products.filter(\.like)
+                self?.presenter?.didFetchWishlistProducts(wishlistProducts)
+          
+            case .failure(let error):
+                //TODO: обработка ошибок
+                print("Error fetching wishlist products: \(error)")
+            }
+        }
+    }
+    
+    func toggleWishlistStatus(for product: Product) {
+        apiService.toggleLike(for: product)
     }
 }
