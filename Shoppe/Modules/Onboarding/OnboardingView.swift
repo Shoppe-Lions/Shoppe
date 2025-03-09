@@ -6,14 +6,14 @@
 //
 
 import UIKit
+import SnapKit
 
 class OnboardingView: UIView {
-    
     
     private let pageView: UIView = {
         let view = UIView()
         view.backgroundColor = .white
-        view.layer.cornerRadius = 30
+        view.layer.masksToBounds = true
         view.clipsToBounds = false
         view.layer.shadowColor = UIColor.black.cgColor
         view.layer.shadowOpacity = 0.3
@@ -27,9 +27,8 @@ class OnboardingView: UIView {
         let label = UILabel()
         let baseFont = UIFont(name: Fonts.Raleway.bold, size: 28) ?? UIFont.systemFont(ofSize: 28)
         let scaledFont = UIFontMetrics.default.scaledFont(for: baseFont)
-
+        
         label.textColor = .black
-        //label.font = UIFont(name: Fonts.Raleway.bold, size: 28)
         label.textAlignment = .center
         label.font = scaledFont
         label.adjustsFontSizeToFitWidth = true
@@ -41,12 +40,27 @@ class OnboardingView: UIView {
     
     private let pageDescription: UILabel = {
         let label = UILabel()
+        let baseFont = UIFont(name: Fonts.NunitoSans.light, size: 19) ?? UIFont.systemFont(ofSize: 19)
+        let scaledFont = UIFontMetrics.default.scaledFont(for: baseFont)
+        
         label.textColor = .black
-        label.font = UIFont(name: Fonts.NunitoSans.light, size: 19)
+        label.font = scaledFont
+        label.adjustsFontSizeToFitWidth = true
+        label.minimumScaleFactor = 0.7
         label.textAlignment = .center
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
+    }()
+    
+    private let imageContainer: UIView = {
+        let view = UIView()
+        view.backgroundColor = .clear
+        view.layer.masksToBounds = true
+        view.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+        view.clipsToBounds = true
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
     }()
     
     private let pageImageView: UIImageView = {
@@ -56,26 +70,24 @@ class OnboardingView: UIView {
         return imageView
     }()
     
-    
     private let pageButton: UIButton = {
         let button = UIButton()
         button.titleLabel?.font = UIFont(name: Fonts.NunitoSans.light, size: 18)
         button.backgroundColor = .systemBlue
         button.titleLabel?.textColor = .white
-        button.layer.cornerRadius = 20
+        button.layer.masksToBounds = true
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
-    
-    
     
     override init (frame: CGRect) {
         super.init(frame: frame)
         
         addSubview(pageView)
+        pageView.addSubview(imageContainer)
+        imageContainer.addSubview(pageImageView)
         pageView.addSubview(pageLabel)
         pageView.addSubview(pageDescription)
-        pageView.addSubview(pageImageView)
         pageView.addSubview(pageButton)
         setupConstraints()
     }
@@ -92,9 +104,9 @@ class OnboardingView: UIView {
         pageDescription.text = text
     }
     
-        public func setImage(image: UIImage) {
-            pageImageView.image = image
-        }
+    public func setImage(image: UIImage) {
+        pageImageView.image = image
+    }
     
     public func setView() -> UIView {
         return pageView
@@ -103,42 +115,65 @@ class OnboardingView: UIView {
     public func setButton(text: String, target: Any?, action: Selector?) {
         pageButton.setTitle(text, for: .normal)
         if let target = target, let action = action {
-        pageButton.addTarget(target, action: action, for: .touchUpInside)
+            pageButton.addTarget(target, action: action, for: .touchUpInside)
         }
+    }
+    
+    public func applyButtonCornerRadius() {
+        pageButton.layer.cornerRadius = pageButton.frame.height * 0.25
     }
     
     public func hideButton(_ isHidden: Bool) {
         pageButton.isHidden = isHidden
     }
     
+    //MARK: - Set Constraints
     private func setupConstraints() {
-        NSLayoutConstraint.activate([
-            
-            pageView.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: 55),
-            pageView.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor, constant: 30),
-            pageView.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor, constant: -30),
-            pageView.heightAnchor.constraint(equalTo: heightAnchor, multiplier: 0.7),
-            
-            pageImageView.topAnchor.constraint(equalTo: pageView.topAnchor, constant: 0),
-            pageImageView.leadingAnchor.constraint(equalTo: pageView.leadingAnchor, constant: 0),
-            pageImageView.trailingAnchor.constraint(equalTo: pageView.trailingAnchor, constant: 0),
-            //pageImageView.heightAnchor.constraint(equalToConstant: 300),
-            
-            pageLabel.leadingAnchor.constraint(equalTo: pageView.leadingAnchor, constant: 30),
-            pageLabel.trailingAnchor.constraint(equalTo: pageView.trailingAnchor, constant: -30),
-            pageLabel.topAnchor.constraint(equalTo: pageImageView.bottomAnchor, constant: 30),
-            pageLabel.heightAnchor.constraint(equalToConstant: 70),
-            
-            pageDescription.leadingAnchor.constraint(equalTo: pageView.leadingAnchor, constant: 10),
-            pageDescription.trailingAnchor.constraint(equalTo: pageView.trailingAnchor, constant: -10),
-            pageDescription.topAnchor.constraint(equalTo: pageLabel.bottomAnchor, constant: 0),
-            pageDescription.bottomAnchor.constraint(lessThanOrEqualTo: pageView.bottomAnchor, constant: -10),
-            
-            pageButton.leadingAnchor.constraint(equalTo: pageView.leadingAnchor, constant: 60),
-            pageButton.trailingAnchor.constraint(equalTo: pageView.trailingAnchor, constant: -60),
-            pageButton.heightAnchor.constraint(equalToConstant: 50),
-            pageButton.bottomAnchor.constraint(lessThanOrEqualTo: pageView.bottomAnchor, constant: -20)
-        ])
+        
+        // надо создать какое-нибудь небольшое число которое будет зависеть от размера экрана и его потом умножать
+        let horizontalPadding = UIScreen.main.bounds.width * 0.05
+        let verticalPadding = UIScreen.main.bounds.height * 0.05
+
+        pageView.snp.makeConstraints { make in
+            make.top.equalTo(safeAreaLayoutGuide.snp.top).offset(verticalPadding * 1)
+            make.leading.trailing.equalToSuperview().inset(horizontalPadding * 1.5)
+            make.height.lessThanOrEqualTo(safeAreaLayoutGuide).multipliedBy(0.8)
+            make.bottom.lessThanOrEqualToSuperview().offset(-verticalPadding * 2)
+        }
+        
+        imageContainer.snp.makeConstraints { make in
+            make.top.leading.trailing.equalTo(pageView)
+            make.height.equalTo(pageView).multipliedBy(0.55)
+        }
+        
+        pageImageView.snp.makeConstraints { make in
+            make.edges.equalTo(imageContainer)
+        }
+        
+        pageLabel.snp.makeConstraints { make in
+            make.top.equalTo(imageContainer.snp.bottom).offset(verticalPadding)
+            make.leading.trailing.equalTo(pageView).inset(horizontalPadding)
+        }
+        
+        pageDescription.snp.makeConstraints { make in
+            make.top.equalTo(pageLabel.snp.bottom).offset(verticalPadding / 2)
+            make.leading.trailing.equalTo(pageView).inset(horizontalPadding * 1)
+            make.bottom.lessThanOrEqualTo(pageButton.snp.top).offset(-verticalPadding)
+        }
+
+        pageButton.snp.makeConstraints { make in
+            make.leading.trailing.equalTo(pageView).inset(horizontalPadding * 3)
+            make.height.equalTo(UIScreen.main.bounds.height * 0.06)
+            make.bottom.lessThanOrEqualTo(pageView).offset(-verticalPadding * 0.5)
+        }
+    }
+    
+    // MARK: - Corner Radius
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        
+        pageView.layer.cornerRadius = pageView.frame.height * 0.05
+        imageContainer.layer.cornerRadius = pageView.layer.cornerRadius
     }
     
 }
