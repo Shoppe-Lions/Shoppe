@@ -585,7 +585,7 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
                    price: 17.00,
                    description: "Comfortable sport shoes",
                    category: "Shoes",
-                   image: "testPhotoImage",
+                   imageURL: "testPhotoImage",
                    rating: Rating(rate: 4.5, count: 120),
                    subcategory: "Sport",
                    like: false),
@@ -594,7 +594,7 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
                    price: 32.00,
                    description: "Professional running shoes",
                    category: "Shoes",
-                   image: "testPhotoImage",
+                    imageURL: "testPhotoImage",
                    rating: Rating(rate: 4.8, count: 230),
                    subcategory: "Running",
                    like: false),
@@ -603,7 +603,7 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
                    price: 21.00,
                    description: "Casual sneakers",
                    category: "Shoes",
-                   image: "testPhotoImage",
+                    imageURL: "testPhotoImage",
                    rating: Rating(rate: 4.3, count: 180),
                    subcategory: "Casual",
                    like: false)
@@ -615,7 +615,7 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
                    price: 17.00,
                    description: "Stylish sunglasses",
                    category: "Accessories",
-                   image: "testPhotoImage",
+                    imageURL: "testPhotoImage",
                    rating: Rating(rate: 4.2, count: 95),
                    subcategory: "Eyewear",
                    like: false),
@@ -624,7 +624,7 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
                    price: 17.00,
                    description: "Beach hat",
                    category: "Accessories",
-                   image: "testPhotoImage",
+                    imageURL: "testPhotoImage",
                    rating: Rating(rate: 4.0, count: 150),
                    subcategory: "Hats",
                    like: false),
@@ -633,7 +633,7 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
                    price: 17.00,
                    description: "Large beach bag",
                    category: "Bags",
-                   image: "testPhotoImage",
+                    imageURL: "testPhotoImage",
                    rating: Rating(rate: 4.6, count: 210),
                    subcategory: "Beach",
                    like: false),
@@ -642,7 +642,7 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
                    price: 17.00,
                    description: "Summer sandals",
                    category: "Shoes",
-                   image: "testPhotoImage",
+                    imageURL: "testPhotoImage",
                    rating: Rating(rate: 4.4, count: 175),
                    subcategory: "Summer",
                    like: false)
@@ -760,9 +760,9 @@ class SectionHeaderView: UICollectionReusableView {
     }
 }
 
-#Preview {
-    UINavigationController(rootViewController: HomeViewController())
-}
+//#Preview {
+//    UINavigationController(rootViewController: HomeViewController())
+//}
 
 
 
