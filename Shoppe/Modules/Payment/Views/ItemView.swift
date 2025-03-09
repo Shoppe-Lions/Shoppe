@@ -14,7 +14,7 @@ class ItemView: UIView {
         
     lazy var imageView = ShadowImageView(imageName: item.product.imageURL)
     
-    lazy var itemsNumber = CountCircleView(size: 12, radius: 9)
+    lazy var itemsNumber = CountCircleView(size: 12, radius: 9, number: item.quantity)
 
     
     lazy var descriptionLabel: UILabel = {

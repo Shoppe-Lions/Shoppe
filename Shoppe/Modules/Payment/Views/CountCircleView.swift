@@ -19,9 +19,10 @@ class CountCircleView: UIView {
     }
     let label = UILabel()
 
-    init(size: Int, radius: Int) {
+    init(size: Int, radius: Int, number: Int) {
         self.size = size
         self.radius = radius
+        self.number = number
         super.init(frame: .zero)
         setupViews(size: size)
         setConstraints()
@@ -36,7 +37,7 @@ class CountCircleView: UIView {
         self.layer.cornerRadius = CGFloat(radius)*1.5
         self.clipsToBounds = true
 
-        label.text = "2"
+        label.text = "\(number)"
         label.font = UIFont(name: "Raleway-Bold", size: CGFloat(size))
         label.textAlignment = .center
         label.textColor = .black
