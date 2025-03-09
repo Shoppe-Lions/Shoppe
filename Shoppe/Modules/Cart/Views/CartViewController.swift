@@ -162,7 +162,7 @@ extension CartViewController: CartViewProtocol {
     
     func removeProduct(at index: Int) {
         products.remove(at: index)
-        cartTableView.deleteRows(at: [IndexPath(row: index, section: 0)], with: .automatic)
+//        cartTableView.deleteRows(at: [IndexPath(row: index, section: 0)], with: .automatic)
         cartTableView.reloadData()
     }
 }
