@@ -11,7 +11,7 @@ import SnapKit
 protocol AnyPaymentView: AnyObject {
     var presenter: AnyPaymentPresenter? { get set }
     var shippingType: shippingType { get set }
-    func setupItems(with items:[Product])
+    func setupItems(with items:[CartItem])
     func updateTotalPrice(with total: Double)
     func updateDeliveryDate(date: String)
     func showAlert()
@@ -160,7 +160,7 @@ final class PaymentViewController: UIViewController, AnyPaymentView {
 
 // MARK: - Update UI
 extension PaymentViewController {
-    func setupItems(with items:[Product]) {
+    func setupItems(with items:[CartItem]) {
         for item in items {
             let itemView = ItemView(item: item)
             itemsStackView.addArrangedSubview(itemView)

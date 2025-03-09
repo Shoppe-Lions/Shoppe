@@ -13,7 +13,7 @@ protocol AnyPaymentPresenter: AnyObject {
     var view: AnyPaymentView? { get set }
     var router: AnyPaymentRouter? { get set }
     var interactor: AnyPaymentIntercator? { get set }
-    func interactorDidFetchBasketItems(with result:[Product])
+    func interactorDidFetchBasketItems(with result:[CartItem])
     func viewDidLoad()
     func viewDidSelectDelivery()
     func viewDidShowAlert()
@@ -43,7 +43,7 @@ final class PaymentPresenter: AnyPaymentPresenter {
         getViewUpdateTotalPriceAndDelivery()
     }
     
-    func interactorDidFetchBasketItems(with result: [Product]) {
+    func interactorDidFetchBasketItems(with result: [CartItem]) {
         view?.setupItems(with: result)
         getViewUpdateTotalPriceAndDelivery()
     }

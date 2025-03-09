@@ -22,10 +22,10 @@ protocol AnyPaymentIntercator: AnyObject {
 
 final class PaymentInteractor: AnyPaymentIntercator {
     weak var presenter: AnyPaymentPresenter?
-    var items: [Product] = []
+    var items: [CartItem] = []
     
     func getBasketItems() {
-        let data = mockData
+        let data = StorageCartManager.shared.loadCart()
         items = data
         presenter?.interactorDidFetchBasketItems(with: data)
     }
@@ -47,7 +47,7 @@ final class PaymentInteractor: AnyPaymentIntercator {
     }
     
     func calculateTotalPrice(shippingType: shippingType) -> Double {
-        var itemsTotal = items.reduce(0) { $0 + $1.price }
+        var itemsTotal = items.reduce(0) { $0 + $1.product.price }
         if shippingType == .express { itemsTotal += 12 }
         return itemsTotal
     }
