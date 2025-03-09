@@ -40,12 +40,6 @@ class ProductPresenter: ProductPresenterProtocol {
                 let count = products.filter { $0.subcategory == product.subcategory }.count
                 self.view?.showSubcategoryes(count: count - 1)
             }
-            
-            ImageLoader.shared.loadImage(from: product.image) { [weak self] image in
-                DispatchQueue.main.async {
-                    self?.view?.showImage(image)
-                }
-            }
         }
     }
 }
