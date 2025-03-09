@@ -7,19 +7,35 @@
 import UIKit
 
 protocol ProductRouterProtocol: AnyObject {
-    static func createModule() -> UIViewController
+    static func createModule(by id: Int, navigationController: UINavigationController?) -> UIViewController
+    func goToBuyNow(by id: Int)
+    func goToNextProduct(by id: Int, navigationController: UINavigationController?)
 }
 
 class ProductRouter: ProductRouterProtocol {
-    static func createModule() -> UIViewController {
+    
+    weak var navigationController: UINavigationController?
+    
+    static func createModule(by id: Int, navigationController: UINavigationController?) -> UIViewController {
         let view = ProductViewController()
         let interactor = ProductInteractor()
         let router = ProductRouter()
         let presenter = ProductPresenter(view: view, interactor: interactor, router: router)
-
+        
+        view.id = id
         view.presenter = presenter
         interactor.presenter = presenter
+        router.navigationController = navigationController
 
         return view
+    }
+    
+    func goToBuyNow(by id: Int) {
+        
+    }
+    
+    func goToNextProduct(by id: Int, navigationController: UINavigationController?) {
+        let newVC = ProductRouter.createModule(by: id, navigationController: navigationController)
+        navigationController?.pushViewController(newVC, animated: true)
     }
 }
