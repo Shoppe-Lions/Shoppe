@@ -82,6 +82,8 @@ final class PaymentViewController: UIViewController, AnyPaymentView {
     
     // MARK: - UI Setup
     func setupViews() {
+        view.backgroundColor = .white
+        
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
         contentView.addSubview(titleLabel)
