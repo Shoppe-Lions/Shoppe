@@ -11,8 +11,7 @@ import SnapKit
 protocol ProductViewProtocol: AnyObject {
     func showProduct(_ product: Product)
     func showError(_ message: String)
-    func showImage(_ image: UIImage?)
-    func showSubcategoryes(count: Int)
+    func showSubcategoryes(by products: [Product]?)
     func setLike(by like: Bool)
 }
 
@@ -174,7 +173,36 @@ final class ProductViewController: UIViewController, ProductViewProtocol {
     @objc private func backButtonTapped() {
         dismiss(animated: true, completion: nil)
     }
-
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        navigationController?.setNavigationBarHidden(false, animated: true)
+        let backButton = UIBarButtonItem(title: "Back", style: .plain, target: self, action: #selector(backButtonTapped))
+        navigationItem.leftBarButtonItem = backButton
+        setViews()
+        setupConstraints()
+        presenter.viewDidLoad(id: id)
+        navigationItem.leftBarButtonItem = UIBarButtonItem(
+                image: UIImage(systemName: "arrow.left"),
+                style: .plain,
+                target: self,
+                action: #selector(backTapped)
+            )
+    }
+    
+    @objc private func backTapped() {
+        navigationController?.popViewController(animated: true)
+    }
+    
+    func showProduct(_ product: Product) {
+        nameProductLabel.text = product.title
+        priceLabel.text = "$\(product.price)"
+        setLike(by: product.like)
+        print(product.like)
+        descriptionLabel.text = product.description
+        subcategoryLabel.text = product.subcategory
+        productImageView.image = UIImage(contentsOfFile: product.localImagePath)
+    }
     
     func setLike(by like: Bool) {
         if like {
@@ -186,37 +214,18 @@ final class ProductViewController: UIViewController, ProductViewProtocol {
         }
     }
     
-    
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        navigationController?.setNavigationBarHidden(false, animated: true)
-        let backButton = UIBarButtonItem(title: "Back", style: .plain, target: self, action: #selector(backButtonTapped))
-        navigationItem.leftBarButtonItem = backButton
-        setViews()
-        setupConstraints()
-        presenter.viewDidLoad(id: id)
-    }
-    
-    func showProduct(_ product: Product) {
-        nameProductLabel.text = product.title
-        priceLabel.text = "$\(product.price)"
-        setLike(by: product.like)
-        descriptionLabel.text = product.description
-        subcategoryLabel.text = product.subcategory
-        print(product)
-    }
-    
-    func showImage(_ image: UIImage?) {
-        productImageView.image = image
-    }
-    
-    func showSubcategoryes(count: Int) {
-        if count > 0 {
-            for _ in 0...count {
+    func showSubcategoryes(by products: [Product]?) {
+        if let subcategoryProducts = products {
+            for product in subcategoryProducts {
                 let imageView = UIImageView()
                 imageView.contentMode = .scaleAspectFit
-                imageView.image = UIImage(named: "testPhotoImage")
+                imageView.image = UIImage(contentsOfFile: product.localImagePath)
+                imageView.tag = product.id
+                
+                let tapGesture = UITapGestureRecognizer(target: self, action: #selector(productImageTapped(_:)))
+                imageView.addGestureRecognizer(tapGesture)
+                imageView.isUserInteractionEnabled = true
+                
                 imageView.snp.makeConstraints { make in
                     make.width.height.equalTo(80)
                 }
@@ -224,6 +233,12 @@ final class ProductViewController: UIViewController, ProductViewProtocol {
             }
         } else {
             variationsStackView.isHidden = true
+        }
+    }
+    
+    @objc private func productImageTapped(_ sender: UITapGestureRecognizer) {
+        if let id = sender.view?.tag {
+            presenter.goToNextProduct(by: id, navigationController: navigationController)
         }
     }
     
