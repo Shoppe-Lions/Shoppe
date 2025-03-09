@@ -13,6 +13,8 @@ final class CartTableViewCell: UITableViewCell {
     private var product: Product?
     private var index: Int?
     weak var presenter: CartPresenterProtocol?
+    
+    lazy var alertView = CustomAlertView(title: "Delete Item?", message: "Are you shure?", buttonText: "Yes")
     // MARK: - UI
     private lazy var cellStackView: UIStackView = {
         let element = UIStackView()
@@ -24,12 +26,14 @@ final class CartTableViewCell: UITableViewCell {
     private lazy var cellImageView: UIImageView = {
         let element = UIImageView()
         element.image = UIImage(named: "Cell")
+        element.isUserInteractionEnabled = true
         return element
     }()
     
-    private(set) lazy var deleteProductButton: UIButton = {
+    private lazy var deleteProductButton: UIButton = {
         let element = UIButton(type: .custom)
         element.setImage(UIImage(named: "DeleteProduct"), for: .normal)
+        element.addTarget(self, action: #selector(didTapDeleteButton), for: .touchUpInside)
         return element
     }()
     
@@ -130,6 +134,7 @@ final class CartTableViewCell: UITableViewCell {
         counterLabel.text = "\(quantity)"
     }
     
+    // MARK: - Action
     func updateQuantity(_ quantity: Int) {
         guard let product else { return }
         counterLabel.text = "\(quantity)"
@@ -137,7 +142,6 @@ final class CartTableViewCell: UITableViewCell {
         priceLabel.text = String(format: "$%.2f", totalPrice)
     }
     
-    // MARK: - Action
     @objc private func increaseQuantity() {
         guard let index else { return }
         presenter?.increaseProductQuantity(at: index)
@@ -147,6 +151,14 @@ final class CartTableViewCell: UITableViewCell {
         guard let index else { return }
         presenter?.decreaseProductQuantity(at: index)
     }
+    
+    @objc private func didTapDeleteButton() {
+        alertView.show()
+    }
+    
+    @objc func dismissAlert() {
+        alertView.dismiss()
+    }
 }
 
 private extension CartTableViewCell {
@@ -154,22 +166,21 @@ private extension CartTableViewCell {
         contentView.addSubview(cellStackView)
         
         cellStackView.addArrangedSubview(cellImageView)
-        cellStackView.addArrangedSubview(productStackView)
+    
+        cellImageView.addSubview(deleteProductButton)
         
+        cellStackView.addArrangedSubview(productStackView)
         productStackView.addArrangedSubview(topInfoProductStacView)
         topInfoProductStacView.addArrangedSubview(nameProductLabel)
         topInfoProductStacView.addArrangedSubview(infoLabel)
-        
         productStackView.addArrangedSubview(bottomInfoStackView)
         bottomInfoStackView.addArrangedSubview(priceLabel)
         bottomInfoStackView.addArrangedSubview(counterStackView)
-        
         counterStackView.addArrangedSubview(lessButton)
         counterStackView.addArrangedSubview(counterLabel)
         counterStackView.addArrangedSubview(moreButton)
         
-        cellImageView.addSubview(deleteProductButton)
-        
+        alertView.button.addTarget(self, action: #selector(dismissAlert), for: .touchUpInside)
     }
     
     func setupConstraints() {
@@ -186,6 +197,7 @@ private extension CartTableViewCell {
         deleteProductButton.snp.makeConstraints { make in
             make.bottom.equalTo(cellImageView.snp.bottom).inset(6)
             make.leading.equalTo(cellImageView.snp.leading).inset(6)
+            make.width.height.equalTo(35)
         }
         
         counterLabel.snp.makeConstraints { make in
