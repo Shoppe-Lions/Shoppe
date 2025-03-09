@@ -67,6 +67,7 @@ struct Product: Codable {
         
         subcategory = getSubcategory(for: id)
         like = self.isLiked()
+        localImagePath = getCachedImagePath(for: imageURL)
     }
     
     private func getSubcategory(for productID: Int) -> String {
@@ -109,5 +110,11 @@ struct Product: Codable {
         }
         
         UserDefaults.standard.set(likedProducts, forKey: "likedProducts")
+    }
+    
+    private func getCachedImagePath(for url: String) -> String {
+        let imageName = URL(string: url)?.lastPathComponent ?? ""
+        let fileURL = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!.appendingPathComponent(imageName)
+        return FileManager.default.fileExists(atPath: fileURL.path) ? fileURL.path : "Path"
     }
 }

@@ -11,14 +11,15 @@ import SnapKit
 protocol ProductViewProtocol: AnyObject {
     func showProduct(_ product: Product)
     func showError(_ message: String)
-    func showSubcategoryes(count: Int)
+    func showSubcategoryes(by products: [Product]?)
+    func setLike(by like: Bool)
 }
 
 final class ProductViewController: UIViewController, ProductViewProtocol {
     
     var presenter: ProductPresenterProtocol!
     var spasingElements: CGFloat = 20
-    var product: Product?
+    var id = 1
     
     // MARK: - UI Elements
     
@@ -136,6 +137,7 @@ final class ProductViewController: UIViewController, ProductViewProtocol {
         element.layer.cornerRadius = 11
         element.backgroundColor = .customLightGray
         element.setImage(UIImage(named: "wishlist_off"), for: .normal)
+        element.addTarget(self, action: #selector(likeButtonPressed), for: .touchUpInside)
         return element
     }()
     
@@ -156,41 +158,74 @@ final class ProductViewController: UIViewController, ProductViewProtocol {
         element.backgroundColor = .blue
         element.tintColor = .white
         element.layer.cornerRadius = 11
-        element.addTarget(self, action: #selector(test), for: .touchUpInside)
+        element.addTarget(self, action: #selector(buyNowButtonTapped), for: .touchUpInside)
         return element
     }()
     
-    @objc func test() {
-        print(product?.localImagePath)
+    @objc private func likeButtonPressed() {
+        presenter.toggleLike(id: id)
+    }
+    
+    @objc private func buyNowButtonTapped() {
+        presenter.buyNow(by: id)
+    }
+    
+    @objc private func backButtonTapped() {
+        dismiss(animated: true, completion: nil)
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        navigationController?.setNavigationBarHidden(false, animated: true)
+        let backButton = UIBarButtonItem(title: "Back", style: .plain, target: self, action: #selector(backButtonTapped))
+        navigationItem.leftBarButtonItem = backButton
         setViews()
         setupConstraints()
-        presenter.viewDidLoad()
+        presenter.viewDidLoad(id: id)
+        navigationItem.leftBarButtonItem = UIBarButtonItem(
+                image: UIImage(systemName: "arrow.left"),
+                style: .plain,
+                target: self,
+                action: #selector(backTapped)
+            )
+    }
+    
+    @objc private func backTapped() {
+        navigationController?.popViewController(animated: true)
     }
     
     func showProduct(_ product: Product) {
-        self.product = product
-        productImageView.image = UIImage(contentsOfFile: product.localImagePath)
         nameProductLabel.text = product.title
         priceLabel.text = "$\(product.price)"
-        if product.like {
-            likeImageView.image = UIImage(named: "wishlist_on")
-            likeButton.setImage(UIImage(named: "wishlist_on"), for: .normal)
-        }
+        setLike(by: product.like)
+        print(product.like)
         descriptionLabel.text = product.description
         subcategoryLabel.text = product.subcategory
-        print(product)
+        productImageView.image = UIImage(contentsOfFile: product.localImagePath)
     }
     
-    func showSubcategoryes(count: Int) {
-        if count > 0 {
-            for _ in 0...count {
+    func setLike(by like: Bool) {
+        if like {
+            likeImageView.image = UIImage(named: "wishlist_on")
+            likeButton.setImage(UIImage(named: "wishlist_on"), for: .normal)
+        } else {
+            likeImageView.image = UIImage(named: "wishlist_off")
+            likeButton.setImage(UIImage(named: "wishlist_off"), for: .normal)
+        }
+    }
+    
+    func showSubcategoryes(by products: [Product]?) {
+        if let subcategoryProducts = products {
+            for product in subcategoryProducts {
                 let imageView = UIImageView()
                 imageView.contentMode = .scaleAspectFit
-                imageView.image = UIImage(named: "testPhotoImage")
+                imageView.image = UIImage(contentsOfFile: product.localImagePath)
+                imageView.tag = product.id
+                
+                let tapGesture = UITapGestureRecognizer(target: self, action: #selector(productImageTapped(_:)))
+                imageView.addGestureRecognizer(tapGesture)
+                imageView.isUserInteractionEnabled = true
+                
                 imageView.snp.makeConstraints { make in
                     make.width.height.equalTo(80)
                 }
@@ -198,6 +233,12 @@ final class ProductViewController: UIViewController, ProductViewProtocol {
             }
         } else {
             variationsStackView.isHidden = true
+        }
+    }
+    
+    @objc private func productImageTapped(_ sender: UITapGestureRecognizer) {
+        if let id = sender.view?.tag {
+            presenter.goToNextProduct(by: id, navigationController: navigationController)
         }
     }
     
@@ -239,13 +280,12 @@ private extension ProductViewController {
     func setupConstraints() {
         
         scrollView.snp.makeConstraints { make in
-            make.top.leading.trailing.equalTo(view.safeAreaLayoutGuide)
+            make.top.leading.trailing.equalTo(view.safeAreaLayoutGuide).inset(spasingElements)
             make.bottom.equalTo(buttonStackView.snp.top).offset(-spasingElements)
         }
         
         mainStackView.snp.makeConstraints { make in
             make.top.bottom.equalTo(scrollView).inset(spasingElements)
-            make.leading.trailing.equalTo(view).inset(spasingElements)
             make.width.equalTo(scrollView)
         }
         
