@@ -23,12 +23,14 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         let tabBarController = UITabBarController()
         
-     
-        let homeViewController = PaymentRouter.createModule()
+        let homeViewController = HomeViewController()
         let wishlistViewController = WishlistRouter.createModule()
-        let unknownViewController = ProductRouter.createModule() // Что это за экран??)
-        let cartViewController = CartViewController()
-        let profileViewController = ViewController()
+        let unknownViewController = ProductRouter.createModule(
+            by: 1,
+            navigationController: UINavigationController()
+        ) // Что это за экран??)
+        let cartViewController = UINavigationController(rootViewController: CartRouter.createModule())
+        let profileViewController = PaymentRouter.createModule()
         
         tabBarController.viewControllers = [
             homeViewController,

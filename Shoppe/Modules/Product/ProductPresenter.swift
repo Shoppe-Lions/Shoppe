@@ -5,9 +5,14 @@
 //  Created by Игорь Клевжиц on 05.03.2025.
 //
 import Foundation
+import UIKit
 
 protocol ProductPresenterProtocol: AnyObject {
-    func viewDidLoad()
+    func viewDidLoad(id: Int)
+    func toggleLike(id: Int)
+    func setLike(by like: Bool)
+    func buyNow(by id: Int)
+    func goToNextProduct(by id: Int, navigationController: UINavigationController?)
 }
 
 class ProductPresenter: ProductPresenterProtocol {
@@ -15,37 +20,34 @@ class ProductPresenter: ProductPresenterProtocol {
     var interactor: ProductInteractorProtocol
     var router: ProductRouterProtocol
     
-    var products: [Product]?
-    
     init(view: ProductViewProtocol, interactor: ProductInteractorProtocol, router: ProductRouterProtocol) {
         self.view = view
         self.interactor = interactor
         self.router = router
     }
     
-    func viewDidLoad() {
-        interactor.loadProducts { products in
-            self.products = products
+    func viewDidLoad(id: Int) {        
+        interactor.fetchProductWithSubcategories(by: id) { product, subcategoryProsucts in
+            if let product = product {
+                self.view?.showProduct(product)
+            }
+            self.view?.showSubcategoryes(by: subcategoryProsucts)
         }
-        
-        interactor.fetchProduct { product in
-            guard let product = product else {
-                self.view?.showError("Ошибка загрузки товара")
-                return
-            }
-            
-            self.view?.showProduct(product)
-            
-            if let products = self.products {
-                let count = products.filter { $0.subcategory == product.subcategory }.count
-                self.view?.showSubcategoryes(count: count - 1)
-            }
-            
-            ImageLoader.shared.loadImage(from: product.image) { [weak self] image in
-                DispatchQueue.main.async {
-                    self?.view?.showImage(image)
-                }
-            }
-        }
+    }
+    
+    func toggleLike(id: Int) {
+        interactor.toggleLike(id: id)
+    }
+    
+    func setLike(by like: Bool) {
+        view?.setLike(by: like)
+    }
+    
+    func buyNow(by id: Int) {
+        router.goToBuyNow(by: id)
+    }
+    
+    func goToNextProduct(by id: Int, navigationController: UINavigationController?) {
+        router.goToNextProduct(by: id, navigationController: navigationController)
     }
 }

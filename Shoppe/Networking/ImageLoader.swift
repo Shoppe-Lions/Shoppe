@@ -8,18 +8,34 @@ import UIKit
 
 class ImageLoader {
     static let shared = ImageLoader()
-    
-    func loadImage(from url: String, completion: @escaping (UIImage?) -> Void) {
+
+    private func getFileURL(for imageName: String) -> URL {
+        let fileManager = FileManager.default
+        let directory = fileManager.urls(for: .cachesDirectory, in: .userDomainMask).first!
+        return directory.appendingPathComponent(imageName)
+    }
+
+    func loadImage(from url: String, completion: @escaping (UIImage?, String?) -> Void) {
         guard let imageURL = URL(string: url) else {
-            completion(nil)
+            completion(nil, nil)
+            return
+        }
+
+        let imageName = imageURL.lastPathComponent
+        let fileURL = getFileURL(for: imageName)
+        
+        if FileManager.default.fileExists(atPath: fileURL.path) {
+            let image = UIImage(contentsOfFile: fileURL.path)
+            completion(image, fileURL.path)
             return
         }
         
-        URLSession.shared.dataTask(with: imageURL) { data, response, error in
+        URLSession.shared.dataTask(with: imageURL) { data, _, _ in
             if let data = data, let image = UIImage(data: data) {
-                completion(image)
+                try? data.write(to: fileURL)
+                completion(image, fileURL.path)
             } else {
-                completion(nil)
+                completion(nil, nil)
             }
         }.resume()
     }

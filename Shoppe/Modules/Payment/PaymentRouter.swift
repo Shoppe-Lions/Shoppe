@@ -10,6 +10,7 @@ import UIKit
 
 protocol AnyPaymentRouter: AnyObject {
     static func createModule() -> UIViewController
+    func navigateToCart(from view: UIViewController)
 }
 
 final class PaymentRouter: AnyPaymentRouter {
@@ -24,5 +25,11 @@ final class PaymentRouter: AnyPaymentRouter {
         interactor.presenter = presenter
      
         return view
+    }
+    
+    func navigateToCart(from view: UIViewController) {
+        if let tabBarController = view.tabBarController {
+            tabBarController.selectedIndex = 3
+        }
     }
 }

@@ -8,8 +8,21 @@
 import UIKit
 import SnapKit
 
+protocol CartViewProtocol: AnyObject {
+    func showCartProducts(_ products: [Product])
+    func updateProduct(at index: Int, product: Product, quantity: Int)
+    func updateCartCount(_ count: Int)
+    func updateTotalPrice(_ totalPrice: Double)
+    func removeProduct(at index: Int)
+}
+
 final class CartViewController: UIViewController {
     
+    var presenter: CartPresenterProtocol?
+    
+    private var products: [Product] = []
+    
+
     // MARK: - UI
     private lazy var topStackView: UIStackView = {
         let element = UIStackView()
@@ -96,6 +109,7 @@ final class CartViewController: UIViewController {
             name: Fonts.NunitoSans.light,
             size: 16
         )
+        element.addTarget(self, action: #selector(showPaymentScreen), for: .touchUpInside)
         element.layer.cornerRadius = 11
         return element
     }()
@@ -109,16 +123,56 @@ final class CartViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        presenter?.viewDidLoad()
+        presenter?.updateCartCount()
+        presenter?.updateTotalPrice()
+        
         setupViews()
         setupConstraints()
     }
+    
+    // MARK: - Action
+    
+    @objc func showPaymentScreen() {
+        presenter?.didTapCheckoutButton()
+    }
 }
+
+// MARK: - CartViewProtocol
+extension CartViewController: CartViewProtocol {
+    func showCartProducts(_ products: [Product]) {
+        self.products = products
+        cartTableView.reloadData()
+    }
+    
+    func updateProduct(at index: Int, product: Product, quantity: Int) {
+        products[index] = product
+        if let cell = cartTableView.cellForRow(at: IndexPath(row: index + 1, section: 0)) as? CartTableViewCell {
+            cell.updateQuantity(quantity)
+        }
+    }
+    
+    func updateCartCount(_ count: Int) {
+        cartCountLabel.text = "\(count)"
+    }
+    
+    func updateTotalPrice(_ totalPrice: Double) {
+        totalPriceLabel.text = String(format: "$%.2f", totalPrice)
+    }
+    
+    func removeProduct(at index: Int) {
+        products.remove(at: index)
+//        cartTableView.deleteRows(at: [IndexPath(row: index, section: 0)], with: .automatic)
+        cartTableView.reloadData()
+    }
+}
+
 
 // MARK: - UITableViewDataSource and UITableViewDelegate
 
 extension CartViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        10
+        products.count + 1
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -130,6 +184,12 @@ extension CartViewController: UITableViewDataSource, UITableViewDelegate {
             return cell
         } else {
             let cell = tableView.dequeueReusableCell(withIdentifier: "CartTableViewCell", for: indexPath) as! CartTableViewCell
+            
+            let product = products[indexPath.row - 1]
+            
+            if let presenter  {
+                cell.configure(with: product, at: indexPath.row - 1, presenter: presenter)
+            }
             cell.selectionStyle = .none
             return cell
         }
@@ -162,6 +222,7 @@ private extension CartViewController {
         totalPriceStackView.addArrangedSubview(spacerView)
         
         bottomStackView.addArrangedSubview(checkoutButton)
+        
     }
     
     func setupConstraints() {
@@ -181,7 +242,8 @@ private extension CartViewController {
         }
         
         bottomStackView.snp.makeConstraints { make in
-            make.bottom.leading.trailing.equalToSuperview()        }
+            make.bottom.leading.trailing.equalToSuperview()
+        }
         
         checkoutButton.snp.makeConstraints { make in
             make.width.equalTo(130)
