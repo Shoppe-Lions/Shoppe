@@ -15,6 +15,7 @@ protocol CartInteractorProtocol: AnyObject {
     func getQuantity(for productId: Int) -> Int
     func getTotalProductCount() -> Int
     func calculateTotalPrice() -> Double
+    func deleteProduct(at index: Int)
 }
 
 final class CartInteractor: CartInteractorProtocol {
@@ -23,11 +24,9 @@ final class CartInteractor: CartInteractorProtocol {
     private var productQuantities: [Int: Int] = [:]
     
     var products = [
-        Product(id: 1, title: "Lorem ipsum dolor sit amet consectetur", price: 200, description: "", category: "", image: "Cell", rating: Rating(rate: 5, count: 25), subcategory: "test", like: false),
-        Product(id: 232, title: "Lorem ipsum dolor sit amet consectetur", price: 199.99, description: "", category: "", image: "Cell", rating: Rating(rate: 5, count: 25), subcategory: "test", like: false),
-        Product(id: 4432, title: "Lorem ipsum dolor sit amet consectetur", price: 199.99, description: "", category: "", image: "testPhotoImage", rating: Rating(rate: 5, count: 25), subcategory: "test", like: false),
-        Product(id: 222, title: "Lorem ipsum dolor sit amet consectetur", price: 199.99, description: "", category: "", image: "testPhotoImage", rating: Rating(rate: 5, count: 25), subcategory: "test", like: false),
-        Product(id: 222, title: "Lorem ipsum dolor sit amet consectetur", price: 199.99, description: "", category: "", image: "Cell", rating: Rating(rate: 5, count: 25), subcategory: "test", like: false),
+        Product(id: 1, title: "Lorem ipsum dolor sit amet consectetur", price: 200, description: "", category: "", imageURL: "Cell", rating: Rating(rate: 5, count: 25), subcategory: "test", like: false),
+        Product(id: 232, title: "Lorem ipsum dolor sit amet consectetur", price: 199.99, description: "", category: "", imageURL: "Cell", rating: Rating(rate: 5, count: 25), subcategory: "test", like: false),
+        
     ]
     
     func fetchCartProducts() {
@@ -72,4 +71,10 @@ final class CartInteractor: CartInteractorProtocol {
         return totalPrice
     }
     
+    func deleteProduct(at index: Int) {
+        guard index < products.count else { return }
+        let productId = products[index].id
+        products.remove(at: index)
+        productQuantities.removeValue(forKey: productId)
+    }
 }

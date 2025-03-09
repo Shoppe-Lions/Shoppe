@@ -17,6 +17,7 @@ protocol CartPresenterProtocol: AnyObject {
     func updateCartCount()
     func updateTotalPrice()
     func didTapCheckoutButton()
+    func deleteProduct(at index: Int)
 }
 
 final class CartPresenter: CartPresenterProtocol {
@@ -71,4 +72,10 @@ final class CartPresenter: CartPresenterProtocol {
         router.showPaymentViewController()
     }
 
+    func deleteProduct(at index: Int) {
+        interactor.deleteProduct(at: index)
+        view?.removeProduct(at: index)
+        updateCartCount()
+        updateTotalPrice()
+    }
 }
