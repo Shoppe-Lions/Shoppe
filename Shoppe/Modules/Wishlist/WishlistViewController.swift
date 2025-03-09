@@ -9,6 +9,7 @@ import UIKit
 
 protocol WishlistViewProtocol: AnyObject {
     func reloadData()
+    func hideLoadingIndicator()
 }
 
 final class WishlistViewController: UIViewController {
@@ -16,6 +17,13 @@ final class WishlistViewController: UIViewController {
     //MARK: Properties
     
     var presenter: WishlistPresenterProtocol?
+    private let refreshControl = UIRefreshControl()
+    
+    private let activityIndicator: UIActivityIndicatorView = {
+            let indicator = UIActivityIndicatorView(style: .large)
+            indicator.hidesWhenStopped = true
+            return indicator
+        }()
     
     private let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -46,6 +54,8 @@ final class WishlistViewController: UIViewController {
     //MARK: Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupActivityIndicator()
+        showLoadingIndicator()
         presenter?.viewDidLoad()
         setupUI()
     }
@@ -65,11 +75,38 @@ final class WishlistViewController: UIViewController {
             make.top.equalTo(titleLabel.snp.bottom).inset(-11)
         }
         
-        collectionView.register(ProductCell.self, forCellWithReuseIdentifier: "ProductCell")
+        collectionView.register(WishlistProductCell.self, forCellWithReuseIdentifier: "WishlistProductCell")
         collectionView.dataSource = self
         collectionView.delegate = self
+        
+        setupPullToRefresh()
     }
     
+    private func setupActivityIndicator() {
+        view.addSubview(activityIndicator)
+        activityIndicator.snp.makeConstraints { make in
+            make.center.equalToSuperview()
+        }
+    }
+    func showLoadingIndicator() {
+           activityIndicator.startAnimating()
+           collectionView.isHidden = true
+       }
+
+       func hideLoadingIndicator() {
+           activityIndicator.stopAnimating()
+           collectionView.isHidden = false
+       }
+    
+    private func setupPullToRefresh() {
+        refreshControl.addTarget(self, action: #selector(refreshData), for: .valueChanged)
+        collectionView.refreshControl = refreshControl
+    }
+    
+    @objc private func refreshData() {
+        print("Обновление данных...")
+        presenter?.didPullToRefresh()
+    }
    
 }
 
@@ -81,7 +118,7 @@ extension WishlistViewController: UICollectionViewDelegate, UICollectionViewData
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ProductCell", for: indexPath) as? ProductCell else {
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "WishlistProductCell", for: indexPath) as? WishlistProductCell else {
             return UICollectionViewCell()
         }
         guard let presenter = presenter,
@@ -114,11 +151,13 @@ extension WishlistViewController: UICollectionViewDelegate, UICollectionViewData
 
 extension WishlistViewController: WishlistViewProtocol {
     func reloadData() {
+        self.refreshControl.endRefreshing()
+        print("Данные обновлены")
         collectionView.reloadData()
     }
 }
 
-extension WishlistViewController: ProductCellDelegate {
+extension WishlistViewController: WishlistProductCellDelegate {
     func didTapWishlistButton(for product: Product) {
         presenter?.toggleWishlist(for: product)
     }
