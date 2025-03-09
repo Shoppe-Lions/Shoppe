@@ -154,10 +154,13 @@ final class CartTableViewCell: UITableViewCell {
     
     @objc private func didTapDeleteButton() {
         alertView.show()
+        alertView.button.addTarget(self, action: #selector(confirmDelete), for: .touchUpInside)
     }
     
-    @objc func dismissAlert() {
+    @objc func confirmDelete() {
         alertView.dismiss()
+        guard let index else { return }
+        presenter?.deleteProduct(at: index)
     }
 }
 
@@ -179,8 +182,6 @@ private extension CartTableViewCell {
         counterStackView.addArrangedSubview(lessButton)
         counterStackView.addArrangedSubview(counterLabel)
         counterStackView.addArrangedSubview(moreButton)
-        
-        alertView.button.addTarget(self, action: #selector(dismissAlert), for: .touchUpInside)
     }
     
     func setupConstraints() {

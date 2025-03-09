@@ -13,6 +13,7 @@ protocol CartViewProtocol: AnyObject {
     func updateProduct(at index: Int, product: Product, quantity: Int)
     func updateCartCount(_ count: Int)
     func updateTotalPrice(_ totalPrice: Double)
+    func removeProduct(at index: Int)
 }
 
 final class CartViewController: UIViewController {
@@ -128,8 +129,6 @@ final class CartViewController: UIViewController {
         
         setupViews()
         setupConstraints()
-        
-        
     }
     
     // MARK: - Action
@@ -159,6 +158,12 @@ extension CartViewController: CartViewProtocol {
     
     func updateTotalPrice(_ totalPrice: Double) {
         totalPriceLabel.text = String(format: "$%.2f", totalPrice)
+    }
+    
+    func removeProduct(at index: Int) {
+        products.remove(at: index)
+        cartTableView.deleteRows(at: [IndexPath(row: index, section: 0)], with: .automatic)
+        cartTableView.reloadData()
     }
 }
 
