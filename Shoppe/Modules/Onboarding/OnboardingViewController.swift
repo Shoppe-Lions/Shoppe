@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SnapKit
 
 class OnboardingViewController: UIViewController {
     
@@ -17,6 +18,7 @@ class OnboardingViewController: UIViewController {
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.isPagingEnabled = true
         scrollView.bounces = false
+        scrollView.alwaysBounceVertical = false
         return scrollView
     }()
     
@@ -44,14 +46,22 @@ class OnboardingViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupView()
-        setupCostraints()
+        setupConstraints()
         setDeligates()
         
         slides = createSlides()
         setupSlidesScrollView(slides: slides)
     }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        
+        for slide in slides {
+            slide.applyButtonCornerRadius()
+        }
+    }
+    
     private func setupView() {
-        // здесь собираем элементы вью
         view.backgroundColor = .white
         view.addSubview(backgroundImage)
         view.addSubview(scrollView)
@@ -126,24 +136,24 @@ extension OnboardingViewController: UIScrollViewDelegate {
 //MARK: - Set Constraints
 extension OnboardingViewController {
     
-    
-    private func setupCostraints() {
-        NSLayoutConstraint.activate ([
-            scrollView.topAnchor.constraint(equalTo: view.topAnchor, constant: 0),
-            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 0),
-            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 0),
-            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 0),
-            
-            pageControl.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -40),
-            pageControl.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30),
-            pageControl.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30),
-            pageControl.heightAnchor.constraint(equalToConstant: 50),
-            
-            backgroundImage.topAnchor.constraint(equalTo: view.topAnchor),
-            backgroundImage.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            backgroundImage.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            backgroundImage.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-        ])
+    private func setupConstraints() {
+        let horizontalPadding = UIScreen.main.bounds.width * 0.05
+        let verticalPadding = UIScreen.main.bounds.height * 0.05
+        
+        scrollView.snp.makeConstraints { make in
+            make.top.bottom.leading.trailing.equalTo(view)
+        }
+        
+        pageControl.snp.makeConstraints { make in
+            make.bottom.equalTo(view.safeAreaLayoutGuide).inset(verticalPadding * 1)
+            make.leading.trailing.equalToSuperview().inset(horizontalPadding * 2)
+            make.height.equalTo(UIScreen.main.bounds.height * 0.06)
+        }
+        
+        backgroundImage.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
     }
 }
+
 
