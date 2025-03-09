@@ -126,7 +126,7 @@ final class CartTableViewCell: UITableViewCell {
         self.index = index
         self.presenter = presenter
         
-        cellImageView.image = UIImage(named: product.image)
+        cellImageView.image = UIImage(named: product.imageURL)
         nameProductLabel.text = product.title
         let quantity = presenter.getQuantity(for: product.id)
         let totalPrice = product.price * Double(quantity)
