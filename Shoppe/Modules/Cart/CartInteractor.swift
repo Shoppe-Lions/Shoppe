@@ -21,11 +21,9 @@ protocol CartInteractorProtocol: AnyObject {
 final class CartInteractor: CartInteractorProtocol {
     weak var presenter: CartPresenterProtocol?
     
-    var items: [CartItem] = []
-    
     func fetchCartProducts() {
-        items = StorageCartManager.shared.loadCart()
-        let products = items.map{ $0.product }
+        let cart = StorageCartManager.shared.loadCart()
+        let products = cart.map{ $0.product }
         presenter?.didFetchCartProducts(products)
     }
     
