@@ -15,6 +15,7 @@ protocol WishlistRouterProtocol {
 final class WishlistRouter: WishlistRouterProtocol {
 
     static func createModule() -> UIViewController {
+        
         let view = WishlistViewController()
         let router = WishlistRouter()
         let interactor = WishlistInteractor()
@@ -27,12 +28,10 @@ final class WishlistRouter: WishlistRouterProtocol {
     }
     
     func openProductDetail(from view: any WishlistViewProtocol, with product: Product) {
-        //TODO: разкомментировать когда будет готов детальный экран
-//        let detailVC = ProductDetailRouter.createModule(with: product)
-//        
-//        if let sourceVC = view as? UIViewController {
-//            sourceVC.navigationController?.pushViewController(detailVC, animated: true)
-//        }
+        guard let sourceVC = view as? WishlistViewController else { return }
+        let detailVC = ProductRouter.createModule(by: product.id, navigationController: sourceVC.navigationController)
+        sourceVC.navigationController?.pushViewController(detailVC, animated: true)
+
     }
     
 }
