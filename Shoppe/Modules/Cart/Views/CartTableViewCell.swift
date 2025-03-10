@@ -9,7 +9,17 @@ import UIKit
 import SnapKit
 
 final class CartTableViewCell: UITableViewCell {
-
+    
+    private var product: Product?
+    private var index: Int?
+    weak var presenter: CartPresenterProtocol?
+    
+    lazy var alertView = CustomAlertView(
+        title: "Delete Item?",
+        message: "Are you shure?",
+        buttonText: "Delete",
+        secondButtonText: "Cancel"
+    )
     // MARK: - UI
     private lazy var cellStackView: UIStackView = {
         let element = UIStackView()
@@ -18,15 +28,29 @@ final class CartTableViewCell: UITableViewCell {
         return element
     }()
     
+    private let photoContainerView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .white
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.layer.shadowOffset = CGSize(width: 0, height: 5)
+        view.layer.shadowRadius = 10
+        view.layer.shadowOpacity = 1
+        view.layer.cornerRadius = 9
+        view.layer.shadowColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.1).cgColor
+        return view
+    }()
+    
     private lazy var cellImageView: UIImageView = {
         let element = UIImageView()
         element.image = UIImage(named: "Cell")
+        element.isUserInteractionEnabled = true
         return element
     }()
     
-    private lazy var deleteProductImageView: UIButton = {
+    private lazy var deleteProductButton: UIButton = {
         let element = UIButton(type: .custom)
         element.setImage(UIImage(named: "DeleteProduct"), for: .normal)
+        element.addTarget(self, action: #selector(didTapDeleteButton), for: .touchUpInside)
         return element
     }()
     
@@ -81,6 +105,7 @@ final class CartTableViewCell: UITableViewCell {
     private lazy var lessButton: UIButton = {
         let element = UIButton(type: .custom)
         element.setImage(UIImage(named: "Less"), for: .normal)
+        element.addTarget(self, action: #selector(decreaseQuantity), for: .touchUpInside)
         return element
     }()
     
@@ -98,6 +123,7 @@ final class CartTableViewCell: UITableViewCell {
     private lazy var moreButton: UIButton = {
         let element = UIButton(type: .custom)
         element.setImage(UIImage(named: "More"), for: .normal)
+        element.addTarget(self, action: #selector(increaseQuantity), for: .touchUpInside)
         return element
     }()
     // MARK: - Init
@@ -112,44 +138,97 @@ final class CartTableViewCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
+    func configure(with product: Product, at index: Int, presenter: CartPresenterProtocol) {
+        self.product = product
+        self.index = index
+        self.presenter = presenter
+        
+        cellImageView.image = UIImage(named: product.imageURL)
+        nameProductLabel.text = product.title
+        let quantity = presenter.getQuantity(for: product.id)
+        let totalPrice = product.price * Double(quantity)
+        priceLabel.text = String(format: "$%.2f", totalPrice)
+        counterLabel.text = "\(quantity)"
+    }
+    
+    // MARK: - Action
+    func updateQuantity(_ quantity: Int) {
+        guard let product else { return }
+        counterLabel.text = "\(quantity)"
+        let totalPrice = product.price * Double(quantity)
+        priceLabel.text = String(format: "$%.2f", totalPrice)
+    }
+    
+    @objc private func increaseQuantity() {
+        guard let index else { return }
+        presenter?.increaseProductQuantity(at: index)
+    }
+    
+    @objc private func decreaseQuantity() {
+        guard let index else { return }
+        presenter?.decreaseProductQuantity(at: index)
+    }
+    
+    @objc private func didTapDeleteButton() {
+        alertView.show()
+        alertView.button.addTarget(self, action: #selector(confirmDelete), for: .touchUpInside)
+        alertView.secondButton.addTarget(self, action: #selector(cancelDelete), for: .touchUpInside)
+        alertView.secondButton.isHidden = false
+    }
+    
+    @objc func confirmDelete() {
+        alertView.dismiss()
+        guard let index else { return }
+        presenter?.deleteProduct(at: index)
+    }
+    
+    @objc func cancelDelete() {
+        alertView.dismiss()
+    }
 }
 
 private extension CartTableViewCell {
     func setupViews() {
         contentView.addSubview(cellStackView)
-
-        cellStackView.addArrangedSubview(cellImageView)
-        cellStackView.addArrangedSubview(productStackView)
         
+        cellStackView.addArrangedSubview(photoContainerView)
+        
+        photoContainerView.addSubview(cellImageView)
+        cellImageView.addSubview(deleteProductButton)
+        
+        cellStackView.addArrangedSubview(productStackView)
         productStackView.addArrangedSubview(topInfoProductStacView)
         topInfoProductStacView.addArrangedSubview(nameProductLabel)
         topInfoProductStacView.addArrangedSubview(infoLabel)
-
         productStackView.addArrangedSubview(bottomInfoStackView)
         bottomInfoStackView.addArrangedSubview(priceLabel)
         bottomInfoStackView.addArrangedSubview(counterStackView)
-        
         counterStackView.addArrangedSubview(lessButton)
         counterStackView.addArrangedSubview(counterLabel)
         counterStackView.addArrangedSubview(moreButton)
         
-        cellImageView.addSubview(deleteProductImageView)
     }
     
     func setupConstraints() {
         cellStackView.snp.makeConstraints { make in
             make.leading.trailing.equalTo(contentView)
-            make.height.equalTo(101)
         }
         
+        
+        photoContainerView.snp.makeConstraints { make in
+            
+            make.height.equalTo(109)
+            make.width.equalTo(129)
+        }
+
         cellImageView.snp.makeConstraints { make in
-            make.width.equalTo(121)
-            make.height.equalTo(101)
+            make.edges.equalToSuperview().inset(5)
         }
         
-        deleteProductImageView.snp.makeConstraints { make in
+        deleteProductButton.snp.makeConstraints { make in
             make.bottom.equalTo(cellImageView.snp.bottom).inset(6)
             make.leading.equalTo(cellImageView.snp.leading).inset(6)
+            make.width.height.equalTo(35)
         }
         
         counterLabel.snp.makeConstraints { make in
@@ -160,7 +239,7 @@ private extension CartTableViewCell {
         lessButton.snp.makeConstraints { make in
             make.width.height.equalTo(30)
         }
-
+        
         moreButton.snp.makeConstraints { make in
             make.width.height.equalTo(30)
         }
