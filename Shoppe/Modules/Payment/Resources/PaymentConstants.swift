@@ -30,5 +30,6 @@ enum PFontSize {
     static let medium: CGFloat = 20
     static let large: CGFloat = 23
     static let extraLarge: CGFloat = 28
+    static let authLarge: CGFloat = 52
 }
 

@@ -30,7 +30,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             navigationController: UINavigationController()
         ) // Что это за экран??)
         let cartViewController = UINavigationController(rootViewController: CartRouter.createModule())
-        let profileViewController = PaymentRouter.createModule()
+        let profileViewController = AuthViewController()
         
         tabBarController.viewControllers = [
             homeViewController,
@@ -82,7 +82,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         }
         
         if onboardingCompleted {
-            window?.rootViewController = tabBarController
+            //window?.rootViewController = tabBarController
+            window?.rootViewController = AuthViewController()
         } else {
             window?.rootViewController = onboardingViewController
         }
