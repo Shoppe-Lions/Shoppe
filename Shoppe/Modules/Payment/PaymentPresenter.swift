@@ -13,7 +13,7 @@ protocol AnyPaymentPresenter: AnyObject {
     var view: AnyPaymentView? { get set }
     var router: AnyPaymentRouter? { get set }
     var interactor: AnyPaymentIntercator? { get set }
-    func interactorDidFetchBasketItems(with result:[Product])
+    func interactorDidFetchBasketItems(with result:[CartItem])
     func viewDidLoad()
     func viewDidSelectDelivery()
     func viewDidShowAlert()
@@ -31,19 +31,26 @@ final class PaymentPresenter: AnyPaymentPresenter {
     weak var view: AnyPaymentView?
     var router: AnyPaymentRouter?
     var interactor: AnyPaymentIntercator?
+    var product: Product?
     
-    init(view: AnyPaymentView? = nil, router: AnyPaymentRouter? = nil, interactor: AnyPaymentIntercator? = nil) {
+    init(view: AnyPaymentView? = nil, router: AnyPaymentRouter? = nil, interactor: AnyPaymentIntercator? = nil, product: Product? = nil) {
         self.view = view
         self.router = router
         self.interactor = interactor
+        
+        guard let product else { return }
+        self.product = product
     }
     
     func viewDidLoad() {
-        interactor?.getBasketItems()
-        getViewUpdateTotalPriceAndDelivery()
+        if let product = product {
+            interactor?.getOneItemBasket(product: product)
+        } else {
+            interactor?.getBasketItems()
+        }
     }
     
-    func interactorDidFetchBasketItems(with result: [Product]) {
+    func interactorDidFetchBasketItems(with result: [CartItem]) {
         view?.setupItems(with: result)
         getViewUpdateTotalPriceAndDelivery()
     }
@@ -54,6 +61,9 @@ final class PaymentPresenter: AnyPaymentPresenter {
     }
     
     func viewDidShowAlert() {
+        guard let items = interactor?.items, !items.isEmpty else {
+            return
+        }
         view?.showAlert()
     }
     
