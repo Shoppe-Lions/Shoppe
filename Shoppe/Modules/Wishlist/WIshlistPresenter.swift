@@ -14,6 +14,7 @@ protocol WishlistPresenterProtocol: AnyObject {
     func didFetchWishlistProducts(_ products: [Product])
     func didSelectProduct(_ product: Product)
     func toggleWishlist(for product: Product)
+    func didFilterProducts(with query: String)
 }
 
 final class WishlistPresenter: WishlistPresenterProtocol {
@@ -63,5 +64,9 @@ final class WishlistPresenter: WishlistPresenterProtocol {
     
     func didPullToRefresh() {
         interactor.fetchWishlistProducts()
+    }
+    
+    func didFilterProducts(with query: String) {
+        products = products.filter { $0.title.lowercased().contains(query.lowercased()) }
     }
 }
