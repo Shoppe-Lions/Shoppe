@@ -121,28 +121,26 @@ final class CustomAlertView: UIView {
         button.snp.remakeConstraints { make in
             make.height.equalTo(PLayout.horizontalPadding * 2.1)
             make.top.equalTo(messageLabel.snp.bottom).offset(PLayout.paddingL)
-            
+
             if secondButtonText == nil {
                 make.centerX.equalToSuperview()
                 make.width.equalTo(PLayout.horizontalPadding * 7.5)
             } else {
-                make.trailing.equalTo(alertBox.snp.centerX).offset(-PLayout.paddingS / 2)
-                make.width.equalTo(PLayout.horizontalPadding * 3.5)
-            }
-        }
-        
-        secondButton.isHidden = secondButtonText == nil
-        
-        secondButton.snp.remakeConstraints { make in
-            make.height.equalTo(PLayout.horizontalPadding * 2.1)
-            make.top.equalTo(messageLabel.snp.bottom).offset(PLayout.paddingL)
-            
-            if secondButtonText == nil {
-                return
-            } else {
                 make.leading.equalTo(alertBox.snp.centerX).offset(PLayout.paddingS / 2)
                 make.width.equalTo(PLayout.horizontalPadding * 3.5)
             }
+        }
+
+        secondButton.isHidden = secondButtonText == nil
+
+        secondButton.snp.remakeConstraints { make in
+            if secondButtonText == nil {
+                return 
+            }
+            make.height.equalTo(PLayout.horizontalPadding * 2.1)
+            make.top.equalTo(messageLabel.snp.bottom).offset(PLayout.paddingL)
+            make.trailing.equalTo(alertBox.snp.centerX).offset(-PLayout.paddingS / 2) // Переместили влево
+            make.width.equalTo(PLayout.horizontalPadding * 3.5)
         }
         
     }

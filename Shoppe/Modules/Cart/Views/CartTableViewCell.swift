@@ -17,8 +17,8 @@ final class CartTableViewCell: UITableViewCell {
     lazy var alertView = CustomAlertView(
         title: "Delete Item?",
         message: "Are you shure?",
-        buttonText: "Удалить",
-        secondButtonText: "ooops"
+        buttonText: "Delete",
+        secondButtonText: "Cancel"
     )
     // MARK: - UI
     private lazy var cellStackView: UIStackView = {
