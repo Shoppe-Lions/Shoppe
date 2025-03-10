@@ -58,7 +58,8 @@ final class PaymentViewController: UIViewController, AnyPaymentView {
     
     lazy var alertView = CustomAlertView(title: "Done!",
                                          message: "Your card has been successfully charged",
-                                         buttonText: "Track My Order")
+                                         buttonText: "Track My Order",
+                                         secondButtonText: nil)
     
     lazy var editAddressView = TextFieldAlertView(title: "Change address", message: "Your shipping address", buttonText: "Change")
     
