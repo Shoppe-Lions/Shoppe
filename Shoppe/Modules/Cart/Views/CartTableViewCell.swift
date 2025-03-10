@@ -23,6 +23,18 @@ final class CartTableViewCell: UITableViewCell {
         return element
     }()
     
+    private let photoContainerView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .white
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.layer.shadowOffset = CGSize(width: 0, height: 5)
+        view.layer.shadowRadius = 10
+        view.layer.shadowOpacity = 1
+        view.layer.cornerRadius = 9
+        view.layer.shadowColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.1).cgColor
+        return view
+    }()
+    
     private lazy var cellImageView: UIImageView = {
         let element = UIImageView()
         element.image = UIImage(named: "Cell")
@@ -168,8 +180,9 @@ private extension CartTableViewCell {
     func setupViews() {
         contentView.addSubview(cellStackView)
         
-        cellStackView.addArrangedSubview(cellImageView)
-    
+        cellStackView.addArrangedSubview(photoContainerView)
+        
+        photoContainerView.addSubview(cellImageView)
         cellImageView.addSubview(deleteProductButton)
         
         cellStackView.addArrangedSubview(productStackView)
@@ -187,12 +200,17 @@ private extension CartTableViewCell {
     func setupConstraints() {
         cellStackView.snp.makeConstraints { make in
             make.leading.trailing.equalTo(contentView)
-            make.height.equalTo(101)
         }
         
+        
+        photoContainerView.snp.makeConstraints { make in
+            
+            make.height.equalTo(109)
+            make.width.equalTo(129)
+        }
+
         cellImageView.snp.makeConstraints { make in
-            make.width.equalTo(121)
-            make.height.equalTo(101)
+            make.edges.equalToSuperview().inset(5)
         }
         
         deleteProductButton.snp.makeConstraints { make in
