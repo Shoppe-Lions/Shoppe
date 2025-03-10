@@ -26,7 +26,6 @@ final class CartInteractor: CartInteractorProtocol {
     var products = [
         Product(id: 1, title: "Lorem ipsum dolor sit amet consectetur", price: 200, description: "", category: "", imageURL: "Cell", rating: Rating(rate: 5, count: 25), subcategory: "test", like: false),
         Product(id: 232, title: "Lorem ipsum dolor sit amet consectetur", price: 199.99, description: "", category: "", imageURL: "Cell", rating: Rating(rate: 5, count: 25), subcategory: "test", like: false),
-        
     ]
     
     func fetchCartProducts() {
