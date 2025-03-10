@@ -14,7 +14,12 @@ final class CartTableViewCell: UITableViewCell {
     private var index: Int?
     weak var presenter: CartPresenterProtocol?
     
-    lazy var alertView = CustomAlertView(title: "Delete Item?", message: "Are you shure?", buttonText: "Yes")
+    lazy var alertView = CustomAlertView(
+        title: "Delete Item?",
+        message: "Are you shure?",
+        buttonText: "Удалить",
+        secondButtonText: "ooops"
+    )
     // MARK: - UI
     private lazy var cellStackView: UIStackView = {
         let element = UIStackView()
@@ -167,12 +172,18 @@ final class CartTableViewCell: UITableViewCell {
     @objc private func didTapDeleteButton() {
         alertView.show()
         alertView.button.addTarget(self, action: #selector(confirmDelete), for: .touchUpInside)
+        alertView.secondButton.addTarget(self, action: #selector(cancelDelete), for: .touchUpInside)
+        alertView.secondButton.isHidden = false
     }
     
     @objc func confirmDelete() {
         alertView.dismiss()
         guard let index else { return }
         presenter?.deleteProduct(at: index)
+    }
+    
+    @objc func cancelDelete() {
+        alertView.dismiss()
     }
 }
 
@@ -195,6 +206,7 @@ private extension CartTableViewCell {
         counterStackView.addArrangedSubview(lessButton)
         counterStackView.addArrangedSubview(counterLabel)
         counterStackView.addArrangedSubview(moreButton)
+        
     }
     
     func setupConstraints() {

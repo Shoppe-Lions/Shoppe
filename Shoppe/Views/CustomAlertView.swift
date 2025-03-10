@@ -11,6 +11,7 @@ final class CustomAlertView: UIView {
     private var titleText: String
     private var messageText: String
     private var buttonText: String
+    private var secondButtonText: String?
     
     lazy var alertBox: UIView = {
         let alertBox = UIView()
@@ -56,20 +57,33 @@ final class CustomAlertView: UIView {
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
-
-    init(title: String, message: String, buttonText: String) {
+    
+    lazy var secondButton: UIButton = {
+        let button = UIButton()
+        button.setTitle(secondButtonText, for: .normal)
+        button.setTitleColor(.customBlack, for: .normal)
+        button.titleLabel?.font = UIFont(name: "NunitoSans10pt-Regular", size: PFontSize.normal)
+        button.backgroundColor = .customAlertGray
+        button.layer.cornerRadius = 10
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.isHidden = true
+        return button
+    }()
+    
+    init(title: String, message: String, buttonText: String, secondButtonText: String?) {
         self.titleText = title
         self.messageText = message
         self.buttonText = buttonText
+        self.secondButtonText = secondButtonText
         super.init(frame: .zero)
         setupView()
         setConstraints()
     }
-
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
+    
     func setupView() {
         backgroundColor = UIColor.customAlertGray.withAlphaComponent(0.7)
         
@@ -78,6 +92,7 @@ final class CustomAlertView: UIView {
         alertBox.addSubview(titleLabel)
         alertBox.addSubview(messageLabel)
         alertBox.addSubview(button)
+        alertBox.addSubview(secondButton)
     }
     
     func setConstraints() {
@@ -103,27 +118,47 @@ final class CustomAlertView: UIView {
             make.centerY.equalToSuperview()
         }
         
-        button.snp.makeConstraints { make in
-            make.centerX.equalToSuperview()
-            make.width.equalTo(PLayout.horizontalPadding*7.5)
-            make.height.equalTo(PLayout.horizontalPadding*2.1)
+        button.snp.remakeConstraints { make in
+            make.height.equalTo(PLayout.horizontalPadding * 2.1)
             make.top.equalTo(messageLabel.snp.bottom).offset(PLayout.paddingL)
+            
+            if secondButtonText == nil {
+                make.centerX.equalToSuperview()
+                make.width.equalTo(PLayout.horizontalPadding * 7.5)
+            } else {
+                make.trailing.equalTo(alertBox.snp.centerX).offset(-PLayout.paddingS / 2)
+                make.width.equalTo(PLayout.horizontalPadding * 3.5)
+            }
+        }
+        
+        secondButton.isHidden = secondButtonText == nil
+        
+        secondButton.snp.remakeConstraints { make in
+            make.height.equalTo(PLayout.horizontalPadding * 2.1)
+            make.top.equalTo(messageLabel.snp.bottom).offset(PLayout.paddingL)
+            
+            if secondButtonText == nil {
+                return
+            } else {
+                make.leading.equalTo(alertBox.snp.centerX).offset(PLayout.paddingS / 2)
+                make.width.equalTo(PLayout.horizontalPadding * 3.5)
+            }
         }
         
     }
-
+    
     func show() {
         guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-            let keyWindow = windowScene.windows.first(where: { $0.isKeyWindow }) else {
+              let keyWindow = windowScene.windows.first(where: { $0.isKeyWindow }) else {
             return
         }
-
+        
         keyWindow.addSubview(self)
         self.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
     }
-
+    
     func dismiss() {
         self.removeFromSuperview()
     }
