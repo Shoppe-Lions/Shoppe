@@ -7,15 +7,24 @@
 
 import UIKit
 
+protocol AnyAuthView: AnyObject {
+    var presenter: AnyAuthPresenter? { get set }
+    var authType: AuthType { get set }
+    func setupViews()
+}
+
 enum AuthType {
     case getStarted
     case register
     case login
 }
 
-final class AuthViewController: UIViewController, UITextFieldDelegate {
+final class AuthViewController: UIViewController, UITextFieldDelegate, AnyAuthView {
+    // MARK: - Properties
+    var presenter: AnyAuthPresenter?
     var authType: AuthType = .getStarted
     
+    // MARK: - UI
     lazy var logo = ShadowImageView(imageName: "logoBag", radius: 70, borderWidth: 10)
     
     lazy var label: UILabel = {
@@ -38,63 +47,21 @@ final class AuthViewController: UIViewController, UITextFieldDelegate {
     }()
     
     lazy var emailTextField: UITextField = {
-            let textField = UITextField()
-            textField.backgroundColor = .customGray
-            textField.font = UIFont(name: "NunitoSans10pt-Regular", size: PFontSize.normal)
-            textField.placeholder = "Email"
-            textField.layer.cornerRadius = 12
-            textField.layer.borderWidth = 1
-            textField.layer.borderColor = UIColor.white.cgColor
-            textField.delegate = self // Устанавливаем делегат
-
-            let paddingView = UIView(frame: CGRect(x: 0, y: 0, width: 10, height: textField.frame.height))
-            textField.leftView = paddingView
-            textField.leftViewMode = .always
-            
-            return textField
+        let textField = UITextField()
+        textField.backgroundColor = .customGray
+        textField.font = UIFont(name: "NunitoSans10pt-Regular", size: PFontSize.normal)
+        textField.placeholder = "Email"
+        textField.layer.cornerRadius = 12
+        textField.layer.borderWidth = 1
+        textField.layer.borderColor = UIColor.white.cgColor
+        textField.delegate = self
+        let paddingView = UIView(frame: CGRect(x: 0, y: 0, width: 10, height: textField.frame.height))
+        textField.leftView = paddingView
+        textField.leftViewMode = .always
+        return textField
     }()
     
-    lazy var passwordTextField: UITextField = {
-        let textField = UITextField()
-                textField.backgroundColor = .customGray
-                textField.font = UIFont(name: "NunitoSans10pt-Regular", size: PFontSize.normal)
-                textField.placeholder = "Password"
-                textField.layer.cornerRadius = 12
-                textField.layer.borderWidth = 1 // Начальная обводка
-                textField.layer.borderColor = UIColor.white.cgColor // Начальный цвет границы
-                textField.isSecureTextEntry = true // Пароль скрыт по умолчанию
-                textField.delegate = self // Устанавливаем делегат
-
-                // Отступ слева
-                let paddingView = UIView(frame: CGRect(x: 0, y: 0, width: 10, height: textField.frame.height))
-                textField.leftView = paddingView
-                textField.leftViewMode = .always
-
-                // Кнопка-глаз
-                let button = UIButton(type: .custom)
-                let showPass = UIImage(systemName: "eye")
-                let hidePass = UIImage(systemName: "eye.slash")
-
-                button.setImage(hidePass, for: .normal) // Иконка скрытого пароля
-                button.frame = CGRect(x: 0, y: 0, width: 40, height: 40)
-                button.tintColor = .gray
-
-                let action = UIAction { [weak self] _ in
-                    textField.isSecureTextEntry.toggle()
-                    let image = textField.isSecureTextEntry ? hidePass : showPass
-                    button.setImage(image, for: .normal)
-                }
-
-                button.addAction(action, for: .touchUpInside)
-
-                let containerView = UIView(frame: CGRect(x: 0, y: 0, width: 50, height: 40))
-                containerView.addSubview(button)
-
-                textField.rightView = containerView
-                textField.rightViewMode = .always
-
-                return textField
-    }()
+    lazy var passwordTextField = CustomPasswordTextField(frame: CGRect(x: 20, y: 100, width: 300, height: 50))
     
     lazy var button: UIButton = {
         let button = UIButton(type: .system)
@@ -130,7 +97,7 @@ final class AuthViewController: UIViewController, UITextFieldDelegate {
     // MARK: - UI Setup
     func setupViews() {
         view.backgroundColor = .white
-        
+        passwordTextField.delegate = self
         
         view.addSubview(label)
         view.addSubview(welcomeLabel)
@@ -142,20 +109,24 @@ final class AuthViewController: UIViewController, UITextFieldDelegate {
         switch authType {
         case .getStarted:
             view.addSubview(logo)
-            button.addTarget(self, action: #selector(goToRegister), for: .touchUpInside)
-            plainButton.addTarget(self, action: #selector(goToLogin), for: .touchUpInside)
+            button.removeTarget(nil, action: nil, for: .touchUpInside)
+            button.addTarget(self, action: #selector(didGetStartedTapped), for: .touchUpInside)
+            plainButton.addTarget(self, action: #selector(didHaveAccountTapped), for: .touchUpInside)
             resetConstraints()
             setGetStartedConstraints()
             setGetStartedUI()
-            setLogo()
         case .register:
-            plainButton.addTarget(self, action: #selector(goToGetStarted), for: .touchUpInside)
+            button.removeTarget(nil, action: nil, for: .touchUpInside)
+            button.addTarget(self, action: #selector(didCreateAccountTapped), for: .touchUpInside)
+            plainButton.addTarget(self, action: #selector(didCancelTapped), for: .touchUpInside)
             resetConstraints()
             setRegisterConstraints()
             setRegisterUI()
             
         case .login:
-            plainButton.addTarget(self, action: #selector(goToGetStarted), for: .touchUpInside)
+            button.removeTarget(nil, action: nil, for: .touchUpInside)
+            button.addTarget(self, action: #selector(didLoginNextTapped), for: .touchUpInside)
+            plainButton.addTarget(self, action: #selector(didCancelTapped), for: .touchUpInside)
             resetConstraints()
             setLoginConstraints()
             setLoginUI()
@@ -163,33 +134,36 @@ final class AuthViewController: UIViewController, UITextFieldDelegate {
         
     }
     
-    func setLogo() {
+    // MARK: - Actions
+  
+    @objc func didGetStartedTapped() {
+        presenter?.viewDidGetStartedTapped()
     }
     
-    @objc func goToGetStarted() {
-        authType = .getStarted
-        setupViews()
+    @objc func didHaveAccountTapped() {
+        presenter?.viewDidHaveAccountTapped()
     }
     
-    @objc func goToLogin() {
-        authType = .login
-        setupViews()
+    @objc func didCancelTapped() {
+        presenter?.viewDidCancelTapped()
     }
     
-    @objc func goToRegister() {
-        authType = .register
-        setupViews()
+    @objc func didCreateAccountTapped() {
+        presenter?.viewDidCreateAccountTapped()
     }
+    
+    @objc func didLoginNextTapped() {
+        presenter?.viewDidLoginNextTapped()
+    }
+    
     
     // MARK: - UITextFieldDelegate
 
-        // Когда начинается ввод (поле в фокусе) → граница становится синей
         func textFieldDidBeginEditing(_ textField: UITextField) {
             textField.layer.borderColor = UIColor.systemBlue.cgColor
             textField.layer.borderWidth = 2
         }
 
-        // Когда текстовое поле теряет фокус → возвращаем серую границу
         func textFieldDidEndEditing(_ textField: UITextField) {
             textField.layer.borderColor = UIColor.white.cgColor
             textField.layer.borderWidth = 1
@@ -275,7 +249,6 @@ extension AuthViewController {
             make.centerX.equalToSuperview()
         }
     }
-    
     
     func setGetStartedConstraints() {
         logo.snp.makeConstraints { make in
