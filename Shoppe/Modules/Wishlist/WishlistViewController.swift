@@ -88,15 +88,16 @@ final class WishlistViewController: UIViewController {
             make.center.equalToSuperview()
         }
     }
+    
     func showLoadingIndicator() {
            activityIndicator.startAnimating()
            collectionView.isHidden = true
        }
 
-       func hideLoadingIndicator() {
-           activityIndicator.stopAnimating()
-           collectionView.isHidden = false
-       }
+    func hideLoadingIndicator() {
+        activityIndicator.stopAnimating()
+        collectionView.isHidden = false
+    }
     
     private func setupPullToRefresh() {
         refreshControl.addTarget(self, action: #selector(refreshData), for: .valueChanged)
@@ -104,7 +105,6 @@ final class WishlistViewController: UIViewController {
     }
     
     @objc private func refreshData() {
-        print("Обновление данных...")
         presenter?.didPullToRefresh()
     }
    
@@ -152,7 +152,6 @@ extension WishlistViewController: UICollectionViewDelegate, UICollectionViewData
 extension WishlistViewController: WishlistViewProtocol {
     func reloadData() {
         self.refreshControl.endRefreshing()
-        print("Данные обновлены")
         collectionView.reloadData()
     }
 }
