@@ -30,7 +30,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             navigationController: UINavigationController()
         ) // Что это за экран??)
         let cartViewController = UINavigationController(rootViewController: CartRouter.createModule())
-        let profileViewController = ViewController()
+        let profileViewController = AllCategoriesRouter.createModule()
         
         tabBarController.viewControllers = [
             homeViewController,

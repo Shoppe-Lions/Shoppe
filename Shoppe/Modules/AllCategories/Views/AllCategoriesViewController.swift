@@ -6,6 +6,10 @@
 //
 import UIKit
 
+protocol AllCategoriesViewProtocol: AnyObject {
+    func showCategories(_ categories: [Category])
+}
+
 class AllCategoriesViewController: UIViewController {
     
     // MARK: - UI
@@ -39,16 +43,9 @@ class AllCategoriesViewController: UIViewController {
     
     // MARK: - Properties
     
-    var categories: [Category] = [
-        Category(title: "Clothing", imagePath: "clothing", subcategories: [
-            "Dresses", "Pants", "Skirts", "Shorts", "Jackets", "Hoodies",
-            "Shirts", "Polo", "T-Shirts", "Tunics"
-        ]),
-        Category(title: "Shoes", imagePath: "shoes", subcategories: []),
-        Category(title: "Bags", imagePath: "bags", subcategories: []),
-        Category(title: "Lingerie", imagePath: "lingerie", subcategories: []),
-        Category(title: "Accessories", imagePath: "accessories", subcategories: [])
-    ]
+    var presenter: AllCategoriesPresenterProtocol!
+    
+    var categories: [Category] = []
     
     // MARK: - Methods
     
@@ -60,6 +57,7 @@ class AllCategoriesViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        presenter.viewDidLoad()
         setViews()
         setConstraints()
     }
@@ -138,5 +136,11 @@ extension AllCategoriesViewController: UITableViewDataSource, UITableViewDelegat
             cell.clipsToBounds = false
             return cell
         }
+    }
+}
+
+extension AllCategoriesViewController: AllCategoriesViewProtocol {
+    func showCategories(_ categories: [Category]) {
+        self.categories = categories
     }
 }
