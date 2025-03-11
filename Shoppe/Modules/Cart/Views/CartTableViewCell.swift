@@ -14,13 +14,30 @@ final class CartTableViewCell: UITableViewCell {
     private var index: Int?
     weak var presenter: CartPresenterProtocol?
     
-    lazy var alertView = CustomAlertView(title: "Delete Item?", message: "Are you shure?", buttonText: "Yes")
+    lazy var alertView = CustomAlertView(
+        title: "Delete Item?",
+        message: "Are you shure?",
+        buttonText: "Delete",
+        secondButtonText: "Cancel"
+    )
     // MARK: - UI
     private lazy var cellStackView: UIStackView = {
         let element = UIStackView()
         element.axis = .horizontal
         element.spacing = 10
         return element
+    }()
+    
+    private let photoContainerView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .white
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.layer.shadowOffset = CGSize(width: 0, height: 5)
+        view.layer.shadowRadius = 10
+        view.layer.shadowOpacity = 1
+        view.layer.cornerRadius = 9
+        view.layer.shadowColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.1).cgColor
+        return view
     }()
     
     private lazy var cellImageView: UIImageView = {
@@ -155,6 +172,8 @@ final class CartTableViewCell: UITableViewCell {
     @objc private func didTapDeleteButton() {
         alertView.show()
         alertView.button.addTarget(self, action: #selector(confirmDelete), for: .touchUpInside)
+        alertView.secondButton.addTarget(self, action: #selector(cancelDelete), for: .touchUpInside)
+        alertView.secondButton.isHidden = false
     }
     
     @objc func confirmDelete() {
@@ -162,14 +181,19 @@ final class CartTableViewCell: UITableViewCell {
         guard let index else { return }
         presenter?.deleteProduct(at: index)
     }
+    
+    @objc func cancelDelete() {
+        alertView.dismiss()
+    }
 }
 
 private extension CartTableViewCell {
     func setupViews() {
         contentView.addSubview(cellStackView)
         
-        cellStackView.addArrangedSubview(cellImageView)
-    
+        cellStackView.addArrangedSubview(photoContainerView)
+        
+        photoContainerView.addSubview(cellImageView)
         cellImageView.addSubview(deleteProductButton)
         
         cellStackView.addArrangedSubview(productStackView)
@@ -182,17 +206,23 @@ private extension CartTableViewCell {
         counterStackView.addArrangedSubview(lessButton)
         counterStackView.addArrangedSubview(counterLabel)
         counterStackView.addArrangedSubview(moreButton)
+        
     }
     
     func setupConstraints() {
         cellStackView.snp.makeConstraints { make in
             make.leading.trailing.equalTo(contentView)
-            make.height.equalTo(101)
         }
         
+        
+        photoContainerView.snp.makeConstraints { make in
+            
+            make.height.equalTo(109)
+            make.width.equalTo(129)
+        }
+
         cellImageView.snp.makeConstraints { make in
-            make.width.equalTo(121)
-            make.height.equalTo(101)
+            make.edges.equalToSuperview().inset(5)
         }
         
         deleteProductButton.snp.makeConstraints { make in

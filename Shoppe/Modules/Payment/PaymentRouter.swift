@@ -9,17 +9,17 @@ import UIKit
 
 
 protocol AnyPaymentRouter: AnyObject {
-    static func createModule() -> UIViewController
+    static func createModule(product: Product?) -> UIViewController
     func navigateToCart(from view: UIViewController)
 }
 
 final class PaymentRouter: AnyPaymentRouter {
-    static func createModule() -> UIViewController {
+    static func createModule(product: Product? = nil) -> UIViewController {
         let router = PaymentRouter()
         
         let view = PaymentViewController()
         let interactor = PaymentInteractor()
-        let presenter = PaymentPresenter(view: view, router: router, interactor: interactor)
+        let presenter = PaymentPresenter(view: view, router: router, interactor: interactor, product: product)
         
         view.presenter = presenter
         interactor.presenter = presenter
@@ -28,6 +28,10 @@ final class PaymentRouter: AnyPaymentRouter {
     }
     
     func navigateToCart(from view: UIViewController) {
+        if let navigationController = view.navigationController {
+                navigationController.popViewController(animated: true)
+        }
+        
         if let tabBarController = view.tabBarController {
             tabBarController.selectedIndex = 3
         }

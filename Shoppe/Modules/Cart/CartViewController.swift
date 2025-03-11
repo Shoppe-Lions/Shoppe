@@ -119,6 +119,16 @@ final class CartViewController: UIViewController {
         element.setContentHuggingPriority(.defaultLow, for: .horizontal)
         return element
     }()
+    
+    private lazy var emptyCartLabel: UILabel = {
+        let element = UILabel()
+        element.text = "Your cart is empty"
+        element.font = UIFont(name: Fonts.Raleway.bold, size: 22)
+        element.textColor = .gray
+        element.textAlignment = .center
+        element.isHidden = true
+        return element
+    }()
     // MARK: - Life Circle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -143,6 +153,8 @@ extension CartViewController: CartViewProtocol {
     func showCartProducts(_ products: [Product]) {
         self.products = products
         cartTableView.reloadData()
+        
+        emptyCartLabel.isHidden = !products.isEmpty
     }
     
     func updateProduct(at index: Int, product: Product, quantity: Int) {
@@ -162,8 +174,9 @@ extension CartViewController: CartViewProtocol {
     
     func removeProduct(at index: Int) {
         products.remove(at: index)
-//        cartTableView.deleteRows(at: [IndexPath(row: index, section: 0)], with: .automatic)
         cartTableView.reloadData()
+        
+        emptyCartLabel.isHidden = !products.isEmpty
     }
 }
 
@@ -223,6 +236,7 @@ private extension CartViewController {
         
         bottomStackView.addArrangedSubview(checkoutButton)
         
+        view.addSubview(emptyCartLabel)
     }
     
     func setupConstraints() {
@@ -248,6 +262,10 @@ private extension CartViewController {
         checkoutButton.snp.makeConstraints { make in
             make.width.equalTo(130)
             make.height.equalTo(40)
+        }
+        
+        emptyCartLabel.snp.makeConstraints { make in
+            make.center.equalTo(view)
         }
     }
 }

@@ -11,7 +11,7 @@ import SnapKit
 protocol AnyPaymentView: AnyObject {
     var presenter: AnyPaymentPresenter? { get set }
     var shippingType: shippingType { get set }
-    func setupItems(with items:[Product])
+    func setupItems(with items:[CartItem])
     func updateTotalPrice(with total: Double)
     func updateDeliveryDate(date: String)
     func showAlert()
@@ -40,7 +40,7 @@ final class PaymentViewController: UIViewController, AnyPaymentView {
     lazy var shippingDetails = DetailsView(type: .shipping)
     lazy var deliveryDetails = DetailsView(type: .contacts)
     lazy var itemTitle = HeadingLabel(title: "Items")
-    lazy var itemsNumber = CountCircleView(size: 16, radius: 13)
+    lazy var itemsNumber = CountCircleView(size: 16, radius: 13, number: 0)
     lazy var itemsStackView = SH_VerticalStackView()
     lazy var voucherButton = UIButton()
     
@@ -58,7 +58,8 @@ final class PaymentViewController: UIViewController, AnyPaymentView {
     
     lazy var alertView = CustomAlertView(title: "Done!",
                                          message: "Your card has been successfully charged",
-                                         buttonText: "Track My Order")
+                                         buttonText: "Track My Order",
+                                         secondButtonText: nil)
     
     lazy var editAddressView = TextFieldAlertView(title: "Change address", message: "Your shipping address", buttonText: "Change")
     
@@ -78,6 +79,17 @@ final class PaymentViewController: UIViewController, AnyPaymentView {
         updateShippingUI()
         
         presenter?.viewDidLoad()
+    }
+    
+    // Hide nav-bar
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.setNavigationBarHidden(true, animated: true)
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        navigationController?.setNavigationBarHidden(false, animated: true)
     }
     
     // MARK: - UI Setup
@@ -107,8 +119,8 @@ final class PaymentViewController: UIViewController, AnyPaymentView {
         
         shippingStandard.button.addTarget(self, action: #selector(didSelectDelivery), for: .touchUpInside)
         shippingExpress.button.addTarget(self, action: #selector(didSelectDelivery), for: .touchUpInside)
-        totalView.button.addTarget(self, action: #selector(didShowAlert), for: .touchUpInside)
-        alertView.button.addTarget(self, action: #selector(didDismissAlert), for: .touchUpInside)
+        totalView.button.addTarget(self, action: #selector(didShowPaymentAlert), for: .touchUpInside)
+        alertView.button.addTarget(self, action: #selector(didDismissPaymentAlert), for: .touchUpInside)
         shippingDetails.editButton.addTarget(self, action: #selector(didShowEditAddress), for: .touchUpInside)
         editAddressView.button.addTarget(self, action: #selector(didDismissEditAddressAlert), for: .touchUpInside)
         deliveryDetails.editButton.addTarget(self, action: #selector(didShowEditContacts), for: .touchUpInside)
@@ -123,11 +135,12 @@ final class PaymentViewController: UIViewController, AnyPaymentView {
     }
     
 
-    @objc func didShowAlert() {
+    @objc func didShowPaymentAlert() {
         presenter?.viewDidShowAlert()
     }
     
-    @objc func didDismissAlert() {
+    @objc func didDismissPaymentAlert() {
+        StorageCartManager.shared.clearCart()
         presenter?.viewDidDismissAlert()
     }
     
@@ -160,7 +173,7 @@ final class PaymentViewController: UIViewController, AnyPaymentView {
 
 // MARK: - Update UI
 extension PaymentViewController {
-    func setupItems(with items:[Product]) {
+    func setupItems(with items:[CartItem]) {
         for item in items {
             let itemView = ItemView(item: item)
             itemsStackView.addArrangedSubview(itemView)
