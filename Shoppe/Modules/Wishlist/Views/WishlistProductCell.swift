@@ -150,7 +150,7 @@ class WishlistProductCell: UICollectionViewCell {
     func configure(with product: Product) {
         self.product = product
         if let img = UIImage(contentsOfFile: product.localImagePath) {
-            photoImageView.image = UIImage(contentsOfFile: product.localImagePath)
+            photoImageView.image = img
         } else {
             print("no image")
         }
