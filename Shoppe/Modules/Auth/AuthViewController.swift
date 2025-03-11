@@ -11,6 +11,7 @@ protocol AnyAuthView: AnyObject {
     var presenter: AnyAuthPresenter? { get set }
     var authType: AuthType { get set }
     func setupViews()
+    func showAuthErrorMessage(error: String)
 }
 
 enum AuthType {
@@ -42,6 +43,15 @@ final class AuthViewController: UIViewController, UITextFieldDelegate, AnyAuthVi
         label.text = "Glad to see you back ♥︎"
         label.textAlignment = .left
         label.numberOfLines = 0
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    lazy var errorLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont(name: "NunitoSans10pt-Regular", size: PFontSize.small)
+        label.textColor = .customBlue
+        label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -100,6 +110,7 @@ final class AuthViewController: UIViewController, UITextFieldDelegate, AnyAuthVi
         passwordTextField.delegate = self
         
         view.addSubview(label)
+        view.addSubview(errorLabel)
         view.addSubview(welcomeLabel)
         view.addSubview(button)
         view.addSubview(plainButton)
@@ -112,21 +123,28 @@ final class AuthViewController: UIViewController, UITextFieldDelegate, AnyAuthVi
             button.removeTarget(nil, action: nil, for: .touchUpInside)
             button.addTarget(self, action: #selector(didGetStartedTapped), for: .touchUpInside)
             plainButton.addTarget(self, action: #selector(didHaveAccountTapped), for: .touchUpInside)
+            errorLabel.text = ""
             resetConstraints()
             setGetStartedConstraints()
             setGetStartedUI()
         case .register:
+            emailTextField.text = ""
+            passwordTextField.text = ""
             button.removeTarget(nil, action: nil, for: .touchUpInside)
             button.addTarget(self, action: #selector(didCreateAccountTapped), for: .touchUpInside)
             plainButton.addTarget(self, action: #selector(didCancelTapped), for: .touchUpInside)
+            errorLabel.text = ""
             resetConstraints()
             setRegisterConstraints()
             setRegisterUI()
             
         case .login:
+            emailTextField.text = ""
+            passwordTextField.text = ""
             button.removeTarget(nil, action: nil, for: .touchUpInside)
             button.addTarget(self, action: #selector(didLoginNextTapped), for: .touchUpInside)
             plainButton.addTarget(self, action: #selector(didCancelTapped), for: .touchUpInside)
+            errorLabel.text = ""
             resetConstraints()
             setLoginConstraints()
             setLoginUI()
@@ -149,11 +167,31 @@ final class AuthViewController: UIViewController, UITextFieldDelegate, AnyAuthVi
     }
     
     @objc func didCreateAccountTapped() {
-        presenter?.viewDidCreateAccountTapped()
+        guard let email = emailTextField.text, !email.isEmpty else {
+            errorLabel.text = "Email can´t be empty"
+            return
+        }
+        
+        guard let password = passwordTextField.text, !password.isEmpty else {
+            errorLabel.text = "Password can´t be empty"
+            return
+        }
+        
+        presenter?.viewDidCreateAccountTapped(email: email, password: password)
     }
     
     @objc func didLoginNextTapped() {
-        presenter?.viewDidLoginNextTapped()
+        guard let email = emailTextField.text, !email.isEmpty else {
+            errorLabel.text = "Email can´t be empty"
+            return
+        }
+        
+        guard let password = passwordTextField.text, !password.isEmpty else {
+            errorLabel.text = "Password can´t be empty"
+            return
+        }
+        
+        presenter?.viewDidLoginNextTapped(email: email, password: password)
     }
     
     
@@ -225,6 +263,10 @@ extension AuthViewController {
         config.image = nil
         plainButton.configuration = config
     }
+    
+    func showAuthErrorMessage(error: String) {
+        errorLabel.text = error
+    }
 }
 
 // MARK: - Setting constraints
@@ -247,6 +289,12 @@ extension AuthViewController {
         plainButton.snp.makeConstraints { make in
             make.top.equalTo(button.snp.bottom).offset(PLayout.horizontalPadding)
             make.centerX.equalToSuperview()
+        }
+        
+        errorLabel.snp.makeConstraints { make in
+            make.centerX.equalToSuperview()
+            make.leading.trailing.equalToSuperview()
+            make.top.equalTo(passwordTextField.snp.bottom).offset(PLayout.paddingS)
         }
     }
     

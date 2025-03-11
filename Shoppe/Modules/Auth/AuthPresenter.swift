@@ -15,8 +15,9 @@ protocol AnyAuthPresenter: AnyObject {
     func viewDidGetStartedTapped()
     func viewDidHaveAccountTapped()
     func viewDidCancelTapped()
-    func viewDidCreateAccountTapped()
-    func viewDidLoginNextTapped()
+    func viewDidCreateAccountTapped(email: String, password: String)
+    func viewDidLoginNextTapped(email: String, password: String)
+    func updateViewAuthErrorMessage(message: String)
 }
 
 final class AuthPresenter: AnyAuthPresenter {
@@ -35,18 +36,28 @@ final class AuthPresenter: AnyAuthPresenter {
         view?.setupViews()
     }
     
-    func viewDidCreateAccountTapped() {
-        interactor?.validateEmail()
-        interactor?.validatePassword()
-        interactor?.createFirebaseUser()
-        router?.navigateToHome(from: view as! UIViewController)
+    func viewDidCreateAccountTapped(email: String, password: String) {
+        let isEmailValid = interactor?.isEmailValid(email) ?? false
+        let isPasswordValid = interactor?.isPasswordValid(password) ?? false
+
+        if isEmailValid && isPasswordValid {
+            interactor?.createFirebaseUser(email: email, password: password)
+            router?.navigateToHome(from: view as! UIViewController)
+        }
     }
     
-    func viewDidLoginNextTapped() {
-        interactor?.validateEmail()
-        interactor?.validatePassword()
-        interactor?.loginFirebaseUser()
-        router?.navigateToHome(from: view as! UIViewController)
+    func viewDidLoginNextTapped(email: String, password: String) {
+        let isEmailValid = interactor?.isEmailValid(email) ?? false
+        let isPasswordValid = interactor?.isPasswordValid(password) ?? false
+
+        if isEmailValid && isPasswordValid {
+            interactor?.loginFirebaseUser(email: email, password: password)
+            router?.navigateToHome(from: view as! UIViewController)
+        }
+    }
+    
+    func updateViewAuthErrorMessage(message: String) {
+        view?.showAuthErrorMessage(error: message)
     }
     
     
