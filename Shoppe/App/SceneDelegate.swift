@@ -24,9 +24,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let tabBarController = UITabBarController()
         
         let homeViewController = HomeViewController()
-        let wishlistViewController = WishlistRouter.createModule()
 
-
+        let wishlistViewController = UINavigationController(rootViewController: WishlistRouter.createModule())
         let unknownViewController = ProductRouter.createModule(
             by: 1,
             navigationController: UINavigationController()
@@ -35,6 +34,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let profileViewController = ProfileViewController()
 
        // let profileViewController = PaymentRouter.createModule()
+
         
         tabBarController.viewControllers = [
             homeViewController,
@@ -87,6 +87,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         if onboardingCompleted {
             window?.rootViewController = tabBarController
+            //window?.rootViewController = AuthRouter.createModule()
         } else {
             window?.rootViewController = onboardingViewController
         }

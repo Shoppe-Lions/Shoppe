@@ -41,6 +41,7 @@ class ShadowImageView: UIView {
             make.edges.equalToSuperview()
             make.width.equalTo(radius*2)
             make.height.equalTo(radius*2)
+            
         }
     }
     
