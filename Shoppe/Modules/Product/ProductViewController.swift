@@ -223,9 +223,9 @@ final class ProductViewController: UIViewController {
         dismiss(animated: true, completion: nil)
     }
     
-    @objc private func backTapped() {
-        navigationController?.popViewController(animated: true)
-    }
+//    @objc private func backTapped() {
+//        navigationController?.popViewController(animated: true)
+//    }
     
     @objc private func productImageTapped(_ sender: UITapGestureRecognizer) {
         if let id = sender.view?.tag {
@@ -237,18 +237,18 @@ final class ProductViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        navigationController?.setNavigationBarHidden(false, animated: true)
-        let backButton = UIBarButtonItem(title: "Back", style: .plain, target: self, action: #selector(backButtonTapped))
-        navigationItem.leftBarButtonItem = backButton
+//        navigationController?.setNavigationBarHidden(false, animated: true)
+//        let backButton = UIBarButtonItem(title: "Back", style: .plain, target: self, action: #selector(backButtonTapped))
+//        navigationItem.leftBarButtonItem = backButton
         setViews()
         setupConstraints()
         presenter.viewDidLoad(id: id)
-        navigationItem.leftBarButtonItem = UIBarButtonItem(
-            image: UIImage(systemName: "arrow.left"),
-            style: .plain,
-            target: self,
-            action: #selector(backTapped)
-        )
+//        navigationItem.leftBarButtonItem = UIBarButtonItem(
+//            image: UIImage(systemName: "arrow.left"),
+//            style: .plain,
+//            target: self,
+//            action: #selector(backTapped)
+//        )
         navigationItem.leftBarButtonItem?.tintColor = .black
     }
 }
