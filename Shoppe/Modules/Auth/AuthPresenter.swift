@@ -43,6 +43,8 @@ final class AuthPresenter: AnyAuthPresenter {
         if isEmailValid && isPasswordValid {
             interactor?.createFirebaseUser(email: email, password: password)
             router?.navigateToHome(from: view as! UIViewController)
+        } else {
+            view?.shakeTextField()
         }
     }
     
@@ -53,6 +55,8 @@ final class AuthPresenter: AnyAuthPresenter {
         if isEmailValid && isPasswordValid {
             interactor?.loginFirebaseUser(email: email, password: password)
             router?.navigateToHome(from: view as! UIViewController)
+        } else {
+            view?.shakeTextField()
         }
     }
     

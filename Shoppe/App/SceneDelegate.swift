@@ -82,8 +82,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         }
         
         if onboardingCompleted {
-            window?.rootViewController = tabBarController
-            //window?.rootViewController = AuthRouter.createModule()
+            //window?.rootViewController = tabBarController
+            window?.rootViewController = AuthRouter.createModule()
         } else {
             window?.rootViewController = onboardingViewController
         }
