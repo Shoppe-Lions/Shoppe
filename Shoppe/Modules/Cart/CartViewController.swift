@@ -173,6 +173,7 @@ extension CartViewController: CartViewProtocol {
     }
     
     func removeProduct(at index: Int) {
+        guard products.indices.contains(index) else { return }
         products.remove(at: index)
         cartTableView.reloadData()
         

@@ -72,11 +72,13 @@ final class CartInteractor: CartInteractorProtocol {
     }
     
     func deleteProduct(at index: Int) {
-        let cart = StorageCartManager.shared.loadCart()
+        var cart = StorageCartManager.shared.loadCart()
         guard index < cart.count else { return }
         
         let productId = cart[index].product.id
         StorageCartManager.shared.removeAllOfProduct(by: productId)
-        presenter?.deleteProduct(at: index)
+        
+        cart = StorageCartManager.shared.loadCart()
+        presenter?.didFetchCartProducts(cart.map { $0.product })
     }
 }
