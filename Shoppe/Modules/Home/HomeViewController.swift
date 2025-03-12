@@ -15,6 +15,7 @@ protocol HomeViewProtocol: AnyObject {
     func displayJustForYouProducts(_ products: [Product])
     func displayLocationMenu(with cities: [String], selectedCity: String)
     func hideLocationMenu()
+    func updateLocationLabel(_ location: String)
 }
 
 class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
@@ -56,7 +57,6 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         button.isUserInteractionEnabled = true
         
         let locationLabel = UILabel()
-        locationLabel.text = "Salatiga City, Central Java"
         locationLabel.font = UIFont(name: Fonts.Inter.regular, size: 12)
         locationLabel.textColor = .black
         locationLabel.tag = 100
@@ -72,14 +72,13 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         button.addSubview(locationLabel)
         button.addSubview(iconImageView)
         
-        // Обновляем констрейнты
         locationLabel.snp.makeConstraints { make in
-            make.left.equalToSuperview() // Привязываем к левому краю
+            make.left.equalToSuperview()
             make.centerY.equalToSuperview()
         }
         
         iconImageView.snp.makeConstraints { make in
-            make.left.equalTo(locationLabel.snp.right).offset(2) // Минимальный отступ от label
+            make.left.equalTo(locationLabel.snp.right).offset(2)
             make.centerY.equalToSuperview()
             make.width.height.equalTo(10)
         }
@@ -184,6 +183,10 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         setupUI()
         if presenter != nil {
             presenter.viewDidLoad()
+            // Обновляем locationLabel начальным значением
+            if let locationLabel = locationButton.viewWithTag(100) as? UILabel {
+                locationLabel.text = presenter.interactor.getSelectedCity()
+            }
         }
     }
     
@@ -472,21 +475,31 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
     }
     
     @objc private func locationTapped() {
-        print("Location button tapped") // Добавим для отладки
+        print("Location button tapped")
         
         if let existingMenu = view.viewWithTag(999) {
             existingMenu.removeFromSuperview()
             return
         }
         
+        // Создаем контейнер для меню с тенью
+        let menuContainer = UIView()
+        menuContainer.tag = 999
+        menuContainer.backgroundColor = .white
+        menuContainer.layer.cornerRadius = 12
+        // Настраиваем тень для контейнера
+        menuContainer.layer.shadowColor = UIColor.black.cgColor
+        menuContainer.layer.shadowOffset = CGSize(width: 0, height: 5)
+        menuContainer.layer.shadowRadius = 10
+        menuContainer.layer.shadowOpacity = 0.1
+        
+        let cities = presenter.interactor.getAvailableCities()
+        let selectedCity = presenter.interactor.getSelectedCity()
+        
         let dropDownMenu = UITableView(frame: .zero, style: .plain)
-        dropDownMenu.tag = 999
         dropDownMenu.backgroundColor = .white
         dropDownMenu.layer.cornerRadius = 12
-        dropDownMenu.layer.shadowColor = UIColor.black.cgColor
-        dropDownMenu.layer.shadowOffset = CGSize(width: 0, height: 2)
-        dropDownMenu.layer.shadowRadius = 8
-        dropDownMenu.layer.shadowOpacity = 0.1
+        dropDownMenu.clipsToBounds = true // Чтобы содержимое не выходило за пределы закругленных углов
         dropDownMenu.separatorStyle = .none
         dropDownMenu.showsVerticalScrollIndicator = false
         
@@ -494,18 +507,27 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         dropDownMenu.delegate = self
         dropDownMenu.register(LocationCell.self, forCellReuseIdentifier: "LocationCell")
         
-        view.addSubview(dropDownMenu)
+        // Добавляем таблицу в контейнер
+        menuContainer.addSubview(dropDownMenu)
+        view.addSubview(menuContainer)
         
-        dropDownMenu.snp.makeConstraints { make in
+        // Настраиваем констрейнты для контейнера
+        menuContainer.snp.makeConstraints { make in
             make.top.equalTo(locationButton.snp.bottom).offset(4)
             make.leading.equalTo(locationButton)
-            make.width.equalTo(250)
+            make.width.equalTo(280)
             make.height.equalTo(CGFloat(cities.count * 44))
         }
         
-        dropDownMenu.alpha = 0
+        // Настраиваем констрейнты для таблицы
+        dropDownMenu.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+        
+        // Анимация появления
+        menuContainer.alpha = 0
         UIView.animate(withDuration: 0.3) {
-            dropDownMenu.alpha = 1
+            menuContainer.alpha = 1
         }
     }
     
@@ -542,7 +564,7 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         }
         
         // Конфигурация заголовков
-        dataSource.supplementaryViewProvider = { collectionView, kind, indexPath in
+        dataSource.supplementaryViewProvider = { [weak self] collectionView, kind, indexPath in
             guard kind == UICollectionView.elementKindSectionHeader else {
                 return nil
             }
@@ -557,6 +579,9 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
             switch section {
             case .categories:
                 header?.configure(title: "Categories", showSeeAll: true)
+                header?.seeAllTapped = { [weak self] in
+                    self?.presenter.didTapSeeAllCategories()
+                }
             case .popular:
                 header?.configure(title: "Popular", showSeeAll: true)
             case .justForYou:
@@ -661,18 +686,19 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         dataSource.apply(snapshot, animatingDifferences: false)
     }
     
-    private let cities = ["Salatiga City, Central Java", "Jakarta", "Surabaya", "Bandung", "Yogyakarta"]
-    
     // MARK: - UITableViewDataSource
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return cities.count
+        return presenter.interactor.getAvailableCities().count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "LocationCell", for: indexPath) as! LocationCell
-        let currentCity = locationButton.viewWithTag(100) as? UILabel
-        let isSelected = cities[indexPath.row] == currentCity?.text
-        cell.configure(with: cities[indexPath.row], isSelected: isSelected)
+        let cities = presenter.interactor.getAvailableCities()
+        let selectedCity = presenter.interactor.getSelectedCity()
+        
+        let city = cities[indexPath.row]
+        cell.configure(with: city, isSelected: city == selectedCity)
+        
         return cell
     }
     
@@ -682,21 +708,9 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let cities = presenter.interactor.getAvailableCities()
         let selectedCity = cities[indexPath.row]
-        
-        if let locationLabel = locationButton.viewWithTag(100) as? UILabel {
-            locationLabel.text = selectedCity
-        }
-        
-        tableView.reloadData()
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            UIView.animate(withDuration: 0.3, animations: {
-                tableView.alpha = 0
-            }) { _ in
-                tableView.removeFromSuperview()
-            }
-        }
+        presenter.didSelectLocation(selectedCity)
     }
 }
 
@@ -725,6 +739,8 @@ class SectionHeaderView: UICollectionReusableView {
         imageView.contentMode = .scaleAspectFit
         return imageView
     }()
+    
+    var seeAllTapped: (() -> Void)?
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -755,12 +771,24 @@ class SectionHeaderView: UICollectionReusableView {
             make.centerY.equalToSuperview()
             make.width.height.equalTo(30)
         }
+        
+        // Добавляем обработчики нажатия для обеих кнопок
+        seeAllButton.addTarget(self, action: #selector(handleSeeAllTapped), for: .touchUpInside)
+        
+        // Делаем иконку кликабельной
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleSeeAllTapped))
+        seeAllIcon.isUserInteractionEnabled = true
+        seeAllIcon.addGestureRecognizer(tapGesture)
     }
     
     func configure(title: String, showSeeAll: Bool = true) {
         titleLabel.text = title
         seeAllButton.isHidden = !showSeeAll
         seeAllIcon.isHidden = !showSeeAll
+    }
+    
+    @objc private func handleSeeAllTapped() {
+        seeAllTapped?()
     }
 }
 
@@ -793,7 +821,17 @@ extension HomeViewController: HomeViewProtocol {
     
     func hideLocationMenu() {
         if let existingMenu = view.viewWithTag(999) {
-            existingMenu.removeFromSuperview()
+            UIView.animate(withDuration: 0.3, animations: {
+                existingMenu.alpha = 0
+            }) { _ in
+                existingMenu.removeFromSuperview()
+            }
+        }
+    }
+    
+    func updateLocationLabel(_ location: String) {
+        if let locationLabel = locationButton.viewWithTag(100) as? UILabel {
+            locationLabel.text = location
         }
     }
 }
