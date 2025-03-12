@@ -141,6 +141,11 @@ final class CartViewController: UIViewController {
         setupConstraints()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        presenter?.didFetchCartProducts(products) 
+    }
+    
     // MARK: - Action
     
     @objc func showPaymentScreen() {
