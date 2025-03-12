@@ -9,39 +9,18 @@
 import UIKit
 import SnapKit
 
-struct ShopCategory: Hashable {
-    let id = UUID()
-    let title: String
-    let image: String
-    let itemCount: Int
-}
-
-struct HashableProduct: Hashable {
-    let product: Product
-    
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(product.id)
-    }
-    
-    static func == (lhs: HashableProduct, rhs: HashableProduct) -> Bool {
-        return lhs.product.id == rhs.product.id
-    }
-}
-
-struct HashableRating: Hashable {
-    let rating: Rating
-    
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(rating.rate)
-        hasher.combine(rating.count)
-    }
-    
-    static func == (lhs: HashableRating, rhs: HashableRating) -> Bool {
-        return lhs.rating.rate == rhs.rating.rate && lhs.rating.count == rhs.rating.count
-    }
+protocol HomeViewProtocol: AnyObject {
+    func displayCategories(_ categories: [ShopCategory])
+    func displayPopularProducts(_ products: [Product])
+    func displayJustForYouProducts(_ products: [Product])
+    func displayLocationMenu(with cities: [String], selectedCity: String)
+    func hideLocationMenu()
 }
 
 class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+    
+    // MARK: - VIPER
+    var presenter: HomePresenterProtocol!
     
     // MARK: - Properties
     private let customNavigationBar: UIView = {
@@ -125,11 +104,11 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
     private let cartBadgeLabel: UILabel = {
         let label = UILabel()
         label.text = "2"
-        label.font = .systemFont(ofSize: 8)
+        label.font = .systemFont(ofSize: 10)
         label.textColor = .white
         label.backgroundColor = .systemRed
         label.textAlignment = .center
-        label.layer.cornerRadius = 8
+        label.layer.cornerRadius = 7
         label.clipsToBounds = true
         return label
     }()
@@ -202,12 +181,18 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupUI()
+        if presenter != nil {
+            presenter.viewDidLoad()
+        }
+    }
+    
+    // MARK: - Private Methods
+    private func setupUI() {
         view.backgroundColor = .systemBackground
         setupCustomNavigationBar()
-        
         setupCollectionView()
         configureDataSource()
-        applyInitialSnapshot()
     }
     
     // MARK: - Setup
@@ -255,7 +240,7 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         
         // Обновляем констрейнты для topStackView
         topStackView.snp.makeConstraints { make in
-            make.top.equalTo(view.safeAreaLayoutGuide).offset(-20)
+            make.top.equalTo(view.safeAreaLayoutGuide).offset(10)
             make.leading.equalToSuperview().offset(13)
             make.trailing.equalToSuperview().offset(-13)
         }
@@ -275,7 +260,7 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         cartBadgeLabel.snp.remakeConstraints { make in
             make.top.equalToSuperview().offset(-2)
             make.trailing.equalToSuperview().offset(2)
-            make.width.height.equalTo(12)
+            make.width.height.equalTo(14)
         }
         
         // Обновим констрейнты для titleLabel
@@ -365,7 +350,7 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         // Item
         let itemSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(0.5),
-            heightDimension: .absolute(260)
+            heightDimension: .absolute(220)
         )
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
         item.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0.5, bottom: 0, trailing: 0.5)
@@ -373,7 +358,7 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         // Group
         let groupSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
-            heightDimension: .absolute(260)
+            heightDimension: .absolute(220)
         )
         let group = NSCollectionLayoutGroup.horizontal(
             layoutSize: groupSize,
@@ -760,10 +745,39 @@ class SectionHeaderView: UICollectionReusableView {
     }
 }
 
-//#Preview {
-//    UINavigationController(rootViewController: HomeViewController())
-//}
-
+// MARK: - HomeViewProtocol
+extension HomeViewController: HomeViewProtocol {
+    func displayCategories(_ categories: [ShopCategory]) {
+        var snapshot = NSDiffableDataSourceSnapshot<Section, ItemType>()
+        snapshot.appendSections([.categories])
+        snapshot.appendItems(categories.map { ItemType.category($0) }, toSection: .categories)
+        dataSource.apply(snapshot, animatingDifferences: true)
+    }
+    
+    func displayPopularProducts(_ products: [Product]) {
+        var snapshot = dataSource.snapshot()
+        snapshot.appendSections([.popular])
+        snapshot.appendItems(products.map { ItemType.product(HashableProduct(product: $0)) }, toSection: .popular)
+        dataSource.apply(snapshot, animatingDifferences: true)
+    }
+    
+    func displayJustForYouProducts(_ products: [Product]) {
+        var snapshot = dataSource.snapshot()
+        snapshot.appendSections([.justForYou])
+        snapshot.appendItems(products.map { ItemType.product(HashableProduct(product: $0)) }, toSection: .justForYou)
+        dataSource.apply(snapshot, animatingDifferences: true)
+    }
+    
+    func displayLocationMenu(with cities: [String], selectedCity: String) {
+        // ... код для отображения меню локаций ...
+    }
+    
+    func hideLocationMenu() {
+        if let existingMenu = view.viewWithTag(999) {
+            existingMenu.removeFromSuperview()
+        }
+    }
+}
 
 
 

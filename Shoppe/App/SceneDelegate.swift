@@ -23,7 +23,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         let tabBarController = UITabBarController()
         
-        let homeViewController = HomeViewController()
+        let homeViewController = HomeRouter.createModule()
         let wishlistViewController = UINavigationController(rootViewController: WishlistRouter.createModule())
         let unknownViewController = ProductRouter.createModule(
             by: 2,
