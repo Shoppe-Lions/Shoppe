@@ -10,7 +10,7 @@ protocol ProductPresenterProtocol: AnyObject {
     func viewDidLoad(id: Int)
     func toggleLike(id: Int)
     func setLike(by like: Bool)
-    func buyNow(by id: Int)
+    func buyNow(by id: Int, count: Int)
     func goToNextProduct(by id: Int, navigationController: UINavigationController?)
     func addToCart(by id: Int)
     func deleteFromCart(for id: Int)
@@ -28,7 +28,7 @@ class ProductPresenter: ProductPresenterProtocol {
         self.router = router
     }
     
-    func viewDidLoad(id: Int) {        
+    func viewDidLoad(id: Int) {
         interactor.fetchProductWithSubcategories(by: id) { product, subcategoryProsucts in
             if let product = product {
                 self.view?.showProduct(product)
@@ -52,10 +52,11 @@ class ProductPresenter: ProductPresenterProtocol {
         interactor.deleteFromCart(for: id)
     }
     
-    func buyNow(by id: Int) {
+    func buyNow(by id: Int, count: Int) {
         interactor.fetchProductWithSubcategories(by: id) { product, _ in
             if let product = product {
-                self.router.goToBuyNow(by: product)
+                let cartItem = CartItem(product: product, quantity: count)
+                self.router.goToBuyNow(by: cartItem)
             }
         }
     }
