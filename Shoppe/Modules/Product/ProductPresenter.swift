@@ -12,6 +12,9 @@ protocol ProductPresenterProtocol: AnyObject {
     func setLike(by like: Bool)
     func buyNow(by id: Int)
     func goToNextProduct(by id: Int, navigationController: UINavigationController?)
+    func addToCart(by id: Int)
+    func deleteFromCart(for id: Int)
+    func setCartCount(by count: Int)
 }
 
 class ProductPresenter: ProductPresenterProtocol {
@@ -35,11 +38,18 @@ class ProductPresenter: ProductPresenterProtocol {
     }
     
     func toggleLike(id: Int) {
-        interactor.toggleLike(id: id)
+        interactor.toggleLike(by: id)
     }
     
     func setLike(by like: Bool) {
         view?.setLike(by: like)
+    }
+    
+    func addToCart(by id: Int) {
+        interactor.addToCart(by: id)
+    }
+    func deleteFromCart(for id: Int) {
+        interactor.deleteFromCart(for: id)
     }
     
     func buyNow(by id: Int) {
@@ -48,5 +58,9 @@ class ProductPresenter: ProductPresenterProtocol {
     
     func goToNextProduct(by id: Int, navigationController: UINavigationController?) {
         router.goToNextProduct(by: id, navigationController: navigationController)
+    }
+    
+    func setCartCount(by count: Int) {
+        view?.setCartCount(by: count)
     }
 }
