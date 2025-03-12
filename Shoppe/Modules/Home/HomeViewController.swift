@@ -303,44 +303,47 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         customNavigationBar.backgroundColor = .white
     }
     
+    
+    
+    
     private func setupCollectionView() {
-        collectionView = UICollectionView(frame: .zero, 
-                                        collectionViewLayout: createCompositionalLayout())
+        collectionView = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
         view.addSubview(collectionView)
+        
+        // Регистрация ячеек
+        collectionView.register(CategoryCell.self, forCellWithReuseIdentifier: String(describing: CategoryCell.self))
+        collectionView.register(ProductCell.self, forCellWithReuseIdentifier: String(describing: ProductCell.self))
+        collectionView.register(
+            SectionHeaderView.self,
+            forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
+            withReuseIdentifier: String(describing: SectionHeaderView.self)
+        )
+        
         collectionView.backgroundColor = .systemBackground
         
-        // Register cell types
-        collectionView.register(CategoryCell.self, 
-                              forCellWithReuseIdentifier: String(describing: CategoryCell.self))
-        collectionView.register(ProductCell.self, 
-                              forCellWithReuseIdentifier: String(describing: ProductCell.self))
-        
-        // Register header types
-        collectionView.register(SectionHeaderView.self,
-                              forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
-                              withReuseIdentifier: String(describing: SectionHeaderView.self))
-        
-        // Устанавливаем констрейнты после добавления в иерархию
         collectionView.snp.makeConstraints { make in
             make.top.equalTo(customNavigationBar.snp.bottom)
             make.leading.trailing.bottom.equalToSuperview()
         }
     }
+
+    
+    
     
     // MARK: - Layout
-    private func createCompositionalLayout() -> UICollectionViewLayout {
+    private func createLayout() -> UICollectionViewLayout {
         let layout = UICollectionViewCompositionalLayout { [weak self] sectionIndex, _ in
-            guard let section = Section(rawValue: sectionIndex) else { 
-                fatalError("Unknown section") 
+            guard let section = Section(rawValue: sectionIndex) else {
+                return nil
             }
             
             switch section {
             case .categories:
-                return self?.createCategorySection() ?? NSCollectionLayoutSection(group: NSCollectionLayoutGroup.horizontal(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(100)), subitems: []))
+                return self?.createCategorySection()
             case .popular:
-                return self?.createPopularSection() ?? NSCollectionLayoutSection(group: NSCollectionLayoutGroup.horizontal(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(100)), subitems: []))
+                return self?.createPopularSection()
             case .justForYou:
-                return self?.createJustForYouSection() ?? NSCollectionLayoutSection(group: NSCollectionLayoutGroup.horizontal(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(100)), subitems: []))
+                return self?.createJustForYouSection()
             }
         }
         return layout
@@ -364,6 +367,85 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
             layoutSize: groupSize,
             subitems: [item, item]
         )
+        
+        // Section
+        let section = NSCollectionLayoutSection(group: group)
+        section.contentInsets = NSDirectionalEdgeInsets(top: 16, leading: 8, bottom: 16, trailing: 8)
+        
+        // Header
+        let headerSize = NSCollectionLayoutSize(
+            widthDimension: .fractionalWidth(1.0),
+            heightDimension: .estimated(44)
+        )
+        let header = NSCollectionLayoutBoundarySupplementaryItem(
+            layoutSize: headerSize,
+            elementKind: UICollectionView.elementKindSectionHeader,
+            alignment: .top
+        )
+        section.boundarySupplementaryItems = [header]
+        
+        return section
+    }
+    
+    private func createPopularSection() -> NSCollectionLayoutSection {
+        // Item
+        let itemSize = NSCollectionLayoutSize(
+            widthDimension: .fractionalWidth(1.0),
+            heightDimension: .fractionalHeight(1.0)
+        )
+        let item = NSCollectionLayoutItem(layoutSize: itemSize)
+        
+        // Group
+        let groupSize = NSCollectionLayoutSize(
+            widthDimension: .fractionalWidth(0.4),
+            heightDimension: .absolute(270)
+        )
+        let group = NSCollectionLayoutGroup.horizontal(
+            layoutSize: groupSize,
+            subitems: [item]
+        )
+        
+        // Section
+        let section = NSCollectionLayoutSection(group: group)
+        section.orthogonalScrollingBehavior = .continuous
+        section.interGroupSpacing = 12
+        section.contentInsets = NSDirectionalEdgeInsets(
+            top: 16,
+            leading: 16,
+            bottom: 16,
+            trailing: 16
+        )
+        
+        // Header
+        let headerSize = NSCollectionLayoutSize(
+            widthDimension: .fractionalWidth(1.0),
+            heightDimension: .estimated(44)
+        )
+        let header = NSCollectionLayoutBoundarySupplementaryItem(
+            layoutSize: headerSize,
+            elementKind: UICollectionView.elementKindSectionHeader,
+            alignment: .top
+        )
+        section.boundarySupplementaryItems = [header]
+        
+        return section
+    }
+    
+    private func createJustForYouSection() -> NSCollectionLayoutSection {
+        // Item
+        let itemSize = NSCollectionLayoutSize(
+            widthDimension: .fractionalWidth(0.5),
+            heightDimension: .fractionalHeight(1.0)
+        )
+        let item = NSCollectionLayoutItem(layoutSize: itemSize)
+        item.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 5, bottom: 5, trailing: 5)
+        
+        // Group
+        let groupSize = NSCollectionLayoutSize(
+            widthDimension: .fractionalWidth(1.0),
+            heightDimension: .absolute(300)
+        )
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
         
         // Section
         let section = NSCollectionLayoutSection(group: group)
@@ -427,130 +509,67 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         }
     }
     
-    // MARK: - Layout Methods
-    private func createPopularSection() -> NSCollectionLayoutSection {
-        // Item
-        let itemSize = NSCollectionLayoutSize(
-            widthDimension: .absolute(150),
-            heightDimension: .absolute(240)
-        )
-        let item = NSCollectionLayoutItem(layoutSize: itemSize)
-        
-        // Group
-        let groupSize = NSCollectionLayoutSize(
-            widthDimension: .absolute(150),
-            heightDimension: .absolute(200)
-        )
-        let group = NSCollectionLayoutGroup.horizontal(
-            layoutSize: groupSize,
-            subitems: [item]
-        )
-        
-        // Section
-        let section = NSCollectionLayoutSection(group: group)
-        section.orthogonalScrollingBehavior = .continuous
-        section.contentInsets = NSDirectionalEdgeInsets(top: 16, leading: 8, bottom: 16, trailing: 8)
-        section.interGroupSpacing = 0.5
-        
-        // Header
-        let headerSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(1.0),
-            heightDimension: .estimated(44)
-        )
-        let header = NSCollectionLayoutBoundarySupplementaryItem(
-            layoutSize: headerSize,
-            elementKind: UICollectionView.elementKindSectionHeader,
-            alignment: .top
-        )
-        section.boundarySupplementaryItems = [header]
-        
-        return section
-    }
-    
-    private func createJustForYouSection() -> NSCollectionLayoutSection {
-        // Item
-        let itemSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(0.5),
-            heightDimension: .fractionalHeight(1.0)
-        )
-        let item = NSCollectionLayoutItem(layoutSize: itemSize)
-        item.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 5, bottom: 5, trailing: 5)
-        
-        // Group
-        let groupSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(1.0),
-            heightDimension: .absolute(300)
-        )
-        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
-        
-        // Section
-        let section = NSCollectionLayoutSection(group: group)
-        section.contentInsets = NSDirectionalEdgeInsets(top: 16, leading: 8, bottom: 16, trailing: 8)
-        
-        // Header
-        let headerSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(1.0),
-            heightDimension: .estimated(44)
-        )
-        let header = NSCollectionLayoutBoundarySupplementaryItem(
-            layoutSize: headerSize,
-            elementKind: UICollectionView.elementKindSectionHeader,
-            alignment: .top
-        )
-        section.boundarySupplementaryItems = [header]
-        
-        return section
-    }
-    
     // MARK: - Data Source Configuration
+    
+    
+    
     private func configureDataSource() {
-        dataSource = UICollectionViewDiffableDataSource<Section, ItemType>(collectionView: collectionView) { 
-            (collectionView: UICollectionView, indexPath: IndexPath, item: ItemType) -> UICollectionViewCell? in
+        dataSource = UICollectionViewDiffableDataSource<Section, ItemType>(
+            collectionView: collectionView
+        ) { [weak self] collectionView, indexPath, itemIdentifier in
+            guard let section = Section(rawValue: indexPath.section) else {
+                return nil
+            }
             
-            guard let section = Section(rawValue: indexPath.section) else { return nil }
-            
-            switch section {
-            case .categories:
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: String(describing: CategoryCell.self),
-                                                            for: indexPath) as! CategoryCell
-                if case .category(let category) = item {
-                    cell.configure(with: category)
-                }
+            switch itemIdentifier {
+            case .category(let category):
+                let cell = collectionView.dequeueReusableCell(
+                    withReuseIdentifier: String(describing: CategoryCell.self),
+                    for: indexPath
+                ) as? CategoryCell
+                cell?.configure(with: category)
                 return cell
                 
-            case .popular, .justForYou:
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: String(describing: ProductCell.self),
-                                                            for: indexPath) as! ProductCell
-                if case .product(let hashableProduct) = item {
-                    cell.configure(with: hashableProduct.product, isPopularSection: section == .popular)
-                }
+            case .product(let product):
+                let cell = collectionView.dequeueReusableCell(
+                    withReuseIdentifier: String(describing: ProductCell.self),
+                    for: indexPath
+                ) as? ProductCell
+                cell?.configure(with: product.product, isPopularSection: section == .popular)
+                cell?.delegate = self
                 return cell
             }
         }
         
-        dataSource.supplementaryViewProvider = { 
-            (collectionView: UICollectionView, kind: String, indexPath: IndexPath) -> UICollectionReusableView? in
+        // Конфигурация заголовков
+        dataSource.supplementaryViewProvider = { collectionView, kind, indexPath in
+            guard kind == UICollectionView.elementKindSectionHeader else {
+                return nil
+            }
             
-            guard kind == UICollectionView.elementKindSectionHeader else { return nil }
+            let header = collectionView.dequeueReusableSupplementaryView(
+                ofKind: kind,
+                withReuseIdentifier: String(describing: SectionHeaderView.self),
+                for: indexPath
+            ) as? SectionHeaderView
             
-            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind,
-                                                                        withReuseIdentifier: String(describing: SectionHeaderView.self),
-                                                                        for: indexPath) as! SectionHeaderView
-            
-            guard let section = Section(rawValue: indexPath.section) else { return header }
-            
+            let section = Section(rawValue: indexPath.section)
             switch section {
             case .categories:
-                header.configure(title: "Categories")
+                header?.configure(title: "Categories", showSeeAll: true)
             case .popular:
-                header.configure(title: "Popular")
+                header?.configure(title: "Popular", showSeeAll: true)
             case .justForYou:
-                header.configure(title: "Just For You")
+                header?.configure(title: "Just for You", showSeeAll: true)
+            case .none:
+                break
             }
             
             return header
         }
     }
+
+    
     
     private func applyInitialSnapshot() {
         var snapshot = NSDiffableDataSourceSnapshot<Section, ItemType>()
@@ -775,6 +794,29 @@ extension HomeViewController: HomeViewProtocol {
     func hideLocationMenu() {
         if let existingMenu = view.viewWithTag(999) {
             existingMenu.removeFromSuperview()
+        }
+    }
+}
+
+extension HomeViewController: ProductCellDelegate {
+    func didTapWishlistButton(for product: Product) {
+        // Обработка нажатия на кнопку wishlist
+        var updatedProduct = product
+        updatedProduct.toggleLike()
+        
+        // Обновляем UI
+        if var snapshot = dataSource?.snapshot() {
+            if let currentIndex = snapshot.itemIdentifiers.firstIndex(where: { 
+                if case .product(let p) = $0, p.product.id == product.id {
+                    return true
+                }
+                return false
+            }) {
+                snapshot.deleteItems([snapshot.itemIdentifiers[currentIndex]])
+                let newItem = ItemType.product(HashableProduct(product: updatedProduct))
+                snapshot.insertItems([newItem], beforeItem: snapshot.itemIdentifiers[currentIndex])
+            }
+            dataSource?.apply(snapshot, animatingDifferences: true)
         }
     }
 }
