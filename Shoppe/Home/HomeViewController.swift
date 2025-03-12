@@ -9,7 +9,18 @@
 import UIKit
 import SnapKit
 
+protocol HomeViewProtocol: AnyObject {
+    func displayCategories(_ categories: [ShopCategory])
+    func displayPopularProducts(_ products: [Product])
+    func displayJustForYouProducts(_ products: [Product])
+    func displayLocationMenu(with cities: [String], selectedCity: String)
+    func hideLocationMenu()
+}
+
 class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+    
+    // MARK: - VIPER
+    var presenter: HomePresenterProtocol!
     
     // MARK: - Properties
     private let customNavigationBar: UIView = {
@@ -170,12 +181,18 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupUI()
+        if presenter != nil {
+            presenter.viewDidLoad()
+        }
+    }
+    
+    // MARK: - Private Methods
+    private func setupUI() {
         view.backgroundColor = .systemBackground
         setupCustomNavigationBar()
-        
         setupCollectionView()
         configureDataSource()
-        applyInitialSnapshot()
     }
     
     // MARK: - Setup
@@ -725,6 +742,40 @@ class SectionHeaderView: UICollectionReusableView {
         titleLabel.text = title
         seeAllButton.isHidden = !showSeeAll
         seeAllIcon.isHidden = !showSeeAll
+    }
+}
+
+// MARK: - HomeViewProtocol
+extension HomeViewController: HomeViewProtocol {
+    func displayCategories(_ categories: [ShopCategory]) {
+        var snapshot = NSDiffableDataSourceSnapshot<Section, ItemType>()
+        snapshot.appendSections([.categories])
+        snapshot.appendItems(categories.map { ItemType.category($0) }, toSection: .categories)
+        dataSource.apply(snapshot, animatingDifferences: true)
+    }
+    
+    func displayPopularProducts(_ products: [Product]) {
+        var snapshot = dataSource.snapshot()
+        snapshot.appendSections([.popular])
+        snapshot.appendItems(products.map { ItemType.product(HashableProduct(product: $0)) }, toSection: .popular)
+        dataSource.apply(snapshot, animatingDifferences: true)
+    }
+    
+    func displayJustForYouProducts(_ products: [Product]) {
+        var snapshot = dataSource.snapshot()
+        snapshot.appendSections([.justForYou])
+        snapshot.appendItems(products.map { ItemType.product(HashableProduct(product: $0)) }, toSection: .justForYou)
+        dataSource.apply(snapshot, animatingDifferences: true)
+    }
+    
+    func displayLocationMenu(with cities: [String], selectedCity: String) {
+        // ... код для отображения меню локаций ...
+    }
+    
+    func hideLocationMenu() {
+        if let existingMenu = view.viewWithTag(999) {
+            existingMenu.removeFromSuperview()
+        }
     }
 }
 
