@@ -4,7 +4,6 @@
 //
 //  Created by Игорь Клевжиц on 05.03.2025.
 //
-import Foundation
 import UIKit
 
 protocol ProductPresenterProtocol: AnyObject {

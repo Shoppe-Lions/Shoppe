@@ -10,17 +10,17 @@ import SnapKit
 
 
 class ItemView: UIView {
-    let item: Product
+    let item: CartItem
         
-    lazy var imageView = ShadowImageView(imageName: item.imageURL)
+    lazy var imageView = ShadowImageView(imageName: item.product.imageURL)
     
-    lazy var itemsNumber = CountCircleView(size: 12, radius: 9)
+    lazy var itemsNumber = CountCircleView(size: 12, radius: 9, number: item.quantity)
 
     
     lazy var descriptionLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = item.description
+        label.text = item.product.description
         label.font = UIFont(name: "NunitoSans10pt-Regular", size: PFontSize.small)
         label.textAlignment = .left
         label.numberOfLines = 0
@@ -30,7 +30,7 @@ class ItemView: UIView {
     lazy var priceLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = String(format: "$%.2f", item.price)
+        label.text = String(format: "$%.2f", item.product.price)
         label.font = UIFont(name: "Raleway-Bold", size: PFontSize.medium)
         label.textAlignment = .right
         return label
@@ -45,7 +45,7 @@ class ItemView: UIView {
         return stack
     }()
     
-    init(item: Product) {
+    init(item: CartItem) {
         self.item = item
         super.init(frame: .zero)
         setupViews()

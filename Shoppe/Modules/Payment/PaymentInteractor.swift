@@ -15,19 +15,26 @@ let mockData: [Product] = [
 
 protocol AnyPaymentIntercator: AnyObject {
     var presenter: AnyPaymentPresenter? { get set }
+    var items: [CartItem] { get set }
     func getBasketItems()
+    func getOneItemBasket(product: Product)
     func getFutureDates() -> (String, String)
     func calculateTotalPrice(shippingType: shippingType) -> Double
 }
 
 final class PaymentInteractor: AnyPaymentIntercator {
     weak var presenter: AnyPaymentPresenter?
-    var items: [Product] = []
+    var items: [CartItem] = []
     
     func getBasketItems() {
-        let data = mockData
+        let data = StorageCartManager.shared.loadCart()
         items = data
         presenter?.interactorDidFetchBasketItems(with: data)
+    }
+    
+    func getOneItemBasket(product: Product) {
+        items = [CartItem(product: product, quantity: 1)]
+        presenter?.interactorDidFetchBasketItems(with: items)
     }
     
     func getFutureDates() -> (String, String) {
@@ -47,7 +54,7 @@ final class PaymentInteractor: AnyPaymentIntercator {
     }
     
     func calculateTotalPrice(shippingType: shippingType) -> Double {
-        var itemsTotal = items.reduce(0) { $0 + $1.price }
+        var itemsTotal = items.reduce(0) { $0 + ($1.product.price * Double($1.quantity))}
         if shippingType == .express { itemsTotal += 12 }
         return itemsTotal
     }
