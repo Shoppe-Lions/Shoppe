@@ -65,8 +65,12 @@ class CategoryTableViewCell: UITableViewCell {
     func configure(with category: Category) {
         titleLabel.text = category.title
         iconImageView.image = UIImage(contentsOfFile: category.imagePath)
-        let arrow = category.isExpanded ? "chevron.up" : "chevron.down"
-        arrowButton.setImage(UIImage(systemName: arrow), for: .normal)
+        
+        let arrowImage = category.isExpanded ? "chevron.up" : "chevron.down"
+        arrowButton.setImage(UIImage(systemName: arrowImage), for: .normal)
+        
+        let arrowColor: UIColor = category.isExpanded ? .systemBlue : .black
+        arrowButton.tintColor = arrowColor
     }
 
     required init?(coder: NSCoder) {
