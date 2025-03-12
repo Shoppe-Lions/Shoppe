@@ -143,7 +143,8 @@ final class CartViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        presenter?.didFetchCartProducts(products) 
+        presenter?.didFetchCartProducts(products)
+        presenter?.updateTotalPrice()
     }
     
     // MARK: - Action
