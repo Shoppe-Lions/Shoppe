@@ -8,7 +8,7 @@ import UIKit
 
 protocol ProductRouterProtocol: AnyObject {
     static func createModule(by id: Int, navigationController: UINavigationController?) -> UIViewController
-    func goToBuyNow(by id: Int)
+    func goToBuyNow(by product: CartItem)
     func goToNextProduct(by id: Int, navigationController: UINavigationController?)
 }
 
@@ -30,8 +30,9 @@ class ProductRouter: ProductRouterProtocol {
         return view
     }
     
-    func goToBuyNow(by id: Int) {
-        
+    func goToBuyNow(by product: CartItem) {
+        let payVC = PaymentRouter.createModule(product: product)
+        navigationController?.pushViewController(payVC, animated: true)
     }
     
     func goToNextProduct(by id: Int, navigationController: UINavigationController?) {

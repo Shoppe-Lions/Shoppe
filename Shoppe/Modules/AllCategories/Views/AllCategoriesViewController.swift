@@ -50,13 +50,14 @@ class AllCategoriesViewController: UIViewController {
     // MARK: - Methods
     
     @objc private func didTapClose() {
-        dismiss(animated: true, completion: nil)
+        dismiss(animated: true)
     }
     
     // MARK: - Life Cycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        view.backgroundColor = .white
         presenter.viewDidLoad()
         setViews()
         setConstraints()

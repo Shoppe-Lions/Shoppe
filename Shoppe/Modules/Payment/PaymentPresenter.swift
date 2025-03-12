@@ -31,9 +31,9 @@ final class PaymentPresenter: AnyPaymentPresenter {
     weak var view: AnyPaymentView?
     var router: AnyPaymentRouter?
     var interactor: AnyPaymentIntercator?
-    var product: Product?
+    var product: CartItem?
     
-    init(view: AnyPaymentView? = nil, router: AnyPaymentRouter? = nil, interactor: AnyPaymentIntercator? = nil, product: Product? = nil) {
+    init(view: AnyPaymentView? = nil, router: AnyPaymentRouter? = nil, interactor: AnyPaymentIntercator? = nil, product: CartItem? = nil) {
         self.view = view
         self.router = router
         self.interactor = interactor
@@ -44,9 +44,9 @@ final class PaymentPresenter: AnyPaymentPresenter {
     
     func viewDidLoad() {
         if let product = product {
-            interactor?.getOneItemBasket(product: product)
+            interactor?.getOneItemCart(product: product)
         } else {
-            interactor?.getBasketItems()
+            interactor?.getCartItems()
         }
     }
     

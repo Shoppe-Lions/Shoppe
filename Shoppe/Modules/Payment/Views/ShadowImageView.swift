@@ -35,7 +35,7 @@ class ShadowImageView: UIView {
         
         addSubview(imageView)
         
-        imageView.image = UIImage(named: imageName)
+        imageView.image = UIImage(contentsOfFile: imageName) ?? UIImage(named: imageName)
         
         imageView.snp.makeConstraints { make in
             make.edges.equalToSuperview()

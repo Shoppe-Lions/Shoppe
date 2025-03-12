@@ -8,6 +8,8 @@
 import Foundation
 
 final class APIService {
+    
+    static let shared = APIService()
     private let baseURL = "https://fakestoreapi.com/products"
     private let defaults = UserDefaults.standard
     private let likeKey = "likedProducts"
@@ -60,6 +62,10 @@ final class APIService {
                 products[0].toggleLike()
                 products[1].toggleLike()
                 products[2].toggleLike()
+                products[3].toggleLike()
+                products[4].toggleLike()
+                products[5].toggleLike()
+                products[6].toggleLike()
                 
                 group.notify(queue: .main) {
                     self.cachedProducts = products
@@ -118,4 +124,40 @@ final class APIService {
             saveProductsToCache(cachedProducts)
         }
     }
+    
+    func fetchProductsByCategory(_ category: String, completion: @escaping (Result<[Product], NetworkError>) -> Void) {
+            fetchProducts { result in
+                switch result {
+                case .success(let products):
+                    let filtered = products.filter { $0.category.lowercased() == category.lowercased() }
+                    completion(.success(filtered))
+                case .failure(let error):
+                    completion(.failure(error))
+                }
+            }
+        }
+
+        func fetchProductsBySubcategory(_ subcategory: String, completion: @escaping (Result<[Product], NetworkError>) -> Void) {
+            fetchProducts { result in
+                switch result {
+                case .success(let products):
+                    let filtered = products.filter { $0.subcategory.lowercased() == subcategory.lowercased() }
+                    completion(.success(filtered))
+                case .failure(let error):
+                    completion(.failure(error))
+                }
+            }
+        }
+
+        func fetchLikedProducts(completion: @escaping (Result<[Product], NetworkError>) -> Void) {
+            fetchProducts { result in
+                switch result {
+                case .success(let products):
+                    let liked = products.filter { $0.like }
+                    completion(.success(liked))
+                case .failure(let error):
+                    completion(.failure(error))
+                }
+            }
+        }
 }

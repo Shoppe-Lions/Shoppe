@@ -41,14 +41,15 @@ final class WishlistPresenter: WishlistPresenterProtocol {
         self.products = products
         view?.reloadData()
         view?.hideLoadingIndicator()
+        view?.setupSearchController() //todo
     }
     
 //    func didFailToFetchProducts(_ error: Error) {
 //           view?.showError(error.localizedDescription)
 //           view?.hideLoadingIndicator()
 //       }
+    
     func didSelectProduct(_ product: Product) {
-        print("open detail")
         guard let view = view else { print("no view"); return }
         router.openProductDetail(from: view, with: product)
     }

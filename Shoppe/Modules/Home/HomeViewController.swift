@@ -9,39 +9,19 @@
 import UIKit
 import SnapKit
 
-struct ShopCategory: Hashable {
-    let id = UUID()
-    let title: String
-    let image: String
-    let itemCount: Int
-}
-
-struct HashableProduct: Hashable {
-    let product: Product
-    
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(product.id)
-    }
-    
-    static func == (lhs: HashableProduct, rhs: HashableProduct) -> Bool {
-        return lhs.product.id == rhs.product.id
-    }
-}
-
-struct HashableRating: Hashable {
-    let rating: Rating
-    
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(rating.rate)
-        hasher.combine(rating.count)
-    }
-    
-    static func == (lhs: HashableRating, rhs: HashableRating) -> Bool {
-        return lhs.rating.rate == rhs.rating.rate && lhs.rating.count == rhs.rating.count
-    }
+protocol HomeViewProtocol: AnyObject {
+    func displayCategories(_ categories: [ShopCategory])
+    func displayPopularProducts(_ products: [Product])
+    func displayJustForYouProducts(_ products: [Product])
+    func displayLocationMenu(with cities: [String], selectedCity: String)
+    func hideLocationMenu()
+    func updateLocationLabel(_ location: String)
 }
 
 class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+    
+    // MARK: - VIPER
+    var presenter: HomePresenterProtocol!
     
     // MARK: - Properties
     private let customNavigationBar: UIView = {
@@ -77,7 +57,6 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         button.isUserInteractionEnabled = true
         
         let locationLabel = UILabel()
-        locationLabel.text = "Salatiga City, Central Java"
         locationLabel.font = UIFont(name: Fonts.Inter.regular, size: 12)
         locationLabel.textColor = .black
         locationLabel.tag = 100
@@ -93,14 +72,13 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         button.addSubview(locationLabel)
         button.addSubview(iconImageView)
         
-        // Обновляем констрейнты
         locationLabel.snp.makeConstraints { make in
-            make.left.equalToSuperview() // Привязываем к левому краю
+            make.left.equalToSuperview()
             make.centerY.equalToSuperview()
         }
         
         iconImageView.snp.makeConstraints { make in
-            make.left.equalTo(locationLabel.snp.right).offset(2) // Минимальный отступ от label
+            make.left.equalTo(locationLabel.snp.right).offset(2)
             make.centerY.equalToSuperview()
             make.width.height.equalTo(10)
         }
@@ -125,11 +103,11 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
     private let cartBadgeLabel: UILabel = {
         let label = UILabel()
         label.text = "2"
-        label.font = .systemFont(ofSize: 8)
+        label.font = .systemFont(ofSize: 10)
         label.textColor = .white
         label.backgroundColor = .systemRed
         label.textAlignment = .center
-        label.layer.cornerRadius = 8
+        label.layer.cornerRadius = 7
         label.clipsToBounds = true
         return label
     }()
@@ -202,12 +180,22 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupUI()
+        if presenter != nil {
+            presenter.viewDidLoad()
+            // Обновляем locationLabel начальным значением
+            if let locationLabel = locationButton.viewWithTag(100) as? UILabel {
+                locationLabel.text = presenter.interactor.getSelectedCity()
+            }
+        }
+    }
+    
+    // MARK: - Private Methods
+    private func setupUI() {
         view.backgroundColor = .systemBackground
         setupCustomNavigationBar()
-        
         setupCollectionView()
         configureDataSource()
-        applyInitialSnapshot()
     }
     
     // MARK: - Setup
@@ -255,7 +243,7 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         
         // Обновляем констрейнты для topStackView
         topStackView.snp.makeConstraints { make in
-            make.top.equalTo(view.safeAreaLayoutGuide).offset(-20)
+            make.top.equalTo(view.safeAreaLayoutGuide).offset(10)
             make.leading.equalToSuperview().offset(13)
             make.trailing.equalToSuperview().offset(-13)
         }
@@ -275,7 +263,7 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         cartBadgeLabel.snp.remakeConstraints { make in
             make.top.equalToSuperview().offset(-2)
             make.trailing.equalToSuperview().offset(2)
-            make.width.height.equalTo(12)
+            make.width.height.equalTo(14)
         }
         
         // Обновим констрейнты для titleLabel
@@ -318,44 +306,47 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         customNavigationBar.backgroundColor = .white
     }
     
+    
+    
+    
     private func setupCollectionView() {
-        collectionView = UICollectionView(frame: .zero, 
-                                        collectionViewLayout: createCompositionalLayout())
+        collectionView = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
         view.addSubview(collectionView)
+        
+        // Регистрация ячеек
+        collectionView.register(CategoryCell.self, forCellWithReuseIdentifier: String(describing: CategoryCell.self))
+        collectionView.register(ProductCell.self, forCellWithReuseIdentifier: String(describing: ProductCell.self))
+        collectionView.register(
+            SectionHeaderView.self,
+            forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
+            withReuseIdentifier: String(describing: SectionHeaderView.self)
+        )
+        
         collectionView.backgroundColor = .systemBackground
         
-        // Register cell types
-        collectionView.register(CategoryCell.self, 
-                              forCellWithReuseIdentifier: String(describing: CategoryCell.self))
-        collectionView.register(ProductCell.self, 
-                              forCellWithReuseIdentifier: String(describing: ProductCell.self))
-        
-        // Register header types
-        collectionView.register(SectionHeaderView.self,
-                              forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
-                              withReuseIdentifier: String(describing: SectionHeaderView.self))
-        
-        // Устанавливаем констрейнты после добавления в иерархию
         collectionView.snp.makeConstraints { make in
             make.top.equalTo(customNavigationBar.snp.bottom)
             make.leading.trailing.bottom.equalToSuperview()
         }
     }
+
+    
+    
     
     // MARK: - Layout
-    private func createCompositionalLayout() -> UICollectionViewLayout {
+    private func createLayout() -> UICollectionViewLayout {
         let layout = UICollectionViewCompositionalLayout { [weak self] sectionIndex, _ in
-            guard let section = Section(rawValue: sectionIndex) else { 
-                fatalError("Unknown section") 
+            guard let section = Section(rawValue: sectionIndex) else {
+                return nil
             }
             
             switch section {
             case .categories:
-                return self?.createCategorySection() ?? NSCollectionLayoutSection(group: NSCollectionLayoutGroup.horizontal(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(100)), subitems: []))
+                return self?.createCategorySection()
             case .popular:
-                return self?.createPopularSection() ?? NSCollectionLayoutSection(group: NSCollectionLayoutGroup.horizontal(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(100)), subitems: []))
+                return self?.createPopularSection()
             case .justForYou:
-                return self?.createJustForYouSection() ?? NSCollectionLayoutSection(group: NSCollectionLayoutGroup.horizontal(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(100)), subitems: []))
+                return self?.createJustForYouSection()
             }
         }
         return layout
@@ -365,7 +356,7 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         // Item
         let itemSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(0.5),
-            heightDimension: .absolute(260)
+            heightDimension: .absolute(220)
         )
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
         item.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0.5, bottom: 0, trailing: 0.5)
@@ -373,7 +364,7 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         // Group
         let groupSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
-            heightDimension: .absolute(260)
+            heightDimension: .absolute(220)
         )
         let group = NSCollectionLayoutGroup.horizontal(
             layoutSize: groupSize,
@@ -399,62 +390,18 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         return section
     }
     
-    // MARK: - Actions
-    @objc private func cartTapped() {
-        // Handle cart tap
-    }
-    
-    @objc private func locationTapped() {
-        print("Location button tapped") // Добавим для отладки
-        
-        if let existingMenu = view.viewWithTag(999) {
-            existingMenu.removeFromSuperview()
-            return
-        }
-        
-        let dropDownMenu = UITableView(frame: .zero, style: .plain)
-        dropDownMenu.tag = 999
-        dropDownMenu.backgroundColor = .white
-        dropDownMenu.layer.cornerRadius = 12
-        dropDownMenu.layer.shadowColor = UIColor.black.cgColor
-        dropDownMenu.layer.shadowOffset = CGSize(width: 0, height: 2)
-        dropDownMenu.layer.shadowRadius = 8
-        dropDownMenu.layer.shadowOpacity = 0.1
-        dropDownMenu.separatorStyle = .none
-        dropDownMenu.showsVerticalScrollIndicator = false
-        
-        dropDownMenu.dataSource = self
-        dropDownMenu.delegate = self
-        dropDownMenu.register(LocationCell.self, forCellReuseIdentifier: "LocationCell")
-        
-        view.addSubview(dropDownMenu)
-        
-        dropDownMenu.snp.makeConstraints { make in
-            make.top.equalTo(locationButton.snp.bottom).offset(4)
-            make.leading.equalTo(locationButton)
-            make.width.equalTo(250)
-            make.height.equalTo(CGFloat(cities.count * 44))
-        }
-        
-        dropDownMenu.alpha = 0
-        UIView.animate(withDuration: 0.3) {
-            dropDownMenu.alpha = 1
-        }
-    }
-    
-    // MARK: - Layout Methods
     private func createPopularSection() -> NSCollectionLayoutSection {
         // Item
         let itemSize = NSCollectionLayoutSize(
-            widthDimension: .absolute(150),
-            heightDimension: .absolute(240)
+            widthDimension: .fractionalWidth(1.0),
+            heightDimension: .fractionalHeight(1.0)
         )
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
         
         // Group
         let groupSize = NSCollectionLayoutSize(
-            widthDimension: .absolute(150),
-            heightDimension: .absolute(200)
+            widthDimension: .fractionalWidth(0.4),
+            heightDimension: .absolute(270)
         )
         let group = NSCollectionLayoutGroup.horizontal(
             layoutSize: groupSize,
@@ -464,8 +411,13 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         // Section
         let section = NSCollectionLayoutSection(group: group)
         section.orthogonalScrollingBehavior = .continuous
-        section.contentInsets = NSDirectionalEdgeInsets(top: 16, leading: 8, bottom: 16, trailing: 8)
-        section.interGroupSpacing = 0.5
+        section.interGroupSpacing = 12
+        section.contentInsets = NSDirectionalEdgeInsets(
+            top: 16,
+            leading: 16,
+            bottom: 16,
+            trailing: 16
+        )
         
         // Header
         let headerSize = NSCollectionLayoutSize(
@@ -517,55 +469,132 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         return section
     }
     
+    // MARK: - Actions
+    @objc private func cartTapped() {
+        // Handle cart tap
+    }
+    
+    @objc private func locationTapped() {
+        print("Location button tapped")
+        
+        if let existingMenu = view.viewWithTag(999) {
+            existingMenu.removeFromSuperview()
+            return
+        }
+        
+        // Создаем контейнер для меню с тенью
+        let menuContainer = UIView()
+        menuContainer.tag = 999
+        menuContainer.backgroundColor = .white
+        menuContainer.layer.cornerRadius = 12
+        // Настраиваем тень для контейнера
+        menuContainer.layer.shadowColor = UIColor.black.cgColor
+        menuContainer.layer.shadowOffset = CGSize(width: 0, height: 5)
+        menuContainer.layer.shadowRadius = 10
+        menuContainer.layer.shadowOpacity = 0.1
+        
+        let cities = presenter.interactor.getAvailableCities()
+        let selectedCity = presenter.interactor.getSelectedCity()
+        
+        let dropDownMenu = UITableView(frame: .zero, style: .plain)
+        dropDownMenu.backgroundColor = .white
+        dropDownMenu.layer.cornerRadius = 12
+        dropDownMenu.clipsToBounds = true // Чтобы содержимое не выходило за пределы закругленных углов
+        dropDownMenu.separatorStyle = .none
+        dropDownMenu.showsVerticalScrollIndicator = false
+        
+        dropDownMenu.dataSource = self
+        dropDownMenu.delegate = self
+        dropDownMenu.register(LocationCell.self, forCellReuseIdentifier: "LocationCell")
+        
+        // Добавляем таблицу в контейнер
+        menuContainer.addSubview(dropDownMenu)
+        view.addSubview(menuContainer)
+        
+        // Настраиваем констрейнты для контейнера
+        menuContainer.snp.makeConstraints { make in
+            make.top.equalTo(locationButton.snp.bottom).offset(4)
+            make.leading.equalTo(locationButton)
+            make.width.equalTo(280)
+            make.height.equalTo(CGFloat(cities.count * 44))
+        }
+        
+        // Настраиваем констрейнты для таблицы
+        dropDownMenu.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+        
+        // Анимация появления
+        menuContainer.alpha = 0
+        UIView.animate(withDuration: 0.3) {
+            menuContainer.alpha = 1
+        }
+    }
+    
     // MARK: - Data Source Configuration
+    
+    
+    
     private func configureDataSource() {
-        dataSource = UICollectionViewDiffableDataSource<Section, ItemType>(collectionView: collectionView) { 
-            (collectionView: UICollectionView, indexPath: IndexPath, item: ItemType) -> UICollectionViewCell? in
+        dataSource = UICollectionViewDiffableDataSource<Section, ItemType>(
+            collectionView: collectionView
+        ) { [weak self] collectionView, indexPath, itemIdentifier in
+            guard let section = Section(rawValue: indexPath.section) else {
+                return nil
+            }
             
-            guard let section = Section(rawValue: indexPath.section) else { return nil }
-            
-            switch section {
-            case .categories:
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: String(describing: CategoryCell.self),
-                                                            for: indexPath) as! CategoryCell
-                if case .category(let category) = item {
-                    cell.configure(with: category)
-                }
+            switch itemIdentifier {
+            case .category(let category):
+                let cell = collectionView.dequeueReusableCell(
+                    withReuseIdentifier: String(describing: CategoryCell.self),
+                    for: indexPath
+                ) as? CategoryCell
+                cell?.configure(with: category)
                 return cell
                 
-            case .popular, .justForYou:
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: String(describing: ProductCell.self),
-                                                            for: indexPath) as! ProductCell
-                if case .product(let hashableProduct) = item {
-                    cell.configure(with: hashableProduct.product, isPopularSection: section == .popular)
-                }
+            case .product(let product):
+                let cell = collectionView.dequeueReusableCell(
+                    withReuseIdentifier: String(describing: ProductCell.self),
+                    for: indexPath
+                ) as? ProductCell
+                cell?.configure(with: product.product, isPopularSection: section == .popular)
+                cell?.delegate = self
                 return cell
             }
         }
         
-        dataSource.supplementaryViewProvider = { 
-            (collectionView: UICollectionView, kind: String, indexPath: IndexPath) -> UICollectionReusableView? in
+        // Конфигурация заголовков
+        dataSource.supplementaryViewProvider = { [weak self] collectionView, kind, indexPath in
+            guard kind == UICollectionView.elementKindSectionHeader else {
+                return nil
+            }
             
-            guard kind == UICollectionView.elementKindSectionHeader else { return nil }
+            let header = collectionView.dequeueReusableSupplementaryView(
+                ofKind: kind,
+                withReuseIdentifier: String(describing: SectionHeaderView.self),
+                for: indexPath
+            ) as? SectionHeaderView
             
-            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind,
-                                                                        withReuseIdentifier: String(describing: SectionHeaderView.self),
-                                                                        for: indexPath) as! SectionHeaderView
-            
-            guard let section = Section(rawValue: indexPath.section) else { return header }
-            
+            let section = Section(rawValue: indexPath.section)
             switch section {
             case .categories:
-                header.configure(title: "Categories")
+                header?.configure(title: "Categories", showSeeAll: true)
+                header?.seeAllTapped = { [weak self] in
+                    self?.presenter.didTapSeeAllCategories()
+                }
             case .popular:
-                header.configure(title: "Popular")
+                header?.configure(title: "Popular", showSeeAll: true)
             case .justForYou:
-                header.configure(title: "Just For You")
+                header?.configure(title: "Just for You", showSeeAll: true)
+            case .none:
+                break
             }
             
             return header
         }
     }
+
+    
     
     private func applyInitialSnapshot() {
         var snapshot = NSDiffableDataSourceSnapshot<Section, ItemType>()
@@ -657,18 +686,19 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         dataSource.apply(snapshot, animatingDifferences: false)
     }
     
-    private let cities = ["Salatiga City, Central Java", "Jakarta", "Surabaya", "Bandung", "Yogyakarta"]
-    
     // MARK: - UITableViewDataSource
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return cities.count
+        return presenter.interactor.getAvailableCities().count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "LocationCell", for: indexPath) as! LocationCell
-        let currentCity = locationButton.viewWithTag(100) as? UILabel
-        let isSelected = cities[indexPath.row] == currentCity?.text
-        cell.configure(with: cities[indexPath.row], isSelected: isSelected)
+        let cities = presenter.interactor.getAvailableCities()
+        let selectedCity = presenter.interactor.getSelectedCity()
+        
+        let city = cities[indexPath.row]
+        cell.configure(with: city, isSelected: city == selectedCity)
+        
         return cell
     }
     
@@ -678,21 +708,9 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let cities = presenter.interactor.getAvailableCities()
         let selectedCity = cities[indexPath.row]
-        
-        if let locationLabel = locationButton.viewWithTag(100) as? UILabel {
-            locationLabel.text = selectedCity
-        }
-        
-        tableView.reloadData()
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            UIView.animate(withDuration: 0.3, animations: {
-                tableView.alpha = 0
-            }) { _ in
-                tableView.removeFromSuperview()
-            }
-        }
+        presenter.didSelectLocation(selectedCity)
     }
 }
 
@@ -721,6 +739,8 @@ class SectionHeaderView: UICollectionReusableView {
         imageView.contentMode = .scaleAspectFit
         return imageView
     }()
+    
+    var seeAllTapped: (() -> Void)?
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -751,6 +771,14 @@ class SectionHeaderView: UICollectionReusableView {
             make.centerY.equalToSuperview()
             make.width.height.equalTo(30)
         }
+        
+        // Добавляем обработчики нажатия для обеих кнопок
+        seeAllButton.addTarget(self, action: #selector(handleSeeAllTapped), for: .touchUpInside)
+        
+        // Делаем иконку кликабельной
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleSeeAllTapped))
+        seeAllIcon.isUserInteractionEnabled = true
+        seeAllIcon.addGestureRecognizer(tapGesture)
     }
     
     func configure(title: String, showSeeAll: Bool = true) {
@@ -758,12 +786,78 @@ class SectionHeaderView: UICollectionReusableView {
         seeAllButton.isHidden = !showSeeAll
         seeAllIcon.isHidden = !showSeeAll
     }
+    
+    @objc private func handleSeeAllTapped() {
+        seeAllTapped?()
+    }
 }
 
-//#Preview {
-//    UINavigationController(rootViewController: HomeViewController())
-//}
+// MARK: - HomeViewProtocol
+extension HomeViewController: HomeViewProtocol {
+    func displayCategories(_ categories: [ShopCategory]) {
+        var snapshot = NSDiffableDataSourceSnapshot<Section, ItemType>()
+        snapshot.appendSections([.categories])
+        snapshot.appendItems(categories.map { ItemType.category($0) }, toSection: .categories)
+        dataSource.apply(snapshot, animatingDifferences: true)
+    }
+    
+    func displayPopularProducts(_ products: [Product]) {
+        var snapshot = dataSource.snapshot()
+        snapshot.appendSections([.popular])
+        snapshot.appendItems(products.map { ItemType.product(HashableProduct(product: $0)) }, toSection: .popular)
+        dataSource.apply(snapshot, animatingDifferences: true)
+    }
+    
+    func displayJustForYouProducts(_ products: [Product]) {
+        var snapshot = dataSource.snapshot()
+        snapshot.appendSections([.justForYou])
+        snapshot.appendItems(products.map { ItemType.product(HashableProduct(product: $0)) }, toSection: .justForYou)
+        dataSource.apply(snapshot, animatingDifferences: true)
+    }
+    
+    func displayLocationMenu(with cities: [String], selectedCity: String) {
+        // ... код для отображения меню локаций ...
+    }
+    
+    func hideLocationMenu() {
+        if let existingMenu = view.viewWithTag(999) {
+            UIView.animate(withDuration: 0.3, animations: {
+                existingMenu.alpha = 0
+            }) { _ in
+                existingMenu.removeFromSuperview()
+            }
+        }
+    }
+    
+    func updateLocationLabel(_ location: String) {
+        if let locationLabel = locationButton.viewWithTag(100) as? UILabel {
+            locationLabel.text = location
+        }
+    }
+}
 
+extension HomeViewController: ProductCellDelegate {
+    func didTapWishlistButton(for product: Product) {
+        // Обработка нажатия на кнопку wishlist
+        var updatedProduct = product
+        updatedProduct.toggleLike()
+        
+        // Обновляем UI
+        if var snapshot = dataSource?.snapshot() {
+            if let currentIndex = snapshot.itemIdentifiers.firstIndex(where: { 
+                if case .product(let p) = $0, p.product.id == product.id {
+                    return true
+                }
+                return false
+            }) {
+                snapshot.deleteItems([snapshot.itemIdentifiers[currentIndex]])
+                let newItem = ItemType.product(HashableProduct(product: updatedProduct))
+                snapshot.insertItems([newItem], beforeItem: snapshot.itemIdentifiers[currentIndex])
+            }
+            dataSource?.apply(snapshot, animatingDifferences: true)
+        }
+    }
+}
 
 
 
