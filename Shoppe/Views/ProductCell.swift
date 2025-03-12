@@ -46,13 +46,16 @@ class ProductCell: UICollectionViewCell {
         let label = UILabel()
         label.font = .systemFont(ofSize: 17, weight: .medium)
         label.textColor = .label
-        label.numberOfLines = 0
-        label.lineBreakMode = .byWordWrapping
+        label.numberOfLines = 2
+        label.lineBreakMode = .byTruncatingTail
         var paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineHeightMultiple = 0.98
-        label.attributedText = NSMutableAttributedString(string: "Lorem ipsum dolor sit amet consectetur", attributes: [NSAttributedString.Key.paragraphStyle: paragraphStyle])
+        paragraphStyle.alignment = .left
+        label.attributedText = NSMutableAttributedString(
+            string: "Lorem ipsum dolor sit amet consectetur",
+            attributes: [NSAttributedString.Key.paragraphStyle: paragraphStyle]
+        )
         label.font = UIFont(name: "NunitoSans10pt-Regular", size: 12)
-        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
@@ -89,6 +92,8 @@ class ProductCell: UICollectionViewCell {
         return button
     }()
     
+    private let imageLoader = ImageLoader.shared
+    
     // MARK: Init
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -111,40 +116,36 @@ class ProductCell: UICollectionViewCell {
     }
     
     private func setupConstraints(isPopular: Bool) {
-        
         if isPopular {
-                  // Констрейнты для popular секции
-                  photoContainerView.snp.remakeConstraints { make in
-                      make.top.equalToSuperview()
-                      make.centerX.equalToSuperview()
-                      make.width.height.equalTo(140)
-                  }
-                  
+            // Констрейнты для popular секции
+            photoContainerView.snp.remakeConstraints { make in
+                make.top.equalToSuperview()
+                make.centerX.equalToSuperview()
+                make.width.height.equalTo(160)
+            }
+            
             photoImageView.snp.remakeConstraints { make in
-                      make.center.equalToSuperview()
-                      make.width.height.equalTo(125)
-                  }
-              } else {
-                  // Стандартные констрейнты
-                  photoContainerView.snp.remakeConstraints { make in
-                      make.top.leading.trailing.equalToSuperview()
-                      make.height.equalTo(photoContainerView.snp.width)
-                  }
-                  
-                  photoImageView.snp.remakeConstraints { make in
-                      make.center.equalToSuperview()
-                      make.width.height.equalToSuperview().multipliedBy(0.9)
-                  }
-              }
-        
-        
-        
-
+                make.center.equalToSuperview()
+                make.width.height.equalTo(145)
+            }
+        } else {
+            // Стандартные констрейнты
+            photoContainerView.snp.remakeConstraints { make in
+                make.top.leading.trailing.equalToSuperview()
+                make.height.equalTo(photoContainerView.snp.width)
+            }
+            
+            photoImageView.snp.remakeConstraints { make in
+                make.center.equalToSuperview()
+                make.width.height.equalToSuperview().multipliedBy(0.9)
+            }
+        }
         
         nameLabel.snp.makeConstraints { make in
             make.top.equalTo(photoContainerView.snp.bottom).offset(8)
             make.leading.equalTo(photoContainerView)
             make.trailing.equalTo(photoContainerView)
+            make.height.lessThanOrEqualTo(36)
         }
         
         priceLabel.snp.makeConstraints { make in
@@ -171,21 +172,36 @@ class ProductCell: UICollectionViewCell {
     
     // MARK: Configure
     // Метод для обновления данных в ячейке
-    func configure(with product: Product, isPopularSection: Bool = false){
+    func configure(with product: Product, isPopularSection: Bool = false) {
         self.product = product
-        photoImageView.image = UIImage(named: product.imageURL)
         nameLabel.text = product.title
-        priceLabel.text = "$\(product.price)" //todo: в идеале форматирование строки с ценой должно быть во viewModel
+        priceLabel.text = "$\(product.price)"
         wishlistButton.setImage(product.like ? wishlistOnImage : wishlistOffImage, for: .normal)
         
         addToCartButton.isHidden = isPopularSection
         wishlistButton.isHidden = isPopularSection
         
+        // Загрузка изображения
+        if product.localImagePath != "Path",
+           let image = UIImage(contentsOfFile: product.localImagePath) {
+            photoImageView.image = image
+        } else {
+            // Показываем placeholder пока загружается изображение
+            photoImageView.image = UIImage(named: "testPhotoImage")
+            
+            // Загружаем изображение
+            imageLoader.loadImage(from: product.imageURL) { [weak self] image, localPath in
+                DispatchQueue.main.async {
+                    if let image = image {
+                        self?.photoImageView.image = image
+                    }
+                }
+            }
+        }
         
         setupConstraints(isPopular: isPopularSection)
-
+    }
     
-        }
     @objc func handleWishlistButtonTapped() {
         guard let product = product else { print("no product"); return }
         delegate?.didTapWishlistButton(for: product)

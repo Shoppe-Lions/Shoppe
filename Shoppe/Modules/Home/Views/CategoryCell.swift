@@ -30,25 +30,20 @@ class CategoryCell: UICollectionViewCell {
         return view
     }()
     
-    private let imageViews: [UIImageView] = (0..<4).map { _ in
-        let imageView = UIImageView()
-        imageView.contentMode = .scaleAspectFill
-        imageView.clipsToBounds = true
-        imageView.layer.cornerRadius = 4
-        return imageView
-    }
+    private var imageViews: [UIImageView] = []
     
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont(name: Fonts.Raleway.bold, size: 17)
         label.textAlignment = .left
         label.textColor = .black
+        label.numberOfLines = 2
         return label
     }()
     
     private let countContainer: UIView = {
         let view = UIView()
-        view.backgroundColor = UIColor(red: 223/255, green: 233/255, blue: 255/255, alpha: 1.0) // #DFE9FF
+        view.backgroundColor = UIColor(red: 223/255, green: 233/255, blue: 255/255, alpha: 1.0)
         view.layer.cornerRadius = 6
         return view
     }()
@@ -71,11 +66,22 @@ class CategoryCell: UICollectionViewCell {
     }
     
     private func setupViews() {
+        // Создаем 4 imageView сначала
+        for _ in 0..<4 {
+            let imageView = UIImageView()
+            imageView.contentMode = .scaleAspectFill
+            imageView.clipsToBounds = true
+            imageView.layer.cornerRadius = 4
+            imageViews.append(imageView)
+        }
+        
         contentView.addSubview(photoContainerView)
         photoContainerView.addSubview(imagesContainerView)
         photoContainerView.addSubview(titleLabel)
         photoContainerView.addSubview(countContainer)
         countContainer.addSubview(countLabel)
+        
+        // Добавляем imageViews в imagesContainerView
         imageViews.forEach { imagesContainerView.addSubview($0) }
         
         let spacing: CGFloat = 5
@@ -115,7 +121,6 @@ class CategoryCell: UICollectionViewCell {
             make.width.height.equalTo(imageSize)
         }
         
-        // titleLabel и countContainer
         titleLabel.snp.makeConstraints { make in
             make.top.equalTo(imagesContainerView.snp.bottom).offset(spacing)
             make.leading.equalTo(imagesContainerView.snp.leading).offset(spacing)
@@ -140,9 +145,32 @@ class CategoryCell: UICollectionViewCell {
         imageViews.forEach { $0.layer.cornerRadius = 4 }
     }
     
+    private func capitalizeFirstLetter(_ text: String) -> String {
+        guard !text.isEmpty else { return text }
+        return text.prefix(1).uppercased() + text.dropFirst().lowercased()
+    }
+    
     func configure(with category: ShopCategory) {
-        imageViews.forEach { $0.image = UIImage(named: "testPhotoImage") }
-        titleLabel.text = category.title
+        titleLabel.text = capitalizeFirstLetter(category.title)
         countLabel.text = "\(category.itemCount)"
+        
+        titleLabel.snp.remakeConstraints { make in
+            make.top.equalTo(imagesContainerView.snp.bottom).offset(5)
+            make.leading.equalTo(imagesContainerView.snp.leading).offset(5)
+            make.trailing.lessThanOrEqualTo(countContainer.snp.leading).offset(-5)
+            make.bottom.equalToSuperview().offset(-5)
+        }
+        
+        imageViews.forEach { $0.image = nil }
+        
+        for (index, imagePath) in category.subcategoryImages.enumerated() {
+            if index < imageViews.count {
+                if let image = UIImage(contentsOfFile: imagePath) {
+                    imageViews[index].image = image
+                } else {
+                    imageViews[index].image = UIImage(named: "testPhotoImage")
+                }
+            }
+        }
     }
 }

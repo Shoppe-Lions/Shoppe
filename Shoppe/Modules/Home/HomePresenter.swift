@@ -9,13 +9,15 @@ import Foundation
 
 protocol HomePresenterProtocol: AnyObject {
     var view: HomeViewProtocol? { get }
+    var interactor: HomeInteractorProtocol { get }
     func viewDidLoad()
     func didSelectLocation(_ location: String)
     func didTapLocationButton()
     func didTapCartButton()
+    func didTapSeeAllCategories()
 }
 
-class HomePresenter {
+class HomePresenter: HomePresenterProtocol {
     weak var view: HomeViewProtocol?
     let interactor: HomeInteractorProtocol
     let router: HomeRouterProtocol
@@ -25,10 +27,8 @@ class HomePresenter {
         self.interactor = interactor
         self.router = router
     }
-}
-
-// MARK: - HomePresenterProtocol
-extension HomePresenter: HomePresenterProtocol {
+    
+    // MARK: - HomePresenterProtocol
     func viewDidLoad() {
         interactor.fetchCategories()
         interactor.fetchPopularProducts()
@@ -37,6 +37,7 @@ extension HomePresenter: HomePresenterProtocol {
     
     func didSelectLocation(_ location: String) {
         interactor.updateSelectedLocation(location)
+        view?.updateLocationLabel(location)
         view?.hideLocationMenu()
     }
     
@@ -48,5 +49,9 @@ extension HomePresenter: HomePresenterProtocol {
     
     func didTapCartButton() {
         router.openCart()
+    }
+    
+    func didTapSeeAllCategories() {
+        router.openAllCategories()
     }
 } 

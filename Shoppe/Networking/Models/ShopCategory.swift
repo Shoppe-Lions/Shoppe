@@ -12,14 +12,17 @@ struct ShopCategory: Hashable {
     let title: String
     let image: String
     let itemCount: Int
+    let subcategoryImages: [String]
     
-    init(title: String, image: String, itemCount: Int) {
+    init(title: String, image: String, itemCount: Int, subcategoryImages: [String] = []) {
         self.id = UUID()
         self.title = title
         self.image = image
         self.itemCount = itemCount
+        self.subcategoryImages = subcategoryImages
     }
 }
+
 
 struct HashableProduct: Hashable {
     let product: Product
