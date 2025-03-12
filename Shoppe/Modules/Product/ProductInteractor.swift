@@ -47,12 +47,15 @@ final class ProductInteractor: ProductInteractorProtocol {
                 return
             }
             
-            self.loadProducts { products in
-                let subcategoryProducts = products?.filter { $0.subcategory == product.subcategory && $0.id != product.id }
-                if subcategoryProducts?.isEmpty ?? true {
+            self.apiService.fetchProductsBySubcategory(product.subcategory) { result in
+                switch result {
+                case .success(let products):
+                    let relatedProducts = products.filter { $0.id != product.id }
+                    completion(product, relatedProducts.isEmpty ? nil : relatedProducts)
+                    
+                case .failure(let error):
+                    print("Ошибка: \(error)")
                     completion(product, nil)
-                } else {
-                    completion(product, subcategoryProducts)
                 }
             }
         }
