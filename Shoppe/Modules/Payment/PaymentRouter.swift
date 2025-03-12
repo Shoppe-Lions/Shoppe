@@ -9,12 +9,12 @@ import UIKit
 
 
 protocol AnyPaymentRouter: AnyObject {
-    static func createModule(product: Product?) -> UIViewController
+    static func createModule(product: CartItem?) -> UIViewController
     func navigateToCart(from view: UIViewController)
 }
 
 final class PaymentRouter: AnyPaymentRouter {
-    static func createModule(product: Product? = nil) -> UIViewController {
+    static func createModule(product: CartItem? = nil) -> UIViewController {
         let router = PaymentRouter()
         
         let view = PaymentViewController()
