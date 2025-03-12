@@ -12,6 +12,7 @@ protocol AnyAuthView: AnyObject {
     var authType: AuthType { get set }
     func setupViews()
     func showAuthErrorMessage(error: String)
+    func shakeTextField()
 }
 
 enum AuthType {
@@ -168,11 +169,13 @@ final class AuthViewController: UIViewController, UITextFieldDelegate, AnyAuthVi
     
     @objc func didCreateAccountTapped() {
         guard let email = emailTextField.text, !email.isEmpty else {
+            shakeTextField()
             errorLabel.text = "Email can´t be empty"
             return
         }
         
         guard let password = passwordTextField.text, !password.isEmpty else {
+            shakeTextField()
             errorLabel.text = "Password can´t be empty"
             return
         }
@@ -212,6 +215,36 @@ final class AuthViewController: UIViewController, UITextFieldDelegate, AnyAuthVi
 
 // MARK: - Setting different UIs
 extension AuthViewController {
+    
+    func shakeTextField() {
+        let animation = CAKeyframeAnimation()
+        animation.keyPath = "position.x"
+        animation.values = [0, 10, -10, 10, 0]
+        animation.keyTimes = [0, 0.16, 0.5, 0.83, 1]
+        animation.duration = 0.4
+        
+        animation.isAdditive = true
+        emailTextField.layer.add(animation, forKey: "shake")
+        passwordTextField.layer.add(animation, forKey: "shake")
+    }
+    
+    func animateImageScale() {
+//        let animation = CABasicAnimation(keyPath: "transform.scale")
+//        animation.fromValue = 1.3
+//        animation.toValue = 1.0
+//        animation.duration = 1
+//        animation.timingFunction = CAMediaTimingFunction(name: .easeOut)
+//    
+//        view.layer.add(animation, forKey: "scaleAnimation")
+        let animation = CABasicAnimation(keyPath: "contentsRect")
+            animation.fromValue = CGRect(x: -0.15, y: -0.15, width: 1.3, height: 1.3) // Увеличенный размер
+            animation.toValue = CGRect(x: 0, y: 0, width: 1, height: 1) // Обычный размер
+            animation.duration = 1
+            animation.timingFunction = CAMediaTimingFunction(name: .easeOut)
+
+            view.layer.add(animation, forKey: "backgroundScale")
+    }
+    
     func setGetStartedUI() {
         view.layer.contents = nil
         logo.isHidden = false
@@ -231,6 +264,7 @@ extension AuthViewController {
     
     func setRegisterUI() {
         view.layer.contents = UIImage(named: "BubblesRegister")?.cgImage
+        animateImageScale()
         logo.isHidden = true
         label.text = "Create Account"
         welcomeLabel.isHidden = true
@@ -248,6 +282,7 @@ extension AuthViewController {
     
     func setLoginUI() {
         view.layer.contents = UIImage(named: "Bubbles")?.cgImage
+        animateImageScale()
         view.layer.contentsGravity = .resizeAspectFill
         logo.isHidden = true
         label.text = "Login"

@@ -31,7 +31,7 @@ final class AuthRouter: AnyAuthRouter {
         guard let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate else {
             return
         }
-        let tabBarController = UITabBarController() // Заменить на наш TabBarController после вынесения его в отдельный модуль
+        let tabBarController = MainTabBarController()
         sceneDelegate.window?.rootViewController = tabBarController
         sceneDelegate.window?.makeKeyAndVisible()
     }
