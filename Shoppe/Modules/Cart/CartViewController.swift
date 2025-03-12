@@ -158,10 +158,10 @@ final class CartViewController: UIViewController {
 extension CartViewController: CartViewProtocol {
     func showCartProducts(_ products: [Product]) {
         self.products = products
-        cartTableView.reloadData()
         emptyCartLabel.isHidden = !products.isEmpty
         presenter?.updateCartCount() 
         presenter?.updateTotalPrice()
+        cartTableView.reloadData()
     }
     
     func updateProduct(at index: Int, product: Product, quantity: Int) {
@@ -182,7 +182,8 @@ extension CartViewController: CartViewProtocol {
     func removeProduct(at index: Int) {
         guard products.indices.contains(index) else { return }
         products.remove(at: index)
-        cartTableView.deleteRows(at: [IndexPath(row: index + 1, section: 0)], with: .automatic)
+        let indexPath = IndexPath(row: index + 1, section: 0)
+        cartTableView.deleteRows(at: [indexPath], with: .automatic)
         emptyCartLabel.isHidden = !products.isEmpty
     }
 }
@@ -196,18 +197,14 @@ extension CartViewController: UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
         if indexPath.row == 0 {
             let cell = tableView.dequeueReusableCell(withIdentifier: "ShippingAdressTableViewCell", for: indexPath) as! ShippingAdressTableViewCell
-            
             cell.selectionStyle = .none
             return cell
         } else {
             let cell = tableView.dequeueReusableCell(withIdentifier: "CartTableViewCell", for: indexPath) as! CartTableViewCell
-            
             let product = products[indexPath.row - 1]
-            
-            if let presenter  {
+            if let presenter = presenter {
                 cell.configure(with: product, at: indexPath.row - 1, presenter: presenter)
             }
             cell.selectionStyle = .none

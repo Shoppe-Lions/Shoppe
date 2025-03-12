@@ -79,7 +79,7 @@ final class CartPresenter: CartPresenterProtocol {
 
     func deleteProduct(at index: Int) {
         interactor.deleteProduct(at: index)
-        view?.removeProduct(at: index) 
+        fetchCartProducts()
         updateCartCount()
         updateTotalPrice()
     }
