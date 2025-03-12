@@ -24,13 +24,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let tabBarController = UITabBarController()
         
         let homeViewController = HomeRouter.createModule()
-        let wishlistViewController = WishlistRouter.createModule()
+        let wishlistViewController = UINavigationController(rootViewController: WishlistRouter.createModule())
         let unknownViewController = ProductRouter.createModule(
-            by: 1,
+            by: 2,
             navigationController: UINavigationController()
         ) // Что это за экран??)
         let cartViewController = UINavigationController(rootViewController: CartRouter.createModule())
-        let profileViewController = PaymentRouter.createModule()
+        let profileViewController = AllCategoriesRouter.createModule()
         
         tabBarController.viewControllers = [
             homeViewController,
@@ -83,6 +83,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         if onboardingCompleted {
             window?.rootViewController = tabBarController
+            //window?.rootViewController = AuthRouter.createModule()
         } else {
             window?.rootViewController = onboardingViewController
         }

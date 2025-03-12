@@ -7,7 +7,9 @@
 
 protocol ProductInteractorProtocol: AnyObject {
     func fetchProductWithSubcategories(by id: Int, completion: @escaping (Product?, [Product]?) -> Void)
-    func toggleLike(id: Int)
+    func toggleLike(by id: Int)
+    func addToCart(by id: Int)
+    func deleteFromCart(for id: Int)
 }
 
 final class ProductInteractor: ProductInteractorProtocol {
@@ -19,6 +21,7 @@ final class ProductInteractor: ProductInteractorProtocol {
         apiService.fetchProduct(by: id) { result in
             switch result {
             case .success(let product):
+                self.setCartCount(by: product.id)
                 completion(product)
             case .failure:
                 completion(nil)
@@ -55,7 +58,7 @@ final class ProductInteractor: ProductInteractorProtocol {
         }
     }
     
-    func toggleLike(id: Int) {
+    func toggleLike(by id: Int) {
         apiService.fetchProduct(by: id) { result in
             switch result {
             case .success(let product):
@@ -64,6 +67,32 @@ final class ProductInteractor: ProductInteractorProtocol {
             case .failure:
                 print("Не удалось загрузить продукт для изменения лайка")
             }
+        }
+    }
+    
+    func deleteFromCart(for id: Int) {
+        fetchProduct(id: id, completion: { product in
+            if let product = product {
+                StorageCartManager.shared.removeProduct(product)
+                self.setCartCount(by: product.id)
+            }
+        })
+    }
+    
+    func addToCart(by id: Int) {
+        fetchProduct(id: id, completion: { product in
+            if let product = product {
+                StorageCartManager.shared.addProduct(product)
+                self.setCartCount(by: product.id)
+            }
+        })
+    }
+    
+    func setCartCount(by id: Int) {
+        if let productInCart = StorageCartManager.shared.loadCart().first(where: { $0.id == id }) {
+            presenter?.setCartCount(by: productInCart.quantity)
+        } else {
+            presenter?.setCartCount(by: 0)
         }
     }
 }
