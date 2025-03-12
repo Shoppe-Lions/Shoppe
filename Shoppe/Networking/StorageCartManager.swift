@@ -15,7 +15,7 @@ final class StorageCartManager {
 
     // MARK: - Save/Load
 
-    private func saveCart(_ cart: [CartItem]) {
+    func saveCart(_ cart: [CartItem]) {
         if let encoded = try? JSONEncoder().encode(cart) {
             defaults.set(encoded, forKey: cartKey)
         }
