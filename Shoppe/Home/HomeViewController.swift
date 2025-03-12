@@ -9,38 +9,6 @@
 import UIKit
 import SnapKit
 
-struct ShopCategory: Hashable {
-    let id = UUID()
-    let title: String
-    let image: String
-    let itemCount: Int
-}
-
-struct HashableProduct: Hashable {
-    let product: Product
-    
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(product.id)
-    }
-    
-    static func == (lhs: HashableProduct, rhs: HashableProduct) -> Bool {
-        return lhs.product.id == rhs.product.id
-    }
-}
-
-struct HashableRating: Hashable {
-    let rating: Rating
-    
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(rating.rate)
-        hasher.combine(rating.count)
-    }
-    
-    static func == (lhs: HashableRating, rhs: HashableRating) -> Bool {
-        return lhs.rating.rate == rhs.rating.rate && lhs.rating.count == rhs.rating.count
-    }
-}
-
 class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     
     // MARK: - Properties
@@ -125,11 +93,11 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
     private let cartBadgeLabel: UILabel = {
         let label = UILabel()
         label.text = "2"
-        label.font = .systemFont(ofSize: 8)
+        label.font = .systemFont(ofSize: 10)
         label.textColor = .white
         label.backgroundColor = .systemRed
         label.textAlignment = .center
-        label.layer.cornerRadius = 8
+        label.layer.cornerRadius = 7
         label.clipsToBounds = true
         return label
     }()
@@ -255,7 +223,7 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         
         // Обновляем констрейнты для topStackView
         topStackView.snp.makeConstraints { make in
-            make.top.equalTo(view.safeAreaLayoutGuide).offset(-20)
+            make.top.equalTo(view.safeAreaLayoutGuide).offset(10)
             make.leading.equalToSuperview().offset(13)
             make.trailing.equalToSuperview().offset(-13)
         }
@@ -275,7 +243,7 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         cartBadgeLabel.snp.remakeConstraints { make in
             make.top.equalToSuperview().offset(-2)
             make.trailing.equalToSuperview().offset(2)
-            make.width.height.equalTo(12)
+            make.width.height.equalTo(14)
         }
         
         // Обновим констрейнты для titleLabel
@@ -365,7 +333,7 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         // Item
         let itemSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(0.5),
-            heightDimension: .absolute(260)
+            heightDimension: .absolute(220)
         )
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
         item.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0.5, bottom: 0, trailing: 0.5)
@@ -373,7 +341,7 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         // Group
         let groupSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
-            heightDimension: .absolute(260)
+            heightDimension: .absolute(220)
         )
         let group = NSCollectionLayoutGroup.horizontal(
             layoutSize: groupSize,
@@ -759,11 +727,6 @@ class SectionHeaderView: UICollectionReusableView {
         seeAllIcon.isHidden = !showSeeAll
     }
 }
-
-//#Preview {
-//    UINavigationController(rootViewController: HomeViewController())
-//}
-
 
 
 
