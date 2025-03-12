@@ -208,7 +208,11 @@ final class ProductViewController: UIViewController {
     }
     
     @objc private func buyNowButtonTapped() {
-        presenter.buyNow(by: id)
+        if addToCartButton.isHidden {
+            presenter.buyNow(by: id, count: Int(quantityLabel.text ?? "") ?? 0)
+        } else {
+            presenter.buyNow(by: id, count: 1)
+        }
     }
     
     @objc private func minusButtonTapped() {
