@@ -121,7 +121,7 @@ class ProductCell: UICollectionViewCell {
                   
             photoImageView.snp.remakeConstraints { make in
                       make.center.equalToSuperview()
-                      make.width.height.equalTo(130)
+                      make.width.height.equalTo(125)
                   }
               } else {
                   // Стандартные констрейнты

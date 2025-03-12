@@ -13,13 +13,10 @@ protocol ProductViewProtocol: AnyObject {
     func showError(_ message: String)
     func showSubcategoryes(by products: [Product]?)
     func setLike(by like: Bool)
+    func setCartCount(by count: Int)
 }
 
-final class ProductViewController: UIViewController, ProductViewProtocol {
-    
-    var presenter: ProductPresenterProtocol!
-    var spasingElements: CGFloat = 20
-    var id = 1
+final class ProductViewController: UIViewController {
     
     // MARK: - UI Elements
     
@@ -32,7 +29,7 @@ final class ProductViewController: UIViewController, ProductViewProtocol {
     private lazy var mainStackView: UIStackView = {
         let element = UIStackView()
         element.axis = .vertical
-        element.spacing = spasingElements
+        element.spacing = ProductConstants.spacing
         return element
     }()
     
@@ -44,7 +41,7 @@ final class ProductViewController: UIViewController, ProductViewProtocol {
     
     private lazy var nameProductLabel: UILabel = {
         let element = UILabel()
-        element.font = UIFont(name: Fonts.Raleway.extraBold, size: 26)
+        element.font = UIFont(name: Fonts.Raleway.extraBold, size: ProductFontSize.large)
         element.numberOfLines = 0
         return element
     }()
@@ -57,7 +54,7 @@ final class ProductViewController: UIViewController, ProductViewProtocol {
     
     private lazy var priceLabel: UILabel = {
         let element = UILabel()
-        element.font = UIFont(name: Fonts.Raleway.extraBold, size: 26)
+        element.font = UIFont(name: Fonts.Raleway.extraBold, size: ProductFontSize.large)
         element.textAlignment = .left
         return element
     }()
@@ -69,7 +66,7 @@ final class ProductViewController: UIViewController, ProductViewProtocol {
     
     private lazy var descriptionLabel: UILabel = {
         let element = UILabel()
-        element.font = UIFont(name: Fonts.NunitoSans.regular, size: 15)
+        element.font = UIFont(name: Fonts.NunitoSans.regular, size: ProductFontSize.small)
         element.numberOfLines = 0
         return element
     }()
@@ -77,14 +74,14 @@ final class ProductViewController: UIViewController, ProductViewProtocol {
     private lazy var variationsStackView: UIStackView = {
         let element = UIStackView()
         element.axis = .horizontal
-        element.spacing = 10
+        element.spacing = ProductConstants.spacing
         return element
     }()
     
     private lazy var variationsLabel: UILabel = {
         let element = UILabel()
         element.text = "Variations"
-        element.font = UIFont(name: Fonts.Raleway.extraBold, size: 20)
+        element.font = UIFont(name: Fonts.Raleway.extraBold, size: ProductFontSize.medium)
         return element
     }()
     
@@ -101,7 +98,7 @@ final class ProductViewController: UIViewController, ProductViewProtocol {
         element.backgroundColor = .customLightGray
         element.layer.cornerRadius = 4
         element.textAlignment = .center
-        element.font = UIFont(name: Fonts.Raleway.medium, size: 14)
+        element.font = UIFont(name: Fonts.Raleway.medium, size: ProductFontSize.small)
         return element
     }()
     
@@ -120,21 +117,21 @@ final class ProductViewController: UIViewController, ProductViewProtocol {
     private lazy var variationsImagesStackView: UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .horizontal
-        stackView.spacing = 10
+        stackView.spacing = ProductConstants.spacing
         return stackView
     }()
     
     private lazy var buttonStackView: UIStackView = {
         let element = UIStackView()
         element.axis = .horizontal
-        element.spacing = 10
+        element.spacing = ProductConstants.spacing
         element.distribution = .fillProportionally
         return element
     }()
     
     private lazy var likeButton: UIButton = {
         let element = UIButton(type: .custom)
-        element.layer.cornerRadius = 11
+        element.layer.cornerRadius = ProductConstants.cornerRadius
         element.backgroundColor = .customLightGray
         element.setImage(UIImage(named: "wishlist_off"), for: .normal)
         element.addTarget(self, action: #selector(likeButtonPressed), for: .touchUpInside)
@@ -144,23 +141,67 @@ final class ProductViewController: UIViewController, ProductViewProtocol {
     private lazy var addToCartButton: UIButton = {
         let element = UIButton(type: .system)
         element.setTitle("Add to cart", for: .normal)
-        element.titleLabel?.font = UIFont(name: Fonts.NunitoSans.light, size: 16)
+        element.titleLabel?.font = UIFont(name: Fonts.NunitoSans.light, size: ProductFontSize.normal)
         element.backgroundColor = .black
         element.tintColor = .white
-        element.layer.cornerRadius = 11
+        element.layer.cornerRadius = ProductConstants.cornerRadius
+        element.addTarget(self, action: #selector(addToCartButtonTapped), for: .touchUpInside)
+        return element
+    }()
+    
+    private lazy var quantityStackView: UIStackView = {
+        let element = UIStackView()
+        element.axis = .horizontal
+        element.distribution = .fillEqually
+        element.layer.cornerRadius = ProductConstants.cornerRadius
+        element.clipsToBounds = true
+        element.isHidden = true
+        return element
+    }()
+
+    private lazy var minusButton: UIButton = {
+        let element = UIButton(type: .system)
+        element.setTitle("-", for: .normal)
+        element.titleLabel?.font = UIFont(name: Fonts.NunitoSans.light, size: ProductFontSize.buttonSymbolSize)
+        element.backgroundColor = .customLightGray
+        element.addTarget(self, action: #selector(minusButtonTapped), for: .touchUpInside)
+        return element
+    }()
+
+    private lazy var quantityLabel: UILabel = {
+        let element = UILabel()
+        element.textAlignment = .center
+        element.font = UIFont(name: Fonts.NunitoSans.light, size: ProductFontSize.normal)
+        element.backgroundColor = .customLightGray
+        return element
+    }()
+
+    private lazy var plusButton: UIButton = {
+        let element = UIButton(type: .system)
+        element.setTitle("+", for: .normal)
+        element.titleLabel?.font = UIFont(name: Fonts.NunitoSans.light, size: ProductFontSize.buttonSymbolSize)
+        element.backgroundColor = .customLightGray
+        element.addTarget(self, action: #selector(addToCartButtonTapped), for: .touchUpInside)
         return element
     }()
     
     private lazy var buyNowButton: UIButton = {
         let element = UIButton(type: .system)
         element.setTitle("Buy now", for: .normal)
-        element.titleLabel?.font = UIFont(name: Fonts.NunitoSans.light, size: 16)
+        element.titleLabel?.font = UIFont(name: Fonts.NunitoSans.light, size: ProductFontSize.normal)
         element.backgroundColor = .blue
         element.tintColor = .white
-        element.layer.cornerRadius = 11
+        element.layer.cornerRadius = ProductConstants.cornerRadius
         element.addTarget(self, action: #selector(buyNowButtonTapped), for: .touchUpInside)
         return element
     }()
+    
+    // MARK: - Properties
+    
+    var presenter: ProductPresenterProtocol!
+    var id = 1
+    
+    // MARK: - Methods
     
     @objc private func likeButtonPressed() {
         presenter.toggleLike(id: id)
@@ -170,9 +211,29 @@ final class ProductViewController: UIViewController, ProductViewProtocol {
         presenter.buyNow(by: id)
     }
     
+    @objc private func minusButtonTapped() {
+        presenter.deleteFromCart(for: id)
+    }
+    
+    @objc private func addToCartButtonTapped() {
+        presenter.addToCart(by: id)
+    }
+    
     @objc private func backButtonTapped() {
         dismiss(animated: true, completion: nil)
     }
+    
+    @objc private func backTapped() {
+        navigationController?.popViewController(animated: true)
+    }
+    
+    @objc private func productImageTapped(_ sender: UITapGestureRecognizer) {
+        if let id = sender.view?.tag {
+            presenter.goToNextProduct(by: id, navigationController: navigationController)
+        }
+    }
+    
+    // MARK: - Life Cycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -183,16 +244,112 @@ final class ProductViewController: UIViewController, ProductViewProtocol {
         setupConstraints()
         presenter.viewDidLoad(id: id)
         navigationItem.leftBarButtonItem = UIBarButtonItem(
-                image: UIImage(systemName: "arrow.left"),
-                style: .plain,
-                target: self,
-                action: #selector(backTapped)
-            )
+            image: UIImage(systemName: "arrow.left"),
+            style: .plain,
+            target: self,
+            action: #selector(backTapped)
+        )
+        navigationItem.leftBarButtonItem?.tintColor = .black
+    }
+}
+
+// MARK: - Set UI
+
+private extension ProductViewController {
+    
+    func setViews() {
+        view.backgroundColor = .white
+        view.addSubview(scrollView)
+        scrollView.addSubview(mainStackView)
+        mainStackView.addArrangedSubview(productImageView)
+        mainStackView.addArrangedSubview(nameProductLabel)
+        
+        mainStackView.addArrangedSubview(priceStackView)
+        priceStackView.addArrangedSubview(priceLabel)
+        priceStackView.addArrangedSubview(likeImageView)
+        
+        mainStackView.addArrangedSubview(descriptionLabel)
+        
+        mainStackView.addArrangedSubview(variationsStackView)
+        variationsStackView.addArrangedSubview(variationsLabel)
+        variationsStackView.addArrangedSubview(subcategoryContainerView)
+        subcategoryContainerView.addSubview(subcategoryLabel)
+        variationsStackView.addArrangedSubview(variationsFakeView)
+        
+        mainStackView.addArrangedSubview(variationsScrollView)
+        variationsScrollView.addSubview(variationsImagesStackView)
+        
+        view.addSubview(buttonStackView)
+        buttonStackView.addArrangedSubview(likeButton)
+        quantityStackView.addArrangedSubview(minusButton)
+        quantityStackView.addArrangedSubview(quantityLabel)
+        quantityStackView.addArrangedSubview(plusButton)
+        buttonStackView.addArrangedSubview(quantityStackView)
+        buttonStackView.addArrangedSubview(addToCartButton)
+        buttonStackView.addArrangedSubview(buyNowButton)
     }
     
-    @objc private func backTapped() {
-        navigationController?.popViewController(animated: true)
+    func setupConstraints() {
+        
+        scrollView.snp.makeConstraints { make in
+            make.top.leading.trailing.equalTo(view.safeAreaLayoutGuide).inset(ProductConstants.spacing)
+            make.bottom.equalTo(buttonStackView.snp.top).offset(-ProductConstants.spacing)
+        }
+        
+        mainStackView.snp.makeConstraints { make in
+            make.top.bottom.equalTo(scrollView).inset(ProductConstants.spacing)
+            make.width.equalTo(scrollView)
+        }
+        
+        productImageView.snp.makeConstraints { make in
+            make.height.equalTo(view.safeAreaLayoutGuide).multipliedBy(ProductConstants.productImageHeightMultiplier)
+        }
+        
+        likeImageView.snp.makeConstraints { make in
+            make.height.width.equalTo(ProductConstants.likeImageSize)
+        }
+        
+        subcategoryLabel.snp.makeConstraints { make in
+            make.edges.equalToSuperview().inset(ProductConstants.subcategoryLabelInset)
+        }
+        
+        variationsScrollView.snp.makeConstraints { make in
+            make.height.equalTo(ProductConstants.variationsScrollHeight)
+            make.leading.trailing.equalToSuperview()
+        }
+
+        variationsImagesStackView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+            make.height.equalToSuperview()
+        }
+        
+        buttonStackView.snp.makeConstraints { make in
+            make.leading.trailing.equalTo(view.safeAreaLayoutGuide).inset(ProductConstants.spacing)
+            make.bottom.equalTo(view.safeAreaLayoutGuide).inset(ProductConstants.spacing)
+        }
+        
+        likeButton.snp.makeConstraints { make in
+            make.height.equalTo(ProductConstants.buttonHeight)
+            make.width.equalTo(ProductConstants.buttonHeight)
+        }
+        
+        quantityStackView.snp.makeConstraints { make in
+            make.height.equalTo(ProductConstants.buttonHeight)
+        }
+
+        addToCartButton.snp.makeConstraints { make in
+            make.height.equalTo(ProductConstants.buttonHeight)
+        }
+
+        buyNowButton.snp.makeConstraints { make in
+            make.height.equalTo(ProductConstants.buttonHeight)
+        }
     }
+}
+
+// MARK: - Protocol Methods
+
+extension ProductViewController: ProductViewProtocol {
     
     func showProduct(_ product: Product) {
         nameProductLabel.text = product.title
@@ -227,7 +384,7 @@ final class ProductViewController: UIViewController, ProductViewProtocol {
                 imageView.isUserInteractionEnabled = true
                 
                 imageView.snp.makeConstraints { make in
-                    make.width.height.equalTo(80)
+                    make.width.height.equalTo(ProductConstants.variationImageSize)
                 }
                 variationsImagesStackView.addArrangedSubview(imageView)
             }
@@ -236,97 +393,18 @@ final class ProductViewController: UIViewController, ProductViewProtocol {
         }
     }
     
-    @objc private func productImageTapped(_ sender: UITapGestureRecognizer) {
-        if let id = sender.view?.tag {
-            presenter.goToNextProduct(by: id, navigationController: navigationController)
+    func setCartCount(by count: Int) {
+        if count == 0 {
+            addToCartButton.isHidden = false
+            quantityStackView.isHidden = true
+        } else {
+            addToCartButton.isHidden = true
+            quantityStackView.isHidden = false
+            quantityLabel.text = "\(count)"
         }
     }
     
     func showError(_ message: String) {
         print(message)
-    }
-}
-
-private extension ProductViewController {
-    
-    func setViews() {
-        view.backgroundColor = .white
-        view.addSubview(scrollView)
-        scrollView.addSubview(mainStackView)
-        mainStackView.addArrangedSubview(productImageView)
-        mainStackView.addArrangedSubview(nameProductLabel)
-        
-        mainStackView.addArrangedSubview(priceStackView)
-        priceStackView.addArrangedSubview(priceLabel)
-        priceStackView.addArrangedSubview(likeImageView)
-        
-        mainStackView.addArrangedSubview(descriptionLabel)
-        
-        mainStackView.addArrangedSubview(variationsStackView)
-        variationsStackView.addArrangedSubview(variationsLabel)
-        variationsStackView.addArrangedSubview(subcategoryContainerView)
-        subcategoryContainerView.addSubview(subcategoryLabel)
-        variationsStackView.addArrangedSubview(variationsFakeView)
-        
-        mainStackView.addArrangedSubview(variationsScrollView)
-        variationsScrollView.addSubview(variationsImagesStackView)
-        
-        view.addSubview(buttonStackView)
-        buttonStackView.addArrangedSubview(likeButton)
-        buttonStackView.addArrangedSubview(addToCartButton)
-        buttonStackView.addArrangedSubview(buyNowButton)
-    }
-    
-    func setupConstraints() {
-        
-        scrollView.snp.makeConstraints { make in
-            make.top.leading.trailing.equalTo(view.safeAreaLayoutGuide).inset(spasingElements)
-            make.bottom.equalTo(buttonStackView.snp.top).offset(-spasingElements)
-        }
-        
-        mainStackView.snp.makeConstraints { make in
-            make.top.bottom.equalTo(scrollView).inset(spasingElements)
-            make.width.equalTo(scrollView)
-        }
-        
-        productImageView.snp.makeConstraints { make in
-            make.height.equalTo(view.safeAreaLayoutGuide).multipliedBy(0.5)
-        }
-        
-        likeImageView.snp.makeConstraints { make in
-            make.height.width.equalTo(30)
-        }
-        
-        subcategoryLabel.snp.makeConstraints { make in
-            make.edges.equalToSuperview().inset(8)
-        }
-        
-        variationsScrollView.snp.makeConstraints { make in
-            make.height.equalTo(100)
-            make.leading.trailing.equalToSuperview()
-        }
-
-        variationsImagesStackView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
-            make.height.equalToSuperview()
-        }
-        
-        buttonStackView.snp.makeConstraints { make in
-            make.leading.trailing.equalTo(view.safeAreaLayoutGuide).inset(spasingElements)
-            make.bottom.equalTo(view.safeAreaLayoutGuide).inset(spasingElements)
-        }
-        
-        likeButton.snp.makeConstraints { make in
-            make.height.equalTo(40)
-            make.width.equalTo(40)
-        }
-
-        addToCartButton.snp.makeConstraints { make in
-            make.height.equalTo(40)
-        }
-
-        buyNowButton.snp.makeConstraints { make in
-            make.height.equalTo(40)
-        }
     }
 }
