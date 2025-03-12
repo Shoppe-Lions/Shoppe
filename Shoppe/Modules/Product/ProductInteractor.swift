@@ -15,7 +15,7 @@ protocol ProductInteractorProtocol: AnyObject {
 final class ProductInteractor: ProductInteractorProtocol {
     weak var presenter: ProductPresenterProtocol?
     
-    private let apiService = APIService()
+    private let apiService = APIService.shared
     
     private func fetchProduct(id: Int, completion: @escaping (Product?) -> Void) {
         apiService.fetchProduct(by: id) { result in
