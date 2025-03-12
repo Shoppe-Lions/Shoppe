@@ -12,7 +12,7 @@ import SnapKit
 class ItemView: UIView {
     let item: CartItem
         
-    lazy var imageView = ShadowImageView(imageName: item.product.imageURL)
+    lazy var imageView = ShadowImageView(imageName: item.product.localImagePath)
     
     lazy var itemsNumber = CountCircleView(size: 12, radius: 9, number: item.quantity)
 
@@ -20,7 +20,7 @@ class ItemView: UIView {
     lazy var descriptionLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = item.product.description
+        label.text = item.product.title
         label.font = UIFont(name: "NunitoSans10pt-Regular", size: PFontSize.small)
         label.textAlignment = .left
         label.numberOfLines = 0

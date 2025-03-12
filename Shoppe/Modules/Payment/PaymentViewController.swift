@@ -72,6 +72,7 @@ final class PaymentViewController: UIViewController, AnyPaymentView {
         super.viewDidLoad()
         setupViews()
         setConstraints()
+        setupNavBar()
         setScrollView()
         setTitleLabel()
         setVaucherButton()
@@ -81,24 +82,12 @@ final class PaymentViewController: UIViewController, AnyPaymentView {
         presenter?.viewDidLoad()
     }
     
-    // Hide nav-bar
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        navigationController?.setNavigationBarHidden(true, animated: true)
-    }
-
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        navigationController?.setNavigationBarHidden(false, animated: true)
-    }
-    
     // MARK: - UI Setup
     func setupViews() {
         view.backgroundColor = .white
-        
+    
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
-        contentView.addSubview(titleLabel)
         contentView.addSubview(shippingDetails)
         contentView.addSubview(deliveryDetails)
         contentView.addSubview(itemTitle)
@@ -173,6 +162,17 @@ final class PaymentViewController: UIViewController, AnyPaymentView {
 
 // MARK: - Update UI
 extension PaymentViewController {
+    func setupNavBar() {
+        self.title = "Payment"
+        let customFont = UIFont(name: "Raleway-Bold", size: PFontSize.extraLarge)
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: customFont,
+            .foregroundColor: UIColor.black // Цвет текста
+        ]
+            
+        self.navigationController?.navigationBar.titleTextAttributes = attributes
+    }
+    
     func setupItems(with items:[CartItem]) {
         for item in items {
             let itemView = ItemView(item: item)
@@ -286,13 +286,13 @@ extension PaymentViewController {
             make.bottom.equalTo(shippingStackView.snp.bottom).offset(PLayout.contentBottomOffset)
         }
         
-        titleLabel.snp.makeConstraints { make in
-            make.top.equalToSuperview()
-            make.leading.equalToSuperview().offset(PLayout.horizontalPadding)
-        }
+//        titleLabel.snp.makeConstraints { make in
+//            make.top.equalToSuperview().offset(-PLayout.horizontalPadding)
+//            make.leading.equalToSuperview().offset(PLayout.horizontalPadding)
+//        }
         
         shippingDetails.snp.makeConstraints { make in
-            make.top.equalTo(titleLabel.snp.bottom).offset(PLayout.paddingM)
+            make.top.equalToSuperview().offset(PLayout.paddingS)
             make.leading.equalToSuperview().offset(PLayout.horizontalPadding)
             make.trailing.equalToSuperview().offset(-PLayout.horizontalPadding)
             make.height.equalTo(PLayout.detailsHeight)
