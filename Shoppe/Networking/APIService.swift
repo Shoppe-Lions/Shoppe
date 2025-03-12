@@ -124,4 +124,40 @@ final class APIService {
             saveProductsToCache(cachedProducts)
         }
     }
+    
+    func fetchProductsByCategory(_ category: String, completion: @escaping (Result<[Product], NetworkError>) -> Void) {
+            fetchProducts { result in
+                switch result {
+                case .success(let products):
+                    let filtered = products.filter { $0.category.lowercased() == category.lowercased() }
+                    completion(.success(filtered))
+                case .failure(let error):
+                    completion(.failure(error))
+                }
+            }
+        }
+
+        func fetchProductsBySubcategory(_ subcategory: String, completion: @escaping (Result<[Product], NetworkError>) -> Void) {
+            fetchProducts { result in
+                switch result {
+                case .success(let products):
+                    let filtered = products.filter { $0.subcategory.lowercased() == subcategory.lowercased() }
+                    completion(.success(filtered))
+                case .failure(let error):
+                    completion(.failure(error))
+                }
+            }
+        }
+
+        func fetchLikedProducts(completion: @escaping (Result<[Product], NetworkError>) -> Void) {
+            fetchProducts { result in
+                switch result {
+                case .success(let products):
+                    let liked = products.filter { $0.like }
+                    completion(.success(liked))
+                case .failure(let error):
+                    completion(.failure(error))
+                }
+            }
+        }
 }
