@@ -143,8 +143,8 @@ final class CartViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        presenter?.didFetchCartProducts(products)
-        presenter?.updateTotalPrice()
+        presenter?.fetchCartProducts() 
+//        presenter?.updateTotalPrice()
     }
     
     // MARK: - Action
@@ -159,8 +159,9 @@ extension CartViewController: CartViewProtocol {
     func showCartProducts(_ products: [Product]) {
         self.products = products
         cartTableView.reloadData()
-        
         emptyCartLabel.isHidden = !products.isEmpty
+        presenter?.updateCartCount() 
+        presenter?.updateTotalPrice()
     }
     
     func updateProduct(at index: Int, product: Product, quantity: Int) {
@@ -181,8 +182,7 @@ extension CartViewController: CartViewProtocol {
     func removeProduct(at index: Int) {
         guard products.indices.contains(index) else { return }
         products.remove(at: index)
-        cartTableView.reloadData()
-        
+        cartTableView.deleteRows(at: [IndexPath(row: index + 1, section: 0)], with: .automatic)
         emptyCartLabel.isHidden = !products.isEmpty
     }
 }
