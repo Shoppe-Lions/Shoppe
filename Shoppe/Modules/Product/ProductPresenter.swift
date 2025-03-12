@@ -53,7 +53,11 @@ class ProductPresenter: ProductPresenterProtocol {
     }
     
     func buyNow(by id: Int) {
-        router.goToBuyNow(by: id)
+        interactor.fetchProductWithSubcategories(by: id) { product, _ in
+            if let product = product {
+                self.router.goToBuyNow(by: product)
+            }
+        }
     }
     
     func goToNextProduct(by id: Int, navigationController: UINavigationController?) {
