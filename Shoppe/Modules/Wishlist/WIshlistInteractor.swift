@@ -15,7 +15,7 @@ protocol WishlistInteractorProtocol {
 final class WishlistInteractor: WishlistInteractorProtocol {
   
     weak var presenter: WishlistPresenterProtocol?
-    private let apiService = APIService()
+    private let apiService = APIService.shared
     
     func fetchWishlistProducts() {
         apiService.fetchProducts { [weak self] result in

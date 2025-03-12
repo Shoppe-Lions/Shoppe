@@ -9,7 +9,8 @@ import UIKit
 
 protocol WishlistViewProtocol: AnyObject {
     func reloadData()
-    func hideLoadingIndicator()
+    func hideLoadingIndicator() //?
+    func setupSearchController() // !
 }
 
 final class WishlistViewController: UIViewController {
@@ -19,11 +20,14 @@ final class WishlistViewController: UIViewController {
     var presenter: WishlistPresenterProtocol?
     private let refreshControl = UIRefreshControl()
     
+    private var searchResultsController: SearchResultsController?
+    private var searchController: UISearchController?
+    
     private let activityIndicator: UIActivityIndicatorView = {
-            let indicator = UIActivityIndicatorView(style: .large)
-            indicator.hidesWhenStopped = true
-            return indicator
-        }()
+        let indicator = UIActivityIndicatorView(style: .large)
+        indicator.hidesWhenStopped = true
+        return indicator
+    }()
     
     private let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -41,7 +45,7 @@ final class WishlistViewController: UIViewController {
         let label = UILabel()
         label.textColor = .customBlack
         label.textAlignment = .center
-        var paragraphStyle = NSMutableParagraphStyle()
+        let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineHeightMultiple = 1.1
         paragraphStyle.alignment = .center
         label.attributedText = NSMutableAttributedString(string: "Wishlist", attributes: [NSAttributedString.Key.kern: -0.28, NSAttributedString.Key.paragraphStyle: paragraphStyle])
@@ -54,32 +58,38 @@ final class WishlistViewController: UIViewController {
     //MARK: Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupNavigationBar()
         setupActivityIndicator()
         showLoadingIndicator()
         presenter?.viewDidLoad()
-        setupUI()
+        setupCollectionView()
+        setupPullToRefresh()
     }
     
-    private func setupUI() {
-        view.addSubview(collectionView)
-        view.addSubview(titleLabel)
-        
-        titleLabel.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview()
-            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
-            make.height.equalTo(36)
-        }
-        
-        collectionView.snp.makeConstraints { make in
-            make.leading.trailing.bottom.equalToSuperview()
-            make.top.equalTo(titleLabel.snp.bottom).inset(-11)
-        }
-        
-        collectionView.register(WishlistProductCell.self, forCellWithReuseIdentifier: "WishlistProductCell")
+    private func setupNavigationBar() {
+        title = "Wishlist"
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.lineHeightMultiple = 1.1
+        paragraphStyle.alignment = .center
+         
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: UIFont(name: Fonts.Raleway.bold, size: 28)!,
+            .kern: -0.28,
+            .paragraphStyle: paragraphStyle
+        ]
+        navigationController?.navigationBar.titleTextAttributes = attributes
+    }
+    
+    private func setupCollectionView() {
+        collectionView.register(WishlistProductCell.self, forCellWithReuseIdentifier: wishlistProductCellId)
         collectionView.dataSource = self
         collectionView.delegate = self
         
-        setupPullToRefresh()
+        view.addSubview(collectionView)
+        collectionView.snp.makeConstraints { make in
+            make.leading.trailing.bottom.equalToSuperview()
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+        }
     }
     
     private func setupActivityIndicator() {
@@ -88,14 +98,10 @@ final class WishlistViewController: UIViewController {
             make.center.equalToSuperview()
         }
     }
+    
     func showLoadingIndicator() {
            activityIndicator.startAnimating()
            collectionView.isHidden = true
-       }
-
-       func hideLoadingIndicator() {
-           activityIndicator.stopAnimating()
-           collectionView.isHidden = false
        }
     
     private func setupPullToRefresh() {
@@ -104,7 +110,6 @@ final class WishlistViewController: UIViewController {
     }
     
     @objc private func refreshData() {
-        print("Обновление данных...")
         presenter?.didPullToRefresh()
     }
    
@@ -118,7 +123,7 @@ extension WishlistViewController: UICollectionViewDelegate, UICollectionViewData
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "WishlistProductCell", for: indexPath) as? WishlistProductCell else {
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: wishlistProductCellId, for: indexPath) as? WishlistProductCell else {
             return UICollectionViewCell()
         }
         guard let presenter = presenter,
@@ -152,13 +157,44 @@ extension WishlistViewController: UICollectionViewDelegate, UICollectionViewData
 extension WishlistViewController: WishlistViewProtocol {
     func reloadData() {
         self.refreshControl.endRefreshing()
-        print("Данные обновлены")
         collectionView.reloadData()
     }
+    
+    func hideLoadingIndicator() {
+        activityIndicator.stopAnimating()
+        collectionView.isHidden = false
+    }
+    
+    // setup search controller
+    func setupSearchController() {
+       guard let presenter = presenter else {
+           print("presenter is nil")
+           return
+       }
+       searchResultsController = SearchResultsRouter.createModule(products: presenter.products) as? SearchResultsController
+       searchResultsController!.delegate = self //!
+       searchController = UISearchController(searchResultsController: searchResultsController)
+       searchController?.searchResultsUpdater = searchResultsController
+       searchController?.searchBar.placeholder = "Search"
+       searchController?.searchBar.delegate = searchResultsController
+       searchController?.showsSearchResultsController = true
+       navigationItem.hidesSearchBarWhenScrolling = false
+       navigationItem.searchController = searchController
+   }
 }
 
 extension WishlistViewController: WishlistProductCellDelegate {
     func didTapWishlistButton(for product: Product) {
         presenter?.toggleWishlist(for: product)
     }
+}
+
+extension WishlistViewController: SearchResultsControllerDelegate {
+    func updateSearchBar(with text: String) {
+        searchController?.searchBar.text = text
+    }
+  
+//    func updateData() {
+//        presenter?.viewDidLoad()
+//    }
 }

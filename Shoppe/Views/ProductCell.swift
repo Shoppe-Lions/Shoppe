@@ -8,6 +8,7 @@
 import UIKit
 import SnapKit
 
+//todo
 let wishlistOnImage = UIImage(named: "wishlist_on")
 let wishlistOffImage = UIImage(named: "wishlist_off")
 
