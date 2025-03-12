@@ -70,6 +70,7 @@ final class PaymentViewController: UIViewController, AnyPaymentView {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        navigationController?.navigationBar.isHidden = false
         setupViews()
         setConstraints()
         setupNavBar()

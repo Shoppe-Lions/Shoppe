@@ -62,6 +62,11 @@ class AllCategoriesViewController: UIViewController {
         setViews()
         setConstraints()
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.navigationBar.isHidden = true
+    }
 }
 
 // MARK: - Set UI

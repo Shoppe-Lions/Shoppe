@@ -58,12 +58,17 @@ final class WishlistViewController: UIViewController {
     //MARK: Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupNavigationBar()
+//        setupNavigationBar()
         setupActivityIndicator()
         showLoadingIndicator()
         presenter?.viewDidLoad()
         setupCollectionView()
         setupPullToRefresh()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.navigationBar.isHidden = true
     }
     
     private func setupNavigationBar() {

@@ -132,7 +132,6 @@ final class CartViewController: UIViewController {
     // MARK: - Life Circle
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         presenter?.viewDidLoad()
         presenter?.updateCartCount()
         presenter?.updateTotalPrice()
@@ -143,7 +142,8 @@ final class CartViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        presenter?.fetchCartProducts() 
+        navigationController?.navigationBar.isHidden = true
+        presenter?.fetchCartProducts()
 //        presenter?.updateTotalPrice()
     }
     
