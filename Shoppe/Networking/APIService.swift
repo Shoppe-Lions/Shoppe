@@ -8,6 +8,8 @@
 import Foundation
 
 final class APIService {
+    
+    static let shared = APIService()
     private let baseURL = "https://fakestoreapi.com/products"
     private let defaults = UserDefaults.standard
     private let likeKey = "likedProducts"

@@ -24,7 +24,7 @@ class HistoryCell: UICollectionViewCell {
         contentView.backgroundColor =  UIColor(red: 0.96, green: 0.96, blue: 0.96, alpha: 1)
         
         titleLabel.snp.makeConstraints { make in
-            make.edges.equalToSuperview().inset(8)
+            make.edges.equalToSuperview().inset(-10)
         }
     }
 

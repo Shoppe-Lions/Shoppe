@@ -14,7 +14,6 @@ protocol WishlistPresenterProtocol: AnyObject {
     func didFetchWishlistProducts(_ products: [Product])
     func didSelectProduct(_ product: Product)
     func toggleWishlist(for product: Product)
-    func didFilterProducts(with query: String)
 }
 
 final class WishlistPresenter: WishlistPresenterProtocol {
@@ -42,14 +41,15 @@ final class WishlistPresenter: WishlistPresenterProtocol {
         self.products = products
         view?.reloadData()
         view?.hideLoadingIndicator()
+        view?.setupSearchController() //todo
     }
     
 //    func didFailToFetchProducts(_ error: Error) {
 //           view?.showError(error.localizedDescription)
 //           view?.hideLoadingIndicator()
 //       }
+    
     func didSelectProduct(_ product: Product) {
-        print("open detail")
         guard let view = view else { print("no view"); return }
         router.openProductDetail(from: view, with: product)
     }
@@ -64,9 +64,5 @@ final class WishlistPresenter: WishlistPresenterProtocol {
     
     func didPullToRefresh() {
         interactor.fetchWishlistProducts()
-    }
-    
-    func didFilterProducts(with query: String) {
-        products = products.filter { $0.title.lowercased().contains(query.lowercased()) }
     }
 }
