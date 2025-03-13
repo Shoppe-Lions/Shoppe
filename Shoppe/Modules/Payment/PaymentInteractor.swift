@@ -48,13 +48,11 @@ final class PaymentInteractor: AnyPaymentIntercator {
     }
     
     func calculateTotalPrice(shippingType: shippingType) -> String {
-        let currency = CurrencyManager.shared.currentCurrency
         let itemsTotal = items.reduce(0) { $0 + ($1.product.price * Double($1.quantity))}
         let shippingPrice = CurrencyManager.shared.convert(priceInUSD: 12)
         var itemsTotalConverted = CurrencyManager.shared.convert(priceInUSD: itemsTotal)
         if shippingType == .express { itemsTotalConverted += shippingPrice }
-        let itemsTotalString = String(format: "%.2f", itemsTotalConverted)
-        return "\(currency)\(itemsTotalString)"
+        return CurrencyManager.shared.makeToString(priceInUSD: itemsTotalConverted)
     }
 }
 

@@ -63,10 +63,8 @@ class ItemView: UIView {
     }
     
     func setPrice() {
-        let currency = CurrencyManager.shared.currentCurrency
-        let convertedPrice = CurrencyManager.shared.convert(priceInUSD: item.product.price)
-        let convertedPriceString = String(format: "%.2f", convertedPrice)
-        priceLabel.text = "\(currency)\(convertedPriceString)" //
+        let convertedPrice = CurrencyManager.shared.convertToString(priceInUSD: item.product.price)
+        priceLabel.text = convertedPrice
     }
     
     func setConstraints() {

@@ -28,6 +28,16 @@ class CurrencyManager {
         return priceInUSD * (exchangeRates[currentCurrency] ?? 1.00)
     }
     
+    func makeToString(priceInUSD: Double) -> String {
+        let price = currentCurrency == "₽" ? String(format: "%.0f", priceInUSD) : String(format: "%.2f", priceInUSD)
+        return "\(currentCurrency)\(price)"
+    }
+    
+    func convertToString(priceInUSD: Double) -> String {
+        let convertedPrice = priceInUSD * (exchangeRates[currentCurrency] ?? 1.00)
+        let price = currentCurrency == "₽" ? String(format: "%.0f", convertedPrice) : String(format: "%.2f", convertedPrice)
+        return "\(currentCurrency)\(price)"
+    }
 }
 
 // Расширение для удобного доступа к уведомлению
