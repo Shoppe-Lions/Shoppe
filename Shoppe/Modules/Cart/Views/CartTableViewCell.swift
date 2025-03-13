@@ -43,6 +43,7 @@ final class CartTableViewCell: UITableViewCell {
     private lazy var cellImageView: UIImageView = {
         let element = UIImageView()
         element.image = UIImage(named: "Cell")
+        element.contentMode = .scaleAspectFit
         element.isUserInteractionEnabled = true
         return element
     }()
