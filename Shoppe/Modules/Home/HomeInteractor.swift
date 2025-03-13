@@ -115,6 +115,13 @@ class HomeInteractor: HomeInteractorProtocol {
     }
     
     func getSelectedCity() -> String {
+        let currentCurrency = CurrencyManager.shared.currentCurrency
+        switch currentCurrency {
+            case "$": selectedCity = cities[0]
+            case "₽": selectedCity = cities[1]
+            case "€": selectedCity = cities[2]
+            default: selectedCity = cities[3]
+        }
         return selectedCity
     }
     
@@ -130,8 +137,6 @@ class HomeInteractor: HomeInteractorProtocol {
             case 3: CurrencyManager.shared.currentCurrency = "$"
             default: CurrencyManager.shared.currentCurrency = "$"
         }
-        print("NEW CURRENCY")
-        print(CurrencyManager.shared.currentCurrency)
     }
     
     func toggleWishlistStatus(for product: Product) {

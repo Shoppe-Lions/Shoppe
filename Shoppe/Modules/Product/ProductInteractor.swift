@@ -7,6 +7,7 @@
 
 protocol ProductInteractorProtocol: AnyObject {
     func fetchProductWithSubcategories(by id: Int, completion: @escaping (Product?, [Product]?) -> Void)
+    func fetchProduct(id: Int, completion: @escaping (Product?) -> Void)
     func toggleLike(by id: Int)
     func addToCart(by id: Int)
     func deleteFromCart(for id: Int)
@@ -17,7 +18,7 @@ final class ProductInteractor: ProductInteractorProtocol {
     
     private let apiService = APIService.shared
     
-    private func fetchProduct(id: Int, completion: @escaping (Product?) -> Void) {
+    internal func fetchProduct(id: Int, completion: @escaping (Product?) -> Void) {
         apiService.fetchProduct(by: id) { result in
             switch result {
             case .success(let product):
