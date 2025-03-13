@@ -12,7 +12,7 @@ protocol AnyPaymentView: AnyObject {
     var presenter: AnyPaymentPresenter? { get set }
     var shippingType: shippingType { get set }
     func setupItems(with items:[CartItem])
-    func updateTotalPrice(with total: Double)
+    func updateTotalPrice(with total: String)
     func updateDeliveryDate(date: String)
     func showAlert()
     func dismissAlert()
@@ -189,8 +189,8 @@ extension PaymentViewController {
         updateShippingOption(view: shippingExpress, isSelected: !isStandardSelected)
     }
     
-    func updateTotalPrice(with total: Double) {
-        totalView.totalPrice.text = String(format: "Total $%.2f", total)
+    func updateTotalPrice(with total: String) {
+        totalView.totalPrice.text = total
     }
     
     func updateDeliveryDate(date: String) {
