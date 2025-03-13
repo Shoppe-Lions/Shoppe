@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1612F7842D824DEA00E5EC16 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 1612F7832D824DEA00E5EC16 /* FirebaseAuth */; };
+		1612F7862D824DEA00E5EC16 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 1612F7852D824DEA00E5EC16 /* FirebaseCore */; };
+		1612F7882D824DEA00E5EC16 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 1612F7872D824DEA00E5EC16 /* FirebaseFirestore */; };
+		1612F78A2D824DEA00E5EC16 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 1612F7892D824DEA00E5EC16 /* FirebaseStorage */; };
 		1669CE602D754AEA00760133 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1669CE5F2D754AEA00760133 /* SnapKit */; };
 /* End PBXBuildFile section */
 
@@ -41,6 +45,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				1669CE602D754AEA00760133 /* SnapKit in Frameworks */,
+				1612F7882D824DEA00E5EC16 /* FirebaseFirestore in Frameworks */,
+				1612F7862D824DEA00E5EC16 /* FirebaseCore in Frameworks */,
+				1612F78A2D824DEA00E5EC16 /* FirebaseStorage in Frameworks */,
+				1612F7842D824DEA00E5EC16 /* FirebaseAuth in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -84,6 +92,10 @@
 			name = Shoppe;
 			packageProductDependencies = (
 				1669CE5F2D754AEA00760133 /* SnapKit */,
+				1612F7832D824DEA00E5EC16 /* FirebaseAuth */,
+				1612F7852D824DEA00E5EC16 /* FirebaseCore */,
+				1612F7872D824DEA00E5EC16 /* FirebaseFirestore */,
+				1612F7892D824DEA00E5EC16 /* FirebaseStorage */,
 			);
 			productName = Shoppe;
 			productReference = 1669CE282D74DE6A00760133 /* Shoppe.app */;
@@ -115,6 +127,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				1669CE5E2D754AEA00760133 /* XCRemoteSwiftPackageReference "SnapKit" */,
+				1612F7822D824DEA00E5EC16 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 1669CE292D74DE6A00760133 /* Products */;
@@ -354,6 +367,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		1612F7822D824DEA00E5EC16 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 11.9.0;
+			};
+		};
 		1669CE5E2D754AEA00760133 /* XCRemoteSwiftPackageReference "SnapKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/SnapKit/SnapKit";
@@ -365,6 +386,26 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		1612F7832D824DEA00E5EC16 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1612F7822D824DEA00E5EC16 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		1612F7852D824DEA00E5EC16 /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1612F7822D824DEA00E5EC16 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
+		};
+		1612F7872D824DEA00E5EC16 /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1612F7822D824DEA00E5EC16 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+		1612F7892D824DEA00E5EC16 /* FirebaseStorage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1612F7822D824DEA00E5EC16 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseStorage;
+		};
 		1669CE5F2D754AEA00760133 /* SnapKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 1669CE5E2D754AEA00760133 /* XCRemoteSwiftPackageReference "SnapKit" */;

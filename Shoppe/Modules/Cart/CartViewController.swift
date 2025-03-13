@@ -219,6 +219,12 @@ extension CartViewController: UITableViewDataSource, UITableViewDelegate {
             return 120
         }
     }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        guard indexPath.row > 0 else { return }
+        let product = products[indexPath.row - 1]
+        presenter?.didSelectProduct(product)
+    }
 }
 
 

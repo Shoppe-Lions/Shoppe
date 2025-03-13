@@ -18,6 +18,7 @@ protocol AnyAuthPresenter: AnyObject {
     func viewDidCreateAccountTapped(email: String, password: String)
     func viewDidLoginNextTapped(email: String, password: String)
     func updateViewAuthErrorMessage(message: String)
+    func navigateToHome()
 }
 
 final class AuthPresenter: AnyAuthPresenter {
@@ -42,7 +43,6 @@ final class AuthPresenter: AnyAuthPresenter {
 
         if isEmailValid && isPasswordValid {
             interactor?.createFirebaseUser(email: email, password: password)
-            router?.navigateToHome(from: view as! UIViewController)
         } else {
             view?.shakeTextField()
         }
@@ -54,10 +54,13 @@ final class AuthPresenter: AnyAuthPresenter {
 
         if isEmailValid && isPasswordValid {
             interactor?.loginFirebaseUser(email: email, password: password)
-            router?.navigateToHome(from: view as! UIViewController)
         } else {
             view?.shakeTextField()
         }
+    }
+    
+    func navigateToHome() {
+        router?.navigateToHome(from: view as! UIViewController)
     }
     
     func updateViewAuthErrorMessage(message: String) {

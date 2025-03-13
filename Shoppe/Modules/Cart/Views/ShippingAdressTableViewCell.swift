@@ -9,6 +9,13 @@ import UIKit
 import SnapKit
 
 final class ShippingAdressTableViewCell: UITableViewCell {
+    
+    lazy var editAddressView = TextFieldAlertView(
+        title: "Change address",
+        message: "Your shipping address",
+        buttonText: "Change"
+    )
+    
     // MARK: - UI
     private lazy var shippingAdressSV: UIStackView = {
         let element = UIStackView()
@@ -47,6 +54,7 @@ final class ShippingAdressTableViewCell: UITableViewCell {
     private lazy var editButton: UIButton = {
         let element = UIButton(type: .custom)
         element.setImage(UIImage(named: "EditButton"), for: .normal)
+        element.addTarget(self, action: #selector(editAddressButtonTapped), for: .touchUpInside)
         return element
     }()
     
@@ -60,6 +68,16 @@ final class ShippingAdressTableViewCell: UITableViewCell {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    // MARK: - Action
+    @objc private func editAddressButtonTapped() {
+        editAddressView.show()
+        editAddressView.button.addTarget(self, action: #selector(changeButtonTapped), for: .touchUpInside)
+    }
+    
+    @objc func changeButtonTapped() {
+        editAddressView.dismiss()
     }
 }
 

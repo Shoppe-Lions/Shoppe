@@ -37,11 +37,11 @@ final class APIService {
     //        UserDefaults.standard.removePersistentDomain(forName: Bundle.main.bundleIdentifier!)
     func fetchProducts(completion: @escaping (Result<[Product], NetworkError>) -> Void) {
 //        UserDefaults.standard.removePersistentDomain(forName: Bundle.main.bundleIdentifier!)
-        if !cachedProducts.isEmpty {
-            print("Returning cached products")
-            completion(.success(cachedProducts))
-            return
-        }
+//        if !cachedProducts.isEmpty {
+//            print("Returning cached products")
+//            completion(.success(cachedProducts))
+//            return
+//        }
 
         print("Fetching products from network...")
         NetworkManager.shared.fetchData(from: baseURL) { (result: Result<[Product], NetworkError>) in
@@ -59,13 +59,13 @@ final class APIService {
                     }
                 }
                 // имитируем наличие вишлиста на сервере:
-                products[0].toggleLike()
-                products[1].toggleLike()
-                products[2].toggleLike()
-                products[3].toggleLike()
-                products[4].toggleLike()
-                products[5].toggleLike()
-                products[6].toggleLike()
+//                products[0].toggleLike()
+//                products[1].toggleLike()
+//                products[2].toggleLike()
+//                products[3].toggleLike()
+//                products[4].toggleLike()
+//                products[5].toggleLike()
+//                products[6].toggleLike()
                 
                 group.notify(queue: .main) {
                     self.cachedProducts = products

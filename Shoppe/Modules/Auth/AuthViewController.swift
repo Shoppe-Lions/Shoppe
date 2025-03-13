@@ -150,7 +150,9 @@ final class AuthViewController: UIViewController, UITextFieldDelegate, AnyAuthVi
             setLoginConstraints()
             setLoginUI()
         }
-        
+        //Для быстрого входа
+        emailTextField.text = "1@2.com"
+        passwordTextField.text = "A1234567"
     }
     
     // MARK: - Actions

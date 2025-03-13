@@ -35,9 +35,9 @@ class MainTabBarController: UITabBarController {
     private func setupTabBar() {
         let homeViewController = UINavigationController(rootViewController: HomeRouter.createModule())
         let wishlistViewController = UINavigationController(rootViewController: WishlistRouter.createModule())
-        let unknownViewController = UINavigationController(rootViewController: AllCategoriesRouter.createModule())
+        let unknownViewController = UINavigationController(rootViewController: ProductRouter.createModule(by: 9, navigationController: navigationController))
         let cartViewController = UINavigationController(rootViewController: CartRouter.createModule())
-        let profileViewController = ProfileViewController()
+        let profileViewController = UINavigationController(rootViewController: ProfileViewController())
 
         viewControllers = [
             homeViewController,

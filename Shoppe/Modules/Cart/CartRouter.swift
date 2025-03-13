@@ -10,6 +10,7 @@ import UIKit
 protocol CartRouterProtocol {
     static func createModule() -> UIViewController
     func showPaymentViewController()
+    func showProductViewController(productId: Int)
 }
 
 final class CartRouter: CartRouterProtocol {
@@ -32,5 +33,10 @@ final class CartRouter: CartRouterProtocol {
     func showPaymentViewController() {
         let paymentVC = PaymentRouter.createModule()
         view?.navigationController?.pushViewController(paymentVC, animated: true)
+    }
+    
+    func showProductViewController(productId: Int) {
+        let productViewController = ProductRouter.createModule(by: productId, navigationController: view?.navigationController)
+        view?.navigationController?.pushViewController(productViewController, animated: true)
     }
 }

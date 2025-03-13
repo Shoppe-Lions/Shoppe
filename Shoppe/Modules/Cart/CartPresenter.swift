@@ -19,6 +19,7 @@ protocol CartPresenterProtocol: AnyObject {
     func updateTotalPrice()
     func didTapCheckoutButton()
     func deleteProduct(at index: Int)
+    func didSelectProduct(_ product: Product)
 }
 
 final class CartPresenter: CartPresenterProtocol {
@@ -82,5 +83,10 @@ final class CartPresenter: CartPresenterProtocol {
         fetchCartProducts()
         updateCartCount()
         updateTotalPrice()
+    }
+    
+    func didSelectProduct(_ product: Product) {
+        guard let view else { return }
+        router.showProductViewController(productId: product.id)
     }
 }

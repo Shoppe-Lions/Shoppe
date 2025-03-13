@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import FirebaseAuth
 
 protocol AnyAuthIntercator: AnyObject {
     var presenter: AnyAuthPresenter? { get set }
@@ -48,11 +49,28 @@ final class AuthInteractor: AnyAuthIntercator {
     }
     
     func createFirebaseUser(email: String, password: String) {
-        print("DEBUG: New user created")
+        Auth.auth().createUser(withEmail: email, password: password) { authResult, error in
+            if let error {
+                print(error.localizedDescription)
+            } else {
+                LikeManager.shared.fetchLikesFromFirestore {
+                    self.presenter?.navigateToHome()
+                }
+            }
+        }
     }
     
     func loginFirebaseUser(email: String, password: String) {
-        print("DEBUG: Logged in")
+        Auth.auth().signIn(withEmail: email, password: password) { [weak self] authResult, error in
+            guard let self else { return }
+            if let error {
+                print(error.localizedDescription)
+            } else {
+                LikeManager.shared.fetchLikesFromFirestore {
+                    self.presenter?.navigateToHome()
+                }
+            }
+        }
     }
     
     
