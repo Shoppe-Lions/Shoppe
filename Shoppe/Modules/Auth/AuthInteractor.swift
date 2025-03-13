@@ -53,7 +53,9 @@ final class AuthInteractor: AnyAuthIntercator {
             if let error {
                 print(error.localizedDescription)
             } else {
-                self.presenter?.navigateToHome()
+                LikeManager.shared.fetchLikesFromFirestore {
+                    self.presenter?.navigateToHome()
+                }
             }
         }
     }
@@ -64,7 +66,9 @@ final class AuthInteractor: AnyAuthIntercator {
             if let error {
                 print(error.localizedDescription)
             } else {
-                self.presenter?.navigateToHome()
+                LikeManager.shared.fetchLikesFromFirestore {
+                    self.presenter?.navigateToHome()
+                }
             }
         }
     }
