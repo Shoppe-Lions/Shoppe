@@ -344,8 +344,11 @@ private extension ProductViewController {
 extension ProductViewController: ProductViewProtocol {
     
     func showProduct(_ product: Product) {
+        let convertedPrice = CurrencyManager.shared.convert(priceInUSD: product.price) //
+        let currency = CurrencyManager.shared.currentCurrency //
+        priceLabel.text = "\(currency)\(convertedPrice)" //
+        
         nameProductLabel.text = product.title
-        priceLabel.text = "$\(product.price)"
         setLike(by: product.like)
         print(product.like)
         descriptionLabel.text = product.description

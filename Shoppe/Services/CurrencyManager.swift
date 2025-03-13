@@ -11,11 +11,11 @@ import Foundation
 class CurrencyManager {
     static let shared = CurrencyManager()
     
-    private var exchangeRates: [String: Double] = ["USD": 1.0, "EUR": 1.50, "RUBL": 100.00]
+    private var exchangeRates: [String: Double] = ["$": 1.0, "€": 1.50, "₽": 100.00]
     
     var currentCurrency: String {
         get {
-            UserDefaults.standard.string(forKey: "selectedCurrency") ?? "USD"
+            UserDefaults.standard.string(forKey: "selectedCurrency") ?? "$"
         }
         set {
             UserDefaults.standard.set(newValue, forKey: "selectedCurrency")

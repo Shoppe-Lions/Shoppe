@@ -124,11 +124,11 @@ class HomeInteractor: HomeInteractorProtocol {
     
     func updateSelectedCurrency(_ row: Int) {
         switch row {
-            case 0: CurrencyManager.shared.currentCurrency = "USD"
-            case 1: CurrencyManager.shared.currentCurrency = "RUBL"
-            case 2: CurrencyManager.shared.currentCurrency = "EUR"
-            case 3: CurrencyManager.shared.currentCurrency = "USD"
-            default: CurrencyManager.shared.currentCurrency = "USD"
+            case 0: CurrencyManager.shared.currentCurrency = "$"
+            case 1: CurrencyManager.shared.currentCurrency = "₽"
+            case 2: CurrencyManager.shared.currentCurrency = "€"
+            case 3: CurrencyManager.shared.currentCurrency = "$"
+            default: CurrencyManager.shared.currentCurrency = "$"
         }
         print("NEW CURRENCY")
         print(CurrencyManager.shared.currentCurrency)
