@@ -8,6 +8,7 @@
 import UIKit
 import SnapKit
 import FirebaseAuth
+import FirebaseFirestore
 
 class ProfileViewController: UIViewController, UITextFieldDelegate {
     
@@ -91,6 +92,12 @@ class ProfileViewController: UIViewController, UITextFieldDelegate {
         setupView()
         setupConstraints()
         
+        fetchDisplayName { name in
+            if let name = name {
+                self.nameTextField.text = name
+            }
+        }
+        
         let logOutButton = UIBarButtonItem(title: "Log Out", style: .plain, target: self, action: #selector(logOutButtonTapped))
         logOutButton.tintColor = .customBlue
         navigationItem.rightBarButtonItem = logOutButton
@@ -123,7 +130,43 @@ class ProfileViewController: UIViewController, UITextFieldDelegate {
         }
     }
     
+    func updateDisplayName(newName: String) {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        let db = Firestore.firestore()
+
+        db.collection("users").document(uid).setData([
+            "username": newName
+        ], merge: true) { error in
+            if let error = error {
+                print("Ошибка при обновлении имени: \(error.localizedDescription)")
+            } else {
+                print("Имя успешно обновлено")
+            }
+        }
+    }
+    
+    func fetchDisplayName(completion: @escaping (String?) -> Void) {
+        guard let uid = Auth.auth().currentUser?.uid else {
+            completion(nil)
+            return
+        }
+
+        let db = Firestore.firestore()
+        db.collection("users").document(uid).getDocument { document, error in
+            if let document = document, document.exists {
+                let data = document.data()
+                let username = data?["username"] as? String
+                completion(username)
+            } else {
+                completion(nil)
+            }
+        }
+    }
+    
     @objc private func saveButtonTapped() {
+        if let userName = nameTextField.text {
+            updateDisplayName(newName: userName)
+        }
         print("Изменения сохранены")
     }
     
