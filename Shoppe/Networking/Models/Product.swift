@@ -6,6 +6,8 @@
 //
 
 import Foundation
+import FirebaseFirestore
+import FirebaseAuth
 
 struct Rating: Codable {
     let rate: Double
@@ -25,16 +27,7 @@ struct Product: Codable {
     var localImagePath: String
     
     enum CodingKeys: String, CodingKey {
-        case id
-        case title
-        case price
-        case description
-        case category
-        case imageURL = "image"
-        case rating
-        case subcategory
-        case like
-        case localImagePath
+        case id, title, price, description, category, imageURL = "image", rating, subcategory, like, localImagePath
     }
     
     init(id: Int, title: String, price: Double, description: String, category: String, imageURL: String, rating: Rating, subcategory: String = "Other", like: Bool = false, localImagePath: String = "Path") {
@@ -65,9 +58,9 @@ struct Product: Codable {
         self.like = false
         self.localImagePath = "Path"
         
-        subcategory = getSubcategory(for: id)
-        like = self.isLiked()
-        localImagePath = getCachedImagePath(for: imageURL)
+        self.subcategory = getSubcategory(for: id)
+        self.localImagePath = getCachedImagePath(for: imageURL)
+        self.like = LikeManager.shared.likedProductIDs.contains(id)
     }
     
     private func getSubcategory(for productID: Int) -> String {
@@ -93,28 +86,30 @@ struct Product: Codable {
         }
     }
     
-    private func isLiked() -> Bool {
-        let likedProducts = UserDefaults.standard.object(forKey: "likedProducts") as? [Int] ?? []
-        return likedProducts.contains(self.id)
-    }
-    
-    mutating func toggleLike() {
-        var likedProducts = UserDefaults.standard.object(forKey: "likedProducts") as? [Int] ?? []
-        
-        if let index = likedProducts.firstIndex(of: self.id) {
-            likedProducts.remove(at: index)
-            self.like = false
-        } else {
-            likedProducts.append(self.id)
-            self.like = true
-        }
-        
-        UserDefaults.standard.set(likedProducts, forKey: "likedProducts")
-    }
-    
     private func getCachedImagePath(for url: String) -> String {
         let imageName = URL(string: url)?.lastPathComponent ?? ""
         let fileURL = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!.appendingPathComponent(imageName)
         return FileManager.default.fileExists(atPath: fileURL.path) ? fileURL.path : "Path"
     }
+    
+    mutating func toggleLike(completion: (() -> Void)? = nil) {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        let db = Firestore.firestore()
+        let userRef = db.collection("users").document(uid)
+        
+        if like {
+            like = false
+            LikeManager.shared.likedProductIDs.remove(self.id)
+            userRef.updateData([
+                "likedProducts": FieldValue.arrayRemove([self.id])
+            ]) { _ in completion?() }
+        } else {
+            like = true
+            LikeManager.shared.likedProductIDs.insert(self.id)
+            userRef.setData([
+                "likedProducts": FieldValue.arrayUnion([self.id])
+            ], merge: true) { _ in completion?() }
+        }
+    }
 }
+
