@@ -7,6 +7,7 @@
 
 import UIKit
 import SnapKit
+import FirebaseAuth
 
 class ProfileViewController: UIViewController, UITextFieldDelegate {
     
@@ -90,6 +91,10 @@ class ProfileViewController: UIViewController, UITextFieldDelegate {
         setupView()
         setupConstraints()
         
+        let logOutButton = UIBarButtonItem(title: "Log Out", style: .plain, target: self, action: #selector(logOutButtonTapped))
+        logOutButton.tintColor = .customBlue
+        navigationItem.rightBarButtonItem = logOutButton
+        
         let tap = UITapGestureRecognizer(target: self, action: #selector(UIInputViewController.dismissKeyboard))
         view.addGestureRecognizer(tap)
     }
@@ -101,6 +106,20 @@ class ProfileViewController: UIViewController, UITextFieldDelegate {
             self.profileImageFrame.layer.cornerRadius = self.profileImageFrame.frame.height / 2
             self.profileImage.layer.cornerRadius = self.profileImage.frame.height / 2
             self.saveButton.layer.cornerRadius = self.saveButton.frame.height * 0.25
+        }
+    }
+    
+    @objc private func logOutButtonTapped() {
+        print("Выход из аккаунта")
+        do {
+          try Auth.auth().signOut()
+            guard let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate else {
+                return
+            }
+            sceneDelegate.window?.rootViewController = AuthRouter.createModule()
+            sceneDelegate.window?.makeKeyAndVisible()
+        } catch let signOutError as NSError {
+          print("Error signing out: %@", signOutError)
         }
     }
     
