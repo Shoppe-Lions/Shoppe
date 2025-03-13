@@ -12,7 +12,7 @@ protocol AllCategoriesInteractorProtocol: AnyObject {
 final class AllCategoriesInteractor: AllCategoriesInteractorProtocol {
     weak var presenter: AllCategoriesPresenterProtocol?
     
-    private let apiService = APIService()
+    private let apiService = APIService.shared
     
     func fetchCategories() {
         apiService.fetchProducts { [weak self] result in
