@@ -12,7 +12,7 @@ protocol CartViewProtocol: AnyObject {
     func showCartProducts(_ products: [Product])
     func updateProduct(at index: Int, product: Product, quantity: Int)
     func updateCartCount(_ count: Int)
-    func updateTotalPrice(_ totalPrice: Double)
+    func updateTotalPrice(_ totalPrice: String)
     func removeProduct(at index: Int)
 }
 
@@ -175,8 +175,8 @@ extension CartViewController: CartViewProtocol {
         cartCountLabel.text = "\(count)"
     }
     
-    func updateTotalPrice(_ totalPrice: Double) {
-        totalPriceLabel.text = String(format: "$%.2f", totalPrice)
+    func updateTotalPrice(_ totalPrice: String) {
+        totalPriceLabel.text = totalPrice
     }
     
     func removeProduct(at index: Int) {

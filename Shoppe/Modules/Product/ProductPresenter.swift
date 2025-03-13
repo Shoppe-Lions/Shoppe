@@ -43,9 +43,8 @@ class ProductPresenter: ProductPresenterProtocol {
     func updateProductPrice(id: Int) {
         interactor.fetchProduct(id: id) { product in
             if let product = product {
-                let currency = CurrencyManager.shared.currentCurrency
-                let convertedPrice = CurrencyManager.shared.convert(priceInUSD: product.price)
-                self.view?.updateCurrency("\(currency)\(convertedPrice)")
+                let convertedPrice = CurrencyManager.shared.convertToString(priceInUSD: product.price)
+                self.view?.updateCurrency(convertedPrice)
             }
         }
     }
