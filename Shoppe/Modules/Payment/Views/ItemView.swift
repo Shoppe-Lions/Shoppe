@@ -64,7 +64,7 @@ class ItemView: UIView {
     
     func setPrice() {
         let convertedPrice = CurrencyManager.shared.convertToString(priceInUSD: item.product.price)
-        priceLabel.text = convertedPrice
+        priceLabel.text =  "\(convertedPrice) x \(item.quantity)"
     }
     
     func setConstraints() {
