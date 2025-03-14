@@ -9,6 +9,9 @@ import Foundation
 
 protocol WishlistPresenterProtocol: AnyObject {
     var products: [Product] { get }
+    var viewModel: PresentingControllerViewModel { get set }
+    
+    func getTitle() -> String
     func viewDidLoad()
     func didPullToRefresh()
     func didFetchWishlistProducts(_ products: [Product])
@@ -18,6 +21,7 @@ protocol WishlistPresenterProtocol: AnyObject {
 
 final class WishlistPresenter: WishlistPresenterProtocol {
     var products: [Product] = []
+    var viewModel: PresentingControllerViewModel
     
     weak var view: WishlistViewProtocol?
     var interactor: WishlistInteractorProtocol
@@ -26,15 +30,25 @@ final class WishlistPresenter: WishlistPresenterProtocol {
     init(
         view: WishlistViewProtocol,
         interactor: WishlistInteractorProtocol,
-        router: WishlistRouterProtocol
+        router: WishlistRouterProtocol,
+        viewModel: PresentingControllerViewModel
     ) {
         self.view = view
         self.interactor = interactor
         self.router = router
+        self.viewModel = viewModel
     }
     
     func viewDidLoad() {
-        interactor.fetchWishlistProducts()
+        if let productsFromAnotherController = viewModel.products {
+            didFetchWishlistProducts(productsFromAnotherController)
+        } else {
+            interactor.fetchWishlistProducts()
+        }
+    }
+    
+    func getTitle() -> String {
+        return viewModel.title
     }
     
     func didFetchWishlistProducts(_ products: [Product]) {
