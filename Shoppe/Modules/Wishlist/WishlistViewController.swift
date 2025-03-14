@@ -49,7 +49,7 @@ final class WishlistViewController: UIViewController {
         paragraphStyle.lineHeightMultiple = 1.1
         paragraphStyle.alignment = .center
         label.attributedText = NSMutableAttributedString(string: "Wishlist", attributes: [NSAttributedString.Key.kern: -0.28, NSAttributedString.Key.paragraphStyle: paragraphStyle])
-        label.font = UIFont(name: "Raleway-Bold", size: 28)
+        label.font = UIFont(name: Fonts.Raleway.bold, size: 28)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -58,37 +58,26 @@ final class WishlistViewController: UIViewController {
     //MARK: Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-//        setupNavigationBar()
         setupActivityIndicator()
         showLoadingIndicator()
         presenter?.viewDidLoad()
+        setupTitle()
         setupCollectionView()
         setupPullToRefresh()
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(currencyUpdated), name: .currencyDidChange, object: nil)
-    }
-    
-    deinit {
-        NotificationCenter.default.removeObserver(self, name: .currencyDidChange, object: nil)
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.navigationBar.isHidden = true
     }
-    
-    private func setupNavigationBar() {
-        title = "Wishlist"
-        let paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.lineHeightMultiple = 1.1
-        paragraphStyle.alignment = .center
-         
-        let attributes: [NSAttributedString.Key: Any] = [
-            .font: UIFont(name: Fonts.Raleway.bold, size: 28)!,
-            .kern: -0.28,
-            .paragraphStyle: paragraphStyle
-        ]
-        navigationController?.navigationBar.titleTextAttributes = attributes
+   
+    private func setupTitle() {
+        view.addSubview(titleLabel)
+        titleLabel.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top).inset(-100)
+            make.height.equalTo(44)
+        }
     }
     
     private func setupCollectionView() {
@@ -111,9 +100,9 @@ final class WishlistViewController: UIViewController {
     }
     
     func showLoadingIndicator() {
-           activityIndicator.startAnimating()
-           collectionView.isHidden = true
-       }
+        activityIndicator.startAnimating()
+        collectionView.isHidden = true
+    }
     
     private func setupPullToRefresh() {
         refreshControl.addTarget(self, action: #selector(refreshData), for: .valueChanged)
@@ -124,10 +113,6 @@ final class WishlistViewController: UIViewController {
         presenter?.didPullToRefresh()
     }
     
-    @objc func currencyUpdated() {
-        presenter?.didPullToRefresh()
-    }
-   
 }
 
 // MARK: CollectionView delegates
@@ -142,11 +127,11 @@ extension WishlistViewController: UICollectionViewDelegate, UICollectionViewData
             return UICollectionViewCell()
         }
         guard let presenter = presenter,
-                indexPath.row < presenter.products.count
+              indexPath.row < presenter.products.count
         else {
             return UICollectionViewCell()
         }
-        let product = presenter.products[indexPath.row]
+        let product = presenter.products[indexPath.row] //[safe: indexPath.row]
         cell.configure(with: product)
         cell.delegate = self
         return cell
@@ -182,20 +167,20 @@ extension WishlistViewController: WishlistViewProtocol {
     
     // setup search controller
     func setupSearchController() {
-       guard let presenter = presenter else {
-           print("presenter is nil")
-           return
-       }
-       searchResultsController = SearchResultsRouter.createModule(products: presenter.products) as? SearchResultsController
-       searchResultsController!.delegate = self //!
-       searchController = UISearchController(searchResultsController: searchResultsController)
-       searchController?.searchResultsUpdater = searchResultsController
-       searchController?.searchBar.placeholder = "Search"
-       searchController?.searchBar.delegate = searchResultsController
-       searchController?.showsSearchResultsController = true
-       navigationItem.hidesSearchBarWhenScrolling = false
-       navigationItem.searchController = searchController
-   }
+        guard let presenter = presenter else {
+            print("presenter is nil")
+            return
+        }
+        searchResultsController = SearchResultsRouter.createModule(products: presenter.products) as? SearchResultsController
+        searchResultsController!.delegate = self //!
+        searchController = UISearchController(searchResultsController: searchResultsController)
+        searchController?.searchResultsUpdater = searchResultsController
+        searchController?.searchBar.placeholder = "Search"
+        searchController?.searchBar.delegate = searchResultsController
+        searchController?.showsSearchResultsController = true
+        navigationItem.hidesSearchBarWhenScrolling = false
+        navigationItem.searchController = searchController
+    }
 }
 
 extension WishlistViewController: WishlistProductCellDelegate {
@@ -208,5 +193,8 @@ extension WishlistViewController: SearchResultsControllerDelegate {
     func updateSearchBar(with text: String) {
         searchController?.searchBar.text = text
     }
-
+    
+    //    func updateData() {
+    //        presenter?.viewDidLoad()
+    //    }
 }

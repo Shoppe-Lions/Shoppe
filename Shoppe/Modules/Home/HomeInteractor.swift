@@ -27,7 +27,7 @@ class HomeInteractor: HomeInteractorProtocol {
     
     private var selectedCity = "🇺🇸  America → $"
     
-    private let apiService = APIService()
+    private let apiService = APIService.shared
     
     weak var presenter: HomePresenterProtocol?
     
