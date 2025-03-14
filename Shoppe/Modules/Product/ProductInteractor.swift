@@ -77,8 +77,9 @@ final class ProductInteractor: ProductInteractorProtocol {
     func deleteFromCart(for id: Int) {
         fetchProduct(id: id, completion: { product in
             if let product = product {
-                StorageCartManager.shared.removeProduct(product)
-                self.setCartCount(by: product.id)
+                StorageCartManager.shared.removeProduct(product) {
+                    self.setCartCount(by: product.id)
+                }
             }
         })
     }
@@ -86,17 +87,20 @@ final class ProductInteractor: ProductInteractorProtocol {
     func addToCart(by id: Int) {
         fetchProduct(id: id, completion: { product in
             if let product = product {
-                StorageCartManager.shared.addProduct(product)
-                self.setCartCount(by: product.id)
+                StorageCartManager.shared.addProduct(product) {
+                    self.setCartCount(by: product.id)
+                }
             }
         })
     }
     
     func setCartCount(by id: Int) {
-        if let productInCart = StorageCartManager.shared.loadCart().first(where: { $0.id == id }) {
-            presenter?.setCartCount(by: productInCart.quantity)
-        } else {
-            presenter?.setCartCount(by: 0)
+        StorageCartManager.shared.loadCart { cart in
+            if let productInCart = cart.first(where: { $0.id == id }) {
+                self.presenter?.setCartCount(by: productInCart.quantity)
+            } else {
+                self.presenter?.setCartCount(by: 0)
+            }
         }
     }
 }
