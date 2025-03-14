@@ -48,7 +48,8 @@ final class CartInteractor: CartInteractorProtocol {
                     switch result {
                     case .success(let product):
                         self.presenter?.didUpdateProduct(at: index, product: product, quantity: item.quantity)
-                        self.loadTotalAmount() 
+                        self.loadTotalAmount()
+                        self.loadTotalItems()
                     case .failure:
                         break
                     }
