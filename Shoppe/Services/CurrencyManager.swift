@@ -8,6 +8,7 @@
 
 import Foundation
 
+
 class CurrencyManager {
     static let shared = CurrencyManager()
     
@@ -20,6 +21,15 @@ class CurrencyManager {
         set {
             UserDefaults.standard.set(newValue, forKey: "selectedCurrency")
             NotificationCenter.default.post(name: .currencyDidChange, object: nil)
+        }
+    }
+    
+    var currentLocation: String {
+        get {
+            UserDefaults.standard.string(forKey: "currentLocation") ?? "USA"
+        }
+        set {
+            UserDefaults.standard.set(newValue, forKey: "currentLocation")
         }
     }
     

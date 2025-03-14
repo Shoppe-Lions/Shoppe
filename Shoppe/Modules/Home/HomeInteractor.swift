@@ -115,11 +115,18 @@ class HomeInteractor: HomeInteractorProtocol {
     }
     
     func getSelectedCity() -> String {
-        let currentCurrency = CurrencyManager.shared.currentCurrency
-        switch currentCurrency {
-            case "$": selectedCity = cities[0]
-            case "₽": selectedCity = cities[1]
-            case "€": selectedCity = cities[2]
+//        let currentCurrency = CurrencyManager.shared.currentCurrency
+//        switch currentCurrency {
+//            case "$": selectedCity = cities[0]
+//            case "₽": selectedCity = cities[1]
+//            case "€": selectedCity = cities[2]
+//            default: selectedCity = cities[3]
+//        }
+        let currentLocation = CurrencyManager.shared.currentLocation
+        switch currentLocation {
+            case "USA": selectedCity = cities[0]
+            case "Russia": selectedCity = cities[1]
+            case "Europe": selectedCity = cities[2]
             default: selectedCity = cities[3]
         }
         return selectedCity
@@ -131,11 +138,25 @@ class HomeInteractor: HomeInteractorProtocol {
     
     func updateSelectedCurrency(_ row: Int) {
         switch row {
-            case 0: CurrencyManager.shared.currentCurrency = "$"
-            case 1: CurrencyManager.shared.currentCurrency = "₽"
-            case 2: CurrencyManager.shared.currentCurrency = "€"
-            case 3: CurrencyManager.shared.currentCurrency = "$"
-            default: CurrencyManager.shared.currentCurrency = "$"
+        case 0:
+            CurrencyManager.shared.currentCurrency = "$"
+            CurrencyManager.shared.currentLocation = "USA"
+            
+        case 1:
+            CurrencyManager.shared.currentCurrency = "₽"
+            CurrencyManager.shared.currentLocation = "Russia"
+            
+        case 2:
+            CurrencyManager.shared.currentCurrency = "€"
+            CurrencyManager.shared.currentLocation = "Europe"
+            
+        case 3:
+            CurrencyManager.shared.currentCurrency = "$"
+            CurrencyManager.shared.currentLocation = "Other"
+            
+        default:
+            CurrencyManager.shared.currentCurrency = "$"
+            CurrencyManager.shared.currentLocation = "Other"
         }
     }
     
