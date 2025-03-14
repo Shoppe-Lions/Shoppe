@@ -5,79 +5,90 @@
 //  Created by Artem Kriukov on 04.03.2025.
 //
 
-import Foundation
-
-
 protocol CartInteractorProtocol: AnyObject {
     func fetchCartProducts()
     func increaseProductQuantity(at index: Int)
     func decreaseProductQuantity(at index: Int)
     func getQuantity(for productId: Int) -> Int
-    func getTotalProductCount() -> Int
-    func calculateTotalPrice() -> String
+    func loadTotalItems()
+    func loadTotalAmount()
     func deleteProduct(at index: Int)
 }
 
 final class CartInteractor: CartInteractorProtocol {
     weak var presenter: CartPresenterProtocol?
-    
+
     func fetchCartProducts() {
-        let cart = StorageCartManager.shared.loadCart()
-        let products = cart.map { $0.product }
-        presenter?.didFetchCartProducts(products)
-    }
-    
-    func increaseProductQuantity(at index: Int) {
-        let cart = StorageCartManager.shared.loadCart()
-        guard index < cart.count else { return }
-        let product = cart[index].product
-        
-        StorageCartManager.shared.addProduct(product)
-        
-        presenter?.didUpdateProduct(at: index, product: product, quantity: cart[index].quantity + 1)
-    }
-    
-    func decreaseProductQuantity(at index: Int) {
-        let cart = StorageCartManager.shared.loadCart()
-        guard index < cart.count else { return }
-        
-        let product = cart[index].product
-        StorageCartManager.shared.removeProduct(product)
-        
-        presenter?.didUpdateProduct(at: index, product: product, quantity: cart[index].quantity - 1)
-    }
-    
-    func getQuantity(for productId: Int) -> Int {
-        let cart = StorageCartManager.shared.loadCart()
-        for item in cart {
-            if item.product.id == productId {
-                return item.quantity
+        StorageCartManager.shared.loadCart { cartItems in
+            StorageCartManager.shared.fetchProductsForCartItems(cartItems) { updatedCartItems in
+                let products = updatedCartItems.map { $0.product }
+                self.presenter?.didFetchCartProducts(products)
             }
         }
+    }
+
+    func increaseProductQuantity(at index: Int) {
+        updateQuantity(at: index, increase: true)
+    }
+
+    func decreaseProductQuantity(at index: Int) {
+        updateQuantity(at: index, increase: false)
+    }
+
+    private func updateQuantity(at index: Int, increase: Bool) {
+        StorageCartManager.shared.loadCart { cartItems in
+            guard index >= 0, index < cartItems.count else { return }
+
+            var item = cartItems[index]
+            item.quantity = increase ? item.quantity + 1 : max(1, item.quantity - 1)
+
+            StorageCartManager.shared.updateProduct(item) {
+                APIService.shared.fetchProduct(by: item.id) { result in
+                    switch result {
+                    case .success(let product):
+                        self.presenter?.didUpdateProduct(at: index, product: product, quantity: item.quantity)
+                    case .failure:
+                        break
+                    }
+                }
+            }
+        }
+    }
+
+    func getQuantity(for productId: Int) -> Int {
+        // Заглушка — чтобы не менять протокол
         return 0
     }
-    
-    func getTotalProductCount() -> Int {
-        StorageCartManager.shared.loadCart().count
-    }
-    
-    func calculateTotalPrice() -> String {
-        let cart = StorageCartManager.shared.loadCart()
-        
-        var totalPrice = 0.0
-        for item in cart {
-            totalPrice += Double(item.product.price) * Double(item.quantity)
+
+    func loadTotalItems() {
+        StorageCartManager.shared.loadCart { cartItems in
+            let total = cartItems.reduce(0) { $0 + $1.quantity }
+            self.presenter?.updateCartCount(total)
         }
-        return CurrencyManager.shared.convertToString(priceInUSD: totalPrice)
     }
-    
+
+    func loadTotalAmount() {
+        StorageCartManager.shared.loadCart { cartItems in
+            StorageCartManager.shared.fetchProductsForCartItems(cartItems) { updatedCartItems in
+                let total: Double = updatedCartItems.reduce(0.0) {
+                    $0 + ($1.product.price * Double($1.quantity))
+                }
+                let formatted = String(format: "%.2f", total)
+                self.presenter?.updateTotalPrice(formatted)
+            }
+        }
+    }
+
     func deleteProduct(at index: Int) {
-        var cart = StorageCartManager.shared.loadCart()
-            guard index < cart.count else { return }
-            cart.remove(at: index)
-            StorageCartManager.shared.saveCart(cart)
-            let products = cart.map { $0.product }
-            presenter?.didFetchCartProducts(products)
-            presenter?.updateTotalPrice()
+        StorageCartManager.shared.loadCart { cartItems in
+            guard index >= 0, index < cartItems.count else { return }
+
+            let product = cartItems[index].product
+            StorageCartManager.shared.removeProduct(product) {
+                self.fetchCartProducts()
+                self.loadTotalItems()
+                self.loadTotalAmount()
+            }
+        }
     }
 }

@@ -21,9 +21,12 @@ final class PaymentInteractor: AnyPaymentIntercator {
     var items: [CartItem] = []
     
     func getCartItems() {
-        let data = StorageCartManager.shared.loadCart()
-        items = data
-        presenter?.interactorDidFetchBasketItems(with: data)
+        StorageCartManager.shared.loadCart { cartItems in
+            StorageCartManager.shared.fetchProductsForCartItems(cartItems) { updatedCartItems in
+                self.items = updatedCartItems
+                self.presenter?.interactorDidFetchBasketItems(with: updatedCartItems)
+            }
+        }
     }
     
     func getOneItemCart(product: CartItem) {
