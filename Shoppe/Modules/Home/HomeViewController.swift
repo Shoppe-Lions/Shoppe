@@ -340,6 +340,8 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
             make.top.equalTo(customNavigationBar.snp.bottom)
             make.leading.trailing.bottom.equalToSuperview()
         }
+        
+        collectionView.delegate = self
     }
 
     
@@ -880,7 +882,56 @@ extension HomeViewController: ProductCellDelegate {
     }
 }
 
-
+extension HomeViewController: UICollectionViewDelegate {
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        // Пример использования wishlist-контроллера для отображения товаров с поиском
+        // 1. Получаем массив products. Тут взяла мок, но надо из dataSource по indexPath вытащить
+        let products =  [
+            Product(id: 4,
+                   title: "Sunglasses",
+                   price: 17.00,
+                   description: "Stylish sunglasses",
+                   category: "Accessories",
+                    imageURL: "testPhotoImage",
+                   rating: Rating(rate: 4.2, count: 95),
+                   subcategory: "Eyewear",
+                   like: false),
+            Product(id: 5,
+                   title: "Summer Hat",
+                   price: 17.00,
+                   description: "Beach hat",
+                   category: "Accessories",
+                    imageURL: "testPhotoImage",
+                   rating: Rating(rate: 4.0, count: 150),
+                   subcategory: "Hats",
+                   like: false),
+            Product(id: 6,
+                   title: "Beach Bag",
+                   price: 17.00,
+                   description: "Large beach bag",
+                   category: "Bags",
+                    imageURL: "testPhotoImage",
+                   rating: Rating(rate: 4.6, count: 210),
+                   subcategory: "Beach",
+                   like: false),
+            Product(id: 7,
+                   title: "Sandals",
+                   price: 17.00,
+                   description: "Summer sandals",
+                   category: "Shoes",
+                    imageURL: "testPhotoImage",
+                   rating: Rating(rate: 4.4, count: 175),
+                   subcategory: "Summer",
+                   like: false)
+        ]
+        // 2. Создаем вьюмодель для будущего контроллера, в title кладем название категории или просто Shop для всего магазина
+        let viewModel = PresentingControllerViewModel(title: "Shop", products: products)
+        // 3. Создаем контроллер для отображения, передав ему эту модель
+        let vc = WishlistRouter.createModule(viewModel: viewModel)
+        // 4. Пушаем
+        navigationController?.pushViewController(vc, animated: false)
+    }
+}
 
 
 
