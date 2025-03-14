@@ -36,7 +36,6 @@ final class WishlistViewController: UIViewController {
         layout.minimumInteritemSpacing = 0 // Расстояние между ячейками в строке
         
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        collectionView.largeContentTitle = "Wishlist"
         collectionView.backgroundColor = .white
         return collectionView
     }()
@@ -68,10 +67,11 @@ final class WishlistViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        navigationController?.navigationBar.isHidden = true
+        navigationController?.navigationBar.isHidden = false
     }
    
     private func setupTitle() {
+        titleLabel.text = presenter?.getTitle()
         view.addSubview(titleLabel)
         titleLabel.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()

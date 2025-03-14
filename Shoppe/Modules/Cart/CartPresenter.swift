@@ -10,7 +10,7 @@ import Foundation
 protocol CartPresenterProtocol: AnyObject {
     func viewDidLoad()
     func fetchCartProducts()
-    func didFetchCartProducts(_ products: [Product])
+    func didFetchCartProducts(_ products: [Product], quantities: [Int])
     func didUpdateProduct(at index: Int, product: Product, quantity: Int)
     func increaseProductQuantity(at index: Int)
     func decreaseProductQuantity(at index: Int)
@@ -43,8 +43,8 @@ final class CartPresenter: CartPresenterProtocol {
         interactor.fetchCartProducts()
     }
 
-    func didFetchCartProducts(_ products: [Product]) {
-        view?.showCartProducts(products)
+    func didFetchCartProducts(_ products: [Product], quantities: [Int]) {
+        view?.showCartProducts(products, quantities: quantities)
     }
 
     func didUpdateProduct(at index: Int, product: Product, quantity: Int) {

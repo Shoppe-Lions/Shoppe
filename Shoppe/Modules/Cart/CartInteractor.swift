@@ -22,7 +22,8 @@ final class CartInteractor: CartInteractorProtocol {
         StorageCartManager.shared.loadCart { cartItems in
             StorageCartManager.shared.fetchProductsForCartItems(cartItems) { updatedCartItems in
                 let products = updatedCartItems.map { $0.product }
-                self.presenter?.didFetchCartProducts(products)
+                let quantities = updatedCartItems.map { $0.quantity } 
+                self.presenter?.didFetchCartProducts(products, quantities: quantities)
             }
         }
     }
@@ -38,15 +39,17 @@ final class CartInteractor: CartInteractorProtocol {
     private func updateQuantity(at index: Int, increase: Bool) {
         StorageCartManager.shared.loadCart { cartItems in
             guard index >= 0, index < cartItems.count else { return }
-
+            
             var item = cartItems[index]
             item.quantity = increase ? item.quantity + 1 : max(1, item.quantity - 1)
-
+            
             StorageCartManager.shared.updateProduct(item) {
                 APIService.shared.fetchProduct(by: item.id) { result in
                     switch result {
                     case .success(let product):
                         self.presenter?.didUpdateProduct(at: index, product: product, quantity: item.quantity)
+                        self.loadTotalAmount()
+                        self.loadTotalItems()
                     case .failure:
                         break
                     }
