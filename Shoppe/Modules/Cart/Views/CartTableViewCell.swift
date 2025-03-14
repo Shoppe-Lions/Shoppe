@@ -146,7 +146,7 @@ final class CartTableViewCell: UITableViewCell {
         
         let convertedPrice = CurrencyManager.shared.convert(priceInUSD: product.price)
         
-        cellImageView.image = UIImage(named: product.imageURL)
+        cellImageView.image = UIImage(contentsOfFile: product.localImagePath)
         nameProductLabel.text = product.title
         let quantity = presenter.getQuantity(for: product.id)
         let totalPrice = convertedPrice * Double(quantity)
