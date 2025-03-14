@@ -458,7 +458,7 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         // Group
         let groupSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
-            heightDimension: .absolute(300)
+            heightDimension: .absolute(307)
         )
         let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
         

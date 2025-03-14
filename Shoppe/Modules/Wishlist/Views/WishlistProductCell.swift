@@ -78,7 +78,7 @@ class WishlistProductCell: UICollectionViewCell {
     
     private let wishlistButton: UIButton = {
         let button = UIButton()
-        button.setImage(wishlistOnImage, for: .normal)
+        button.setImage(.wishlistOn, for: .normal)
         button.backgroundColor = .white
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
@@ -158,7 +158,7 @@ class WishlistProductCell: UICollectionViewCell {
        
         nameLabel.text = product.title
         priceLabel.text = CurrencyManager.shared.convertToString(priceInUSD: product.price) //todo: в идеале форматирование строки с ценой должно быть во viewModel
-        wishlistButton.setImage(product.like ? wishlistOnImage : wishlistOffImage, for: .normal)
+        wishlistButton.setImage(product.like ? .wishlistOn : .wishlistOff, for: .normal)
     }
     
     @objc func handleWishlistButtonTapped() {
