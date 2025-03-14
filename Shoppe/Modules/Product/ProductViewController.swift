@@ -238,6 +238,10 @@ final class ProductViewController: UIViewController {
         }
     }
     
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
     // MARK: - Life Cycle
     
     override func viewDidLoad() {
@@ -351,10 +355,7 @@ private extension ProductViewController {
 extension ProductViewController: ProductViewProtocol {
     
     func showProduct(_ product: Product) {
-        let currency = CurrencyManager.shared.currentCurrency //
-        let price = String(format: "%.2f", product.price)
-        
-        priceLabel.text = "\(currency)\(price)" //
+        priceLabel.text = CurrencyManager.shared.makeToString(priceInUSD: product.price)
         
         nameProductLabel.text = product.title
         setLike(by: product.like)

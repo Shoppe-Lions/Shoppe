@@ -64,6 +64,12 @@ final class WishlistViewController: UIViewController {
         presenter?.viewDidLoad()
         setupCollectionView()
         setupPullToRefresh()
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(currencyUpdated), name: .currencyDidChange, object: nil)
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self, name: .currencyDidChange, object: nil)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -115,6 +121,10 @@ final class WishlistViewController: UIViewController {
     }
     
     @objc private func refreshData() {
+        presenter?.didPullToRefresh()
+    }
+    
+    @objc func currencyUpdated() {
         presenter?.didPullToRefresh()
     }
    
@@ -198,8 +208,5 @@ extension WishlistViewController: SearchResultsControllerDelegate {
     func updateSearchBar(with text: String) {
         searchController?.searchBar.text = text
     }
-  
-//    func updateData() {
-//        presenter?.viewDidLoad()
-//    }
+
 }

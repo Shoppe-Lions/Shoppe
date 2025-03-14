@@ -91,6 +91,7 @@ class WishlistProductCell: UICollectionViewCell {
         wishlistButton.addTarget(self, action: #selector(handleWishlistButtonTapped), for: .touchUpInside)
     }
     
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -156,7 +157,7 @@ class WishlistProductCell: UICollectionViewCell {
         }
        
         nameLabel.text = product.title
-        priceLabel.text = "$\(product.price)" //todo: в идеале форматирование строки с ценой должно быть во viewModel
+        priceLabel.text = CurrencyManager.shared.convertToString(priceInUSD: product.price) //todo: в идеале форматирование строки с ценой должно быть во viewModel
         wishlistButton.setImage(product.like ? wishlistOnImage : wishlistOffImage, for: .normal)
     }
     
