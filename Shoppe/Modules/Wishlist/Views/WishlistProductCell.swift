@@ -43,8 +43,8 @@ class WishlistProductCell: UICollectionViewCell {
         let label = UILabel()
         label.font = .systemFont(ofSize: 17, weight: .medium)
         label.textColor = .label
-        label.numberOfLines = 0
-        label.lineBreakMode = .byWordWrapping
+        label.numberOfLines = 2
+        label.lineBreakMode = .byCharWrapping
         var paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineHeightMultiple = 0.98
         label.attributedText = NSMutableAttributedString(string: "Lorem ipsum dolor sit amet consectetur", attributes: [NSAttributedString.Key.paragraphStyle: paragraphStyle])
