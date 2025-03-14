@@ -15,6 +15,7 @@ protocol HomePresenterProtocol: AnyObject {
     func didTapLocationButton()
     func didTapCartButton()
     func didTapSeeAllCategories()
+    func didCurrencyUpdated()
 }
 
 class HomePresenter: HomePresenterProtocol {
@@ -54,4 +55,8 @@ class HomePresenter: HomePresenterProtocol {
     func didTapSeeAllCategories() {
         router.openAllCategories()
     }
-} 
+    
+    func didCurrencyUpdated() {
+        view?.updateCollectionView()
+    }
+}

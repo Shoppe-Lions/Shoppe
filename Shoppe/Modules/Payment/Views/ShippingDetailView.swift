@@ -54,7 +54,6 @@ class ShippingDetailView: UIView {
     lazy var priceLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = type == .standard ? "FREE" : "$12,00"
         label.font = UIFont(name: "Raleway-Bold", size: PFontSize.normal)
         label.textAlignment = .right
         return label
@@ -66,6 +65,7 @@ class ShippingDetailView: UIView {
         super.init(frame: .zero)
         setupViews()
         setConstraints()
+        setPrice()
     }
     
     required init?(coder: NSCoder) {
@@ -79,6 +79,13 @@ class ShippingDetailView: UIView {
         addSubview(durationContainer)
         durationContainer.addSubview(durationLabel)
         addSubview(priceLabel)
+    }
+    
+    func setPrice() {
+        let currency = CurrencyManager.shared.currentCurrency
+        let shippingPrice = CurrencyManager.shared.convert(priceInUSD: 12)
+        let shippingPriceString = String(format: "%.0f", shippingPrice)
+        priceLabel.text = type == .standard ? "FREE" : "\(currency)\(shippingPriceString)"
     }
         
     func setConstraints() {

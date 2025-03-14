@@ -17,7 +17,7 @@ enum PLayout {
     static let contentBottomOffset: CGFloat = 200
     static let detailsHeight: CGFloat = 85
     static let totalViewHeight: CGFloat = 60
-    static let descriptionLabel: CGFloat = 170
+    static let descriptionLabel: CGFloat = 150
     static let voucherButtonSize = CGSize(width: 130, height: 35)
     static let payButtonSize = CGSize(width: 125, height: 40)
     static let deliveryDurationSize = CGSize(width: 80, height: 30)

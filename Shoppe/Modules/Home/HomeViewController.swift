@@ -16,6 +16,7 @@ protocol HomeViewProtocol: AnyObject {
     func displayLocationMenu(with cities: [String], selectedCity: String)
     func hideLocationMenu()
     func updateLocationLabel(_ location: String)
+    func updateCollectionView()
 }
 
 class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
@@ -188,6 +189,12 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
                 locationLabel.text = presenter.interactor.getSelectedCity()
             }
         }
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(currencyUpdated), name: .currencyDidChange, object: nil)
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self, name: .currencyDidChange, object: nil)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -479,6 +486,14 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         // Handle cart tap
     }
     
+    @objc func currencyUpdated() {
+        presenter.didCurrencyUpdated()
+    }
+    
+    func updateCollectionView() {
+        collectionView.reloadData()
+    }
+    
     @objc private func locationTapped() {
         print("Location button tapped")
         
@@ -715,6 +730,7 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let cities = presenter.interactor.getAvailableCities()
         let selectedCity = cities[indexPath.row]
+        presenter.interactor.updateSelectedCurrency(indexPath.row)
         presenter.didSelectLocation(selectedCity)
     }
 }

@@ -14,7 +14,7 @@ protocol CartInteractorProtocol: AnyObject {
     func decreaseProductQuantity(at index: Int)
     func getQuantity(for productId: Int) -> Int
     func getTotalProductCount() -> Int
-    func calculateTotalPrice() -> Double
+    func calculateTotalPrice() -> String
     func deleteProduct(at index: Int)
 }
 
@@ -61,14 +61,14 @@ final class CartInteractor: CartInteractorProtocol {
         StorageCartManager.shared.loadCart().count
     }
     
-    func calculateTotalPrice() -> Double {
+    func calculateTotalPrice() -> String {
         let cart = StorageCartManager.shared.loadCart()
         
         var totalPrice = 0.0
         for item in cart {
             totalPrice += Double(item.product.price) * Double(item.quantity)
         }
-        return totalPrice
+        return CurrencyManager.shared.convertToString(priceInUSD: totalPrice)
     }
     
     func deleteProduct(at index: Int) {

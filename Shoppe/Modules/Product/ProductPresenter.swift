@@ -15,6 +15,7 @@ protocol ProductPresenterProtocol: AnyObject {
     func addToCart(by id: Int)
     func deleteFromCart(for id: Int)
     func setCartCount(by count: Int)
+    func updateProductPrice(id: Int)
 }
 
 class ProductPresenter: ProductPresenterProtocol {
@@ -30,10 +31,22 @@ class ProductPresenter: ProductPresenterProtocol {
     
     func viewDidLoad(id: Int) {
         interactor.fetchProductWithSubcategories(by: id) { product, subcategoryProsucts in
-            if let product = product {
+            if var product = product {
+                let convertedPrice = CurrencyManager.shared.convert(priceInUSD: product.price)
+                product.price = convertedPrice
                 self.view?.showProduct(product)
             }
             self.view?.showSubcategoryes(by: subcategoryProsucts)
+        }
+    }
+    
+    func updateProductPrice(id: Int) {
+        interactor.fetchProduct(id: id) { product in
+            if let product = product {
+                let convertedPrice = CurrencyManager.shared.convertToString(priceInUSD: product.price)
+                print(convertedPrice)
+                self.view?.updateCurrency(convertedPrice)
+            }
         }
     }
     

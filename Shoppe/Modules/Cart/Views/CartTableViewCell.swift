@@ -144,11 +144,13 @@ final class CartTableViewCell: UITableViewCell {
         self.index = index
         self.presenter = presenter
         
+        let convertedPrice = CurrencyManager.shared.convert(priceInUSD: product.price)
+        
         cellImageView.image = UIImage(named: product.imageURL)
         nameProductLabel.text = product.title
         let quantity = presenter.getQuantity(for: product.id)
-        let totalPrice = product.price * Double(quantity)
-        priceLabel.text = String(format: "$%.2f", totalPrice)
+        let totalPrice = convertedPrice * Double(quantity)
+        priceLabel.text = CurrencyManager.shared.makeToString(priceInUSD: totalPrice)
         counterLabel.text = "\(quantity)"
     }
     
@@ -156,8 +158,11 @@ final class CartTableViewCell: UITableViewCell {
     func updateQuantity(_ quantity: Int) {
         guard let product else { return }
         counterLabel.text = "\(quantity)"
-        let totalPrice = product.price * Double(quantity)
-        priceLabel.text = String(format: "$%.2f", totalPrice)
+        
+        let convertedPrice = CurrencyManager.shared.convert(priceInUSD: product.price)
+        let totalPrice = convertedPrice * Double(quantity)
+        priceLabel.text = CurrencyManager.shared.makeToString(priceInUSD: totalPrice)
+        
     }
     
     @objc private func increaseQuantity() {
