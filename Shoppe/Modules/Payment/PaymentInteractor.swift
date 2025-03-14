@@ -23,6 +23,7 @@ final class PaymentInteractor: AnyPaymentIntercator {
     func getCartItems() {
         StorageCartManager.shared.loadCart { cartItems in
             StorageCartManager.shared.fetchProductsForCartItems(cartItems) { updatedCartItems in
+                self.items = updatedCartItems
                 self.presenter?.interactorDidFetchBasketItems(with: updatedCartItems)
             }
         }
