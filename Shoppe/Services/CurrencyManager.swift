@@ -34,7 +34,6 @@ class CurrencyManager {
     }
     
     func convert(priceInUSD: Double) -> Double {
-        print(currentCurrency)
         return priceInUSD * (exchangeRates[currentCurrency] ?? 1.00)
     }
     
