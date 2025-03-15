@@ -55,7 +55,6 @@ final class WishlistPresenter: WishlistPresenterProtocol {
         self.products = products
         view?.reloadData()
         view?.hideLoadingIndicator()
-        view?.setupSearchController() //todo
     }
     
 //    func didFailToFetchProducts(_ error: Error) {
