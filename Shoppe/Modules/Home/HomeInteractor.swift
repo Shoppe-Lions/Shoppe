@@ -15,6 +15,9 @@ protocol HomeInteractorProtocol: AnyObject {
     func getSelectedCity() -> String
     func updateSelectedLocation(_ location: String)
     func updateSelectedCurrency(_ row: Int)
+    func fetchProductsByCategory(_ category: String, completion: @escaping (Result<[Product], NetworkError>) -> Void)
+    func refreshRandomizedProducts()
+    func toggleWishlistStatus(for product: Product)
 }
 
 class HomeInteractor: HomeInteractorProtocol {
@@ -162,5 +165,41 @@ class HomeInteractor: HomeInteractorProtocol {
     
     func toggleWishlistStatus(for product: Product) {
         apiService.toggleLike(for: product)
+    }
+    
+    func fetchProductsByCategory(_ category: String, completion: @escaping (Result<[Product], NetworkError>) -> Void) {
+        apiService.fetchProductsByCategory(category, completion: completion)
+    }
+    
+    func refreshRandomizedProducts() {
+        apiService.fetchProducts { [weak self] result in
+            guard let self = self else { return }
+            
+            switch result {
+            case .success(let products):
+                // Перемешиваем продукты
+                let shuffledProducts = products.shuffled()
+                
+                // Берем первые 6 для Popular секции
+                let popularProducts = Array(shuffledProducts.prefix(6))
+                
+                // Берем следующие 8 для Just For You секции
+                let startIndex = 6
+                let endIndex = min(startIndex + 8, shuffledProducts.count)
+                let justForYouProducts = Array(shuffledProducts[startIndex..<endIndex])
+                
+                DispatchQueue.main.async {
+                    self.presenter?.view?.displayPopularProducts(popularProducts)
+                    self.presenter?.view?.displayJustForYouProducts(justForYouProducts)
+                    self.presenter?.view?.endRefreshing()
+                }
+                
+            case .failure(let error):
+                print("Error refreshing products: \(error)")
+                DispatchQueue.main.async {
+                    self.presenter?.view?.endRefreshing()
+                }
+            }
+        }
     }
 }

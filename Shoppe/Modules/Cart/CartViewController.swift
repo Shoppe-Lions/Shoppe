@@ -148,7 +148,7 @@ final class CartViewController: UIViewController {
         // Обновляем бейдж в HomeViewController
         if let tabBarController = tabBarController,
            let homeVC = tabBarController.viewControllers?[0] as? HomeViewController {
-            homeVC.presenter.updateCartBadge()
+//            homeVC.presenter.updateCartBadge()
         }
     }
     
@@ -185,7 +185,7 @@ extension CartViewController: CartViewProtocol {
         // Обновляем бейдж в HomeViewController
         if let tabBarController = tabBarController,
            let homeVC = tabBarController.viewControllers?[0] as? HomeViewController {
-            homeVC.presenter.updateCartBadge()
+//            homeVC.presenter.updateCartBadge()
         }
     }
     

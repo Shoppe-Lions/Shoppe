@@ -171,7 +171,7 @@ final class CartTableViewCell: UITableViewCell {
         // Обновляем бейдж в HomeViewController
         if let tabBarController = UIApplication.shared.windows.first?.rootViewController as? UITabBarController,
            let homeVC = tabBarController.viewControllers?[0] as? HomeViewController {
-            homeVC.presenter.updateCartBadge()
+//            homeVC.presenter.updateCartBadge()
         }
     }
     
@@ -182,7 +182,7 @@ final class CartTableViewCell: UITableViewCell {
         // Обновляем бейдж в HomeViewController
         if let tabBarController = UIApplication.shared.windows.first?.rootViewController as? UITabBarController,
            let homeVC = tabBarController.viewControllers?[0] as? HomeViewController {
-            homeVC.presenter.updateCartBadge()
+//            homeVC.presenter.updateCartBadge()
         }
     }
     
