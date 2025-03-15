@@ -10,7 +10,7 @@ import SnapKit
 import FirebaseAuth
 import FirebaseFirestore
 
-class ProfileViewController: UIViewController, UITextFieldDelegate {
+class ProfileViewController: UIViewController, UITextFieldDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
     lazy var nameTextField: UITextField = {
         return createTextField(placeholder: "Name", keyboardType: .default, isSecure: false)
@@ -171,7 +171,24 @@ class ProfileViewController: UIViewController, UITextFieldDelegate {
     }
     
     @objc private func editButtonTapped() {
-        print("Кнопка редактирования нажата")
+        if UIImagePickerController.isSourceTypeAvailable(.photoLibrary) {
+            let imagePickerController = UIImagePickerController()
+            imagePickerController.delegate = self
+            imagePickerController.sourceType = .photoLibrary
+            imagePickerController.allowsEditing = true
+            present(imagePickerController, animated: true, completion: nil)
+        }
+    }
+    
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        if let selectedImage = info[.editedImage] as? UIImage {
+            profileImage.image = selectedImage
+        }
+        dismiss(animated: true, completion: nil)
+    }
+
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        dismiss(animated: true, completion: nil)
     }
     
     @objc func dismissKeyboard() {
