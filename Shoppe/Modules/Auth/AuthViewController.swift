@@ -105,6 +105,7 @@ final class AuthViewController: UIViewController, UITextFieldDelegate, AnyAuthVi
         setupViews()
         setCommonConstraints()
         addKeyboardObservers()
+        setGestures()
     }
 
     deinit {
@@ -159,6 +160,16 @@ final class AuthViewController: UIViewController, UITextFieldDelegate, AnyAuthVi
         //Для быстрого входа
         emailTextField.text = "1@2.com"
         passwordTextField.text = "A1234567"
+    }
+    
+    func setGestures() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tapGesture.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGesture)
+    }
+    
+    @objc func dismissKeyboard() {
+        view.endEditing(true)
     }
     
     // MARK: - Keyboard notifications
