@@ -8,6 +8,8 @@
 import UIKit
 
 class HistoryCell: UICollectionViewCell {
+    static let reuseIdentifier = "HistoryCell"
+    
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 14)
