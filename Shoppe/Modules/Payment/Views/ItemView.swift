@@ -30,7 +30,7 @@ class ItemView: UIView {
     lazy var priceLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = String(format: "$%.2f", item.product.price)
+        //label.text = String(format: "$%.2f", item.product.price)
         label.font = UIFont(name: "Raleway-Bold", size: PFontSize.medium)
         label.textAlignment = .right
         return label
@@ -50,6 +50,7 @@ class ItemView: UIView {
         super.init(frame: .zero)
         setupViews()
         setConstraints()
+        setPrice()
     }
     
     required init?(coder: NSCoder) {
@@ -59,6 +60,11 @@ class ItemView: UIView {
     func setupViews() {
         addSubview(stackView)
         addSubview(itemsNumber)
+    }
+    
+    func setPrice() {
+        let convertedPrice = CurrencyManager.shared.convertToString(priceInUSD: item.product.price)
+        priceLabel.text =  "\(convertedPrice) x \(item.quantity)"
     }
     
     func setConstraints() {

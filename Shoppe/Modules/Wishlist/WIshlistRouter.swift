@@ -8,18 +8,18 @@
 import UIKit
 
 protocol WishlistRouterProtocol {
-    static func createModule() -> UIViewController
+    static func createModule(viewModel: PresentingControllerViewModel) -> UIViewController
     func openProductDetail(from view: WishlistViewProtocol, with product: Product)
 }
 
 final class WishlistRouter: WishlistRouterProtocol {
 
-    static func createModule() -> UIViewController {
+    static func createModule(viewModel: PresentingControllerViewModel) -> UIViewController {
         
         let view = WishlistViewController()
         let router = WishlistRouter()
         let interactor = WishlistInteractor()
-        let presenter = WishlistPresenter(view: view, interactor: interactor, router: router)
+        let presenter = WishlistPresenter(view: view, interactor: interactor, router: router, viewModel: viewModel)
         
         view.presenter = presenter
         interactor.presenter = presenter

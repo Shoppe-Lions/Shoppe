@@ -9,10 +9,10 @@ import UIKit
 import SnapKit
 
 protocol CartViewProtocol: AnyObject {
-    func showCartProducts(_ products: [Product])
+    func showCartProducts(_ products: [Product], quantities: [Int])
     func updateProduct(at index: Int, product: Product, quantity: Int)
     func updateCartCount(_ count: Int)
-    func updateTotalPrice(_ totalPrice: Double)
+    func updateTotalPrice(_ totalPrice: String)
     func removeProduct(at index: Int)
 }
 
@@ -21,7 +21,7 @@ final class CartViewController: UIViewController {
     var presenter: CartPresenterProtocol?
     
     private var products: [Product] = []
-    
+    private var quantities: [Int] = []
 
     // MARK: - UI
     private lazy var topStackView: UIStackView = {
@@ -156,32 +156,36 @@ final class CartViewController: UIViewController {
 
 // MARK: - CartViewProtocol
 extension CartViewController: CartViewProtocol {
-    func showCartProducts(_ products: [Product]) {
+    func showCartProducts(_ products: [Product], quantities: [Int]) {
         self.products = products
+        self.quantities = quantities
         emptyCartLabel.isHidden = !products.isEmpty
-        presenter?.updateCartCount() 
+        presenter?.updateCartCount()
         presenter?.updateTotalPrice()
         cartTableView.reloadData()
     }
     
     func updateProduct(at index: Int, product: Product, quantity: Int) {
         products[index] = product
+        quantities[index] = quantity // Обновляем количество
         if let cell = cartTableView.cellForRow(at: IndexPath(row: index + 1, section: 0)) as? CartTableViewCell {
             cell.updateQuantity(quantity)
         }
     }
+
     
     func updateCartCount(_ count: Int) {
         cartCountLabel.text = "\(count)"
     }
     
-    func updateTotalPrice(_ totalPrice: Double) {
-        totalPriceLabel.text = String(format: "$%.2f", totalPrice)
+    func updateTotalPrice(_ totalPrice: String) {
+        totalPriceLabel.text = totalPrice
     }
     
     func removeProduct(at index: Int) {
         guard products.indices.contains(index) else { return }
         products.remove(at: index)
+        quantities.remove(at: index)
         let indexPath = IndexPath(row: index + 1, section: 0)
         cartTableView.deleteRows(at: [indexPath], with: .automatic)
         emptyCartLabel.isHidden = !products.isEmpty
@@ -203,9 +207,17 @@ extension CartViewController: UITableViewDataSource, UITableViewDelegate {
             return cell
         } else {
             let cell = tableView.dequeueReusableCell(withIdentifier: "CartTableViewCell", for: indexPath) as! CartTableViewCell
+            
             let product = products[indexPath.row - 1]
+            let quantity = quantities[indexPath.row - 1]
+            
             if let presenter = presenter {
-                cell.configure(with: product, at: indexPath.row - 1, presenter: presenter)
+                cell.configure(
+                        with: product,
+                        at: indexPath.row - 1,
+                        quantity: quantity,
+                        presenter: presenter
+                    )
             }
             cell.selectionStyle = .none
             return cell

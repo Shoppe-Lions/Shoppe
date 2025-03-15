@@ -175,7 +175,7 @@ class ProductCell: UICollectionViewCell {
     func configure(with product: Product, isPopularSection: Bool = false) {
         self.product = product
         nameLabel.text = product.title
-        priceLabel.text = "$\(product.price)"
+        priceLabel.text = CurrencyManager.shared.convertToString(priceInUSD: product.price)
         wishlistButton.setImage(product.like ? wishlistOnImage : wishlistOffImage, for: .normal)
         
         addToCartButton.isHidden = isPopularSection

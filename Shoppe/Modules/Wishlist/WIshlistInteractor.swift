@@ -18,12 +18,10 @@ final class WishlistInteractor: WishlistInteractorProtocol {
     private let apiService = APIService.shared
     
     func fetchWishlistProducts() {
-        apiService.fetchProducts { [weak self] result in
+        apiService.fetchLikedProducts {  [weak self] result in
             switch result {
             case .success(let products):
-                let wishlistProducts = products.filter(\.like)
-                self?.presenter?.didFetchWishlistProducts(wishlistProducts)
-          
+                self?.presenter?.didFetchWishlistProducts(products)          
             case .failure(let error):
                 //TODO: обработка ошибок
                 print("Error fetching wishlist products: \(error)")

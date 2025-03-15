@@ -104,7 +104,7 @@ private extension PaymentPresenter {
     func getViewUpdateTotalPriceAndDelivery() {
         guard let shippingType = view?.shippingType else { return }
         
-        let itemsTotal = interactor?.calculateTotalPrice(shippingType: shippingType) ?? 0.0
+        let itemsTotal = interactor?.calculateTotalPrice(shippingType: shippingType) ?? "0.0"
         view?.updateTotalPrice(with: itemsTotal)
         
         let deliveryDates = interactor?.getFutureDates()

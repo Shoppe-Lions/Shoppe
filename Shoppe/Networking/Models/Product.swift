@@ -17,7 +17,7 @@ struct Rating: Codable {
 struct Product: Codable {
     let id: Int
     let title: String
-    let price: Double
+    var price: Double
     let description: String
     let category: String
     let imageURL: String
@@ -113,3 +113,19 @@ struct Product: Codable {
     }
 }
 
+extension Product {
+    static func placeholder(id: Int) -> Product {
+        return Product(
+            id: id,
+            title: "",
+            price: 0.0,
+            description: "",
+            category: "",
+            imageURL: "",
+            rating: Rating(rate: 0.0, count: 0),
+            subcategory: "Other",
+            like: false,
+            localImagePath: "Path"
+        )
+    }
+}

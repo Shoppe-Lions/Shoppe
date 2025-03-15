@@ -7,19 +7,13 @@
 
 import Foundation
 
-let mockData: [Product] = [
-    Product(id: 1, title: "", price: 17.00, description: "26, Duong So 2, Thao Dien Ward, An Phu, District 2, Ho Chi Minh city", category: "", imageURL: "mockImage", rating: Rating(rate: 22.00, count: 1)),
-    Product(id: 1, title: "", price: 15.00, description: "60, Duong So 2, Thao Dien Ward, An Phu, District 2, Ho Chi Minh city", category: "", imageURL: "mockImage", rating: Rating(rate: 22.00, count: 1)),
-    Product(id: 1, title: "", price: 15.00, description: "60, Duong So 2, Thao Dien Ward, An Phu, District 2, Ho Chi Minh city", category: "", imageURL: "mockImage", rating: Rating(rate: 22.00, count: 1))
-]
-
 protocol AnyPaymentIntercator: AnyObject {
     var presenter: AnyPaymentPresenter? { get set }
     var items: [CartItem] { get set }
     func getCartItems()
     func getOneItemCart(product: CartItem)
     func getFutureDates() -> (String, String)
-    func calculateTotalPrice(shippingType: shippingType) -> Double
+    func calculateTotalPrice(shippingType: shippingType) -> String
 }
 
 final class PaymentInteractor: AnyPaymentIntercator {
@@ -27,9 +21,12 @@ final class PaymentInteractor: AnyPaymentIntercator {
     var items: [CartItem] = []
     
     func getCartItems() {
-        let data = StorageCartManager.shared.loadCart()
-        items = data
-        presenter?.interactorDidFetchBasketItems(with: data)
+        StorageCartManager.shared.loadCart { cartItems in
+            StorageCartManager.shared.fetchProductsForCartItems(cartItems) { updatedCartItems in
+                self.items = updatedCartItems
+                self.presenter?.interactorDidFetchBasketItems(with: updatedCartItems)
+            }
+        }
     }
     
     func getOneItemCart(product: CartItem) {
@@ -53,10 +50,12 @@ final class PaymentInteractor: AnyPaymentIntercator {
         return (twoDaysString, sevenDaysString)
     }
     
-    func calculateTotalPrice(shippingType: shippingType) -> Double {
-        var itemsTotal = items.reduce(0) { $0 + ($1.product.price * Double($1.quantity))}
-        if shippingType == .express { itemsTotal += 12 }
-        return itemsTotal
+    func calculateTotalPrice(shippingType: shippingType) -> String {
+        let itemsTotal = items.reduce(0) { $0 + ($1.product.price * Double($1.quantity))}
+        let shippingPrice = CurrencyManager.shared.convert(priceInUSD: 12)
+        var itemsTotalConverted = CurrencyManager.shared.convert(priceInUSD: itemsTotal)
+        if shippingType == .express { itemsTotalConverted += shippingPrice }
+        return CurrencyManager.shared.makeToString(priceInUSD: itemsTotalConverted)
     }
 }
 

@@ -43,8 +43,8 @@ class WishlistProductCell: UICollectionViewCell {
         let label = UILabel()
         label.font = .systemFont(ofSize: 17, weight: .medium)
         label.textColor = .label
-        label.numberOfLines = 0
-        label.lineBreakMode = .byWordWrapping
+        label.numberOfLines = 2
+        label.lineBreakMode = .byCharWrapping
         var paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineHeightMultiple = 0.98
         label.attributedText = NSMutableAttributedString(string: "Lorem ipsum dolor sit amet consectetur", attributes: [NSAttributedString.Key.paragraphStyle: paragraphStyle])
@@ -90,6 +90,7 @@ class WishlistProductCell: UICollectionViewCell {
         setupUI()
         wishlistButton.addTarget(self, action: #selector(handleWishlistButtonTapped), for: .touchUpInside)
     }
+    
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -156,7 +157,7 @@ class WishlistProductCell: UICollectionViewCell {
         }
        
         nameLabel.text = product.title
-        priceLabel.text = "$\(product.price)" //todo: в идеале форматирование строки с ценой должно быть во viewModel
+        priceLabel.text = CurrencyManager.shared.convertToString(priceInUSD: product.price) //todo: в идеале форматирование строки с ценой должно быть во viewModel
         wishlistButton.setImage(product.like ? wishlistOnImage : wishlistOffImage, for: .normal)
     }
     

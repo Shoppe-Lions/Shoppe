@@ -139,25 +139,29 @@ final class CartTableViewCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func configure(with product: Product, at index: Int, presenter: CartPresenterProtocol) {
+    func configure(with product: Product, at index: Int, quantity: Int, presenter: CartPresenterProtocol) {
         self.product = product
         self.index = index
         self.presenter = presenter
         
-        cellImageView.image = UIImage(named: product.imageURL)
-        nameProductLabel.text = product.title
-        let quantity = presenter.getQuantity(for: product.id)
-        let totalPrice = product.price * Double(quantity)
-        priceLabel.text = String(format: "$%.2f", totalPrice)
+        let convertedPrice = CurrencyManager.shared.convert(priceInUSD: product.price)
+        let totalPrice = convertedPrice * Double(quantity)
+        priceLabel.text = CurrencyManager.shared.makeToString(priceInUSD: totalPrice)
         counterLabel.text = "\(quantity)"
+        
+        cellImageView.image = UIImage(contentsOfFile: product.localImagePath)
+        nameProductLabel.text = product.title
     }
     
     // MARK: - Action
     func updateQuantity(_ quantity: Int) {
         guard let product else { return }
         counterLabel.text = "\(quantity)"
-        let totalPrice = product.price * Double(quantity)
-        priceLabel.text = String(format: "$%.2f", totalPrice)
+        
+        let convertedPrice = CurrencyManager.shared.convert(priceInUSD: product.price)
+        let totalPrice = convertedPrice * Double(quantity)
+        priceLabel.text = CurrencyManager.shared.makeToString(priceInUSD: totalPrice)
+        
     }
     
     @objc private func increaseQuantity() {

@@ -14,6 +14,7 @@ protocol ProductViewProtocol: AnyObject {
     func showSubcategoryes(by products: [Product]?)
     func setLike(by like: Bool)
     func setCartCount(by count: Int)
+    func updateCurrency(_ price: String)
 }
 
 final class ProductViewController: UIViewController {
@@ -203,6 +204,10 @@ final class ProductViewController: UIViewController {
     
     // MARK: - Methods
     
+    @objc func updatePrices() {
+        presenter?.updateProductPrice(id: id)
+    }
+    
     @objc private func likeButtonPressed() {
         presenter.toggleLike(id: id)
     }
@@ -233,6 +238,10 @@ final class ProductViewController: UIViewController {
         }
     }
     
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
     // MARK: - Life Cycle
     
     override func viewDidLoad() {
@@ -242,6 +251,8 @@ final class ProductViewController: UIViewController {
         setupConstraints()
         presenter.viewDidLoad(id: id)
         navigationItem.leftBarButtonItem?.tintColor = .black
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(updatePrices), name: .currencyDidChange, object: nil)
     }
 }
 
@@ -344,13 +355,18 @@ private extension ProductViewController {
 extension ProductViewController: ProductViewProtocol {
     
     func showProduct(_ product: Product) {
+        priceLabel.text = CurrencyManager.shared.makeToString(priceInUSD: product.price)
+        
         nameProductLabel.text = product.title
-        priceLabel.text = "$\(product.price)"
         setLike(by: product.like)
         print(product.like)
         descriptionLabel.text = product.description
         subcategoryLabel.text = product.subcategory
         productImageView.image = UIImage(contentsOfFile: product.localImagePath)
+    }
+    
+    func updateCurrency(_ price: String) { //
+        priceLabel.text = price
     }
     
     func setLike(by like: Bool) {

@@ -14,6 +14,7 @@ protocol HomeInteractorProtocol: AnyObject {
     func getAvailableCities() -> [String]
     func getSelectedCity() -> String
     func updateSelectedLocation(_ location: String)
+    func updateSelectedCurrency(_ row: Int)
 }
 
 class HomeInteractor: HomeInteractorProtocol {
@@ -114,11 +115,49 @@ class HomeInteractor: HomeInteractorProtocol {
     }
     
     func getSelectedCity() -> String {
+//        let currentCurrency = CurrencyManager.shared.currentCurrency
+//        switch currentCurrency {
+//            case "$": selectedCity = cities[0]
+//            case "₽": selectedCity = cities[1]
+//            case "€": selectedCity = cities[2]
+//            default: selectedCity = cities[3]
+//        }
+        let currentLocation = CurrencyManager.shared.currentLocation
+        switch currentLocation {
+            case "USA": selectedCity = cities[0]
+            case "Russia": selectedCity = cities[1]
+            case "Europe": selectedCity = cities[2]
+            default: selectedCity = cities[3]
+        }
         return selectedCity
     }
     
     func updateSelectedLocation(_ location: String) {
         selectedCity = location
+    }
+    
+    func updateSelectedCurrency(_ row: Int) {
+        switch row {
+        case 0:
+            CurrencyManager.shared.currentCurrency = "$"
+            CurrencyManager.shared.currentLocation = "USA"
+            
+        case 1:
+            CurrencyManager.shared.currentCurrency = "₽"
+            CurrencyManager.shared.currentLocation = "Russia"
+            
+        case 2:
+            CurrencyManager.shared.currentCurrency = "€"
+            CurrencyManager.shared.currentLocation = "Europe"
+            
+        case 3:
+            CurrencyManager.shared.currentCurrency = "$"
+            CurrencyManager.shared.currentLocation = "Other"
+            
+        default:
+            CurrencyManager.shared.currentCurrency = "$"
+            CurrencyManager.shared.currentLocation = "Other"
+        }
     }
     
     func toggleWishlistStatus(for product: Product) {
