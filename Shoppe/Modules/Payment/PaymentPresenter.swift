@@ -53,7 +53,7 @@ final class PaymentPresenter: AnyPaymentPresenter {
     }
     
     func interactorDidFetchBasketItems(with result: [CartItem]) {
-        view?.setupItems(with: result)
+        view?.updateItems(with: result)
         getViewUpdateTotalPriceAndDelivery()
         updateShippingAddress()
     }
