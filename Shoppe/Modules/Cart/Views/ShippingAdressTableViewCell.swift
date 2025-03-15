@@ -92,9 +92,8 @@ final class ShippingAdressTableViewCell: UITableViewCell {
         parentVC.present(nav, animated: true)
     }
     
-    private func updateAddress(with address: AddressModel) {
-        detailsAdressLabel.text = "\(address.street), \(address.houseNumber), \(address.city), \(address.zipCode)"
-        print("Адрес обновлен: \(address.street)")
+    func updateAddress(with address: AddressModel) {
+        detailsAdressLabel.text = "\(address.zipCode), \(address.city), \(address.street), \(address.houseNumber)"
     }
 }
 
