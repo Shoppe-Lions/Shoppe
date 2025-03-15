@@ -81,7 +81,7 @@ final class WishlistViewController: UIViewController {
     }
     
     private func setupCollectionView() {
-        collectionView.register(WishlistProductCell.self, forCellWithReuseIdentifier: wishlistProductCellId)
+        collectionView.register(ProductCell.self, forCellWithReuseIdentifier: ProductCell.identifier)
         collectionView.dataSource = self
         collectionView.delegate = self
         
@@ -123,7 +123,7 @@ extension WishlistViewController: UICollectionViewDelegate, UICollectionViewData
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: wishlistProductCellId, for: indexPath) as? WishlistProductCell else {
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ProductCell.identifier, for: indexPath) as? ProductCell else {
             return UICollectionViewCell()
         }
         guard let presenter = presenter,
@@ -183,7 +183,7 @@ extension WishlistViewController: WishlistViewProtocol {
     }
 }
 
-extension WishlistViewController: WishlistProductCellDelegate {
+extension WishlistViewController: ProductCellDelegate {
     func didTapWishlistButton(for product: Product) {
         presenter?.toggleWishlist(for: product)
     }

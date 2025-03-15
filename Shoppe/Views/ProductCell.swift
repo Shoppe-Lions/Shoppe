@@ -8,15 +8,13 @@
 import UIKit
 import SnapKit
 
-//todo
-let wishlistOnImage = UIImage(named: "wishlist_on")
-let wishlistOffImage = UIImage(named: "wishlist_off")
 
 protocol ProductCellDelegate: AnyObject {
     func didTapWishlistButton(for product: Product)
 }
 
 class ProductCell: UICollectionViewCell {
+    static let identifier = ProductCell.description()
     
     weak var delegate: ProductCellDelegate?
     var product: Product?
@@ -47,15 +45,18 @@ class ProductCell: UICollectionViewCell {
         label.font = .systemFont(ofSize: 17, weight: .medium)
         label.textColor = .label
         label.numberOfLines = 2
-        label.lineBreakMode = .byTruncatingTail
+        label.lineBreakMode = .byCharWrapping
         var paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineHeightMultiple = 0.98
-        paragraphStyle.alignment = .left
         label.attributedText = NSMutableAttributedString(
             string: "Lorem ipsum dolor sit amet consectetur",
-            attributes: [NSAttributedString.Key.paragraphStyle: paragraphStyle]
+            attributes: [
+                .paragraphStyle: paragraphStyle,
+                .baselineOffset: 1
+            ]
         )
-        label.font = UIFont(name: "NunitoSans10pt-Regular", size: 12)
+        label.font = UIFont(name: Fonts.NunitoSans.regular, size: 12)
+        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
@@ -79,16 +80,14 @@ class ProductCell: UICollectionViewCell {
         button.backgroundColor = .customBlue
         button.layer.cornerRadius = 4
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.isHidden = true
         return button
     }()
 
     private let wishlistButton: UIButton = {
         let button = UIButton()
-        button.setImage(wishlistOnImage, for: .normal)
+        button.setImage(.wishlistOn, for: .normal)
         button.backgroundColor = .white
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.isHidden = true
         return button
     }()
     
@@ -131,10 +130,12 @@ class ProductCell: UICollectionViewCell {
         } else {
             // Стандартные констрейнты
             photoContainerView.snp.remakeConstraints { make in
-                make.top.leading.trailing.equalToSuperview()
-                make.height.equalTo(photoContainerView.snp.width)
+                make.top.equalToSuperview().inset(15)
+                make.centerX.equalToSuperview()
+                make.height.equalTo(181)
+                make.width.equalTo(165)
             }
-            
+
             photoImageView.snp.remakeConstraints { make in
                 make.center.equalToSuperview()
                 make.width.height.equalToSuperview().multipliedBy(0.9)
@@ -176,7 +177,7 @@ class ProductCell: UICollectionViewCell {
         self.product = product
         nameLabel.text = product.title
         priceLabel.text = CurrencyManager.shared.convertToString(priceInUSD: product.price)
-        wishlistButton.setImage(product.like ? wishlistOnImage : wishlistOffImage, for: .normal)
+        wishlistButton.setImage(product.like ? .wishlistOn : .wishlistOff, for: .normal)
         
         addToCartButton.isHidden = isPopularSection
         wishlistButton.isHidden = isPopularSection
@@ -187,7 +188,7 @@ class ProductCell: UICollectionViewCell {
             photoImageView.image = image
         } else {
             // Показываем placeholder пока загружается изображение
-            photoImageView.image = UIImage(named: "testPhotoImage")
+            photoImageView.image = UIImage(named: "placeholderImage")
             
             // Загружаем изображение
             imageLoader.loadImage(from: product.imageURL) { [weak self] image, localPath in
