@@ -10,6 +10,8 @@ import UIKit
 protocol AllCategoriesPresenterProtocol: AnyObject {
     func viewDidLoad()
     func didFetchCategories(_ categories: [Category])
+    func fetchSelectedSubcategory(_ selectedSucategory: String)
+    func goToShop(_ products: [Product])
 }
 
 class AllCategoriesPresenter: AllCategoriesPresenterProtocol {
@@ -31,5 +33,13 @@ class AllCategoriesPresenter: AllCategoriesPresenterProtocol {
     
     func didFetchCategories(_ categories: [Category]) {
         view?.showCategories(categories)
+    }
+    
+    func fetchSelectedSubcategory(_ selectedSucategory: String) {
+        interactor.fetchSelectedSubcategory(selectedSucategory)
+    }
+    
+    func goToShop(_ products: [Product]) {
+        router.showShopViewController(products)
     }
 }

@@ -6,7 +6,7 @@
 //
 import UIKit
 
-class SubcategoryCell: UITableViewCell {
+class SubcategoryCell: UITableViewCell  {
     
     // MARK: - UI
     
@@ -23,6 +23,8 @@ class SubcategoryCell: UITableViewCell {
     }()
     
     // MARK: - Properties
+    
+    var presenter: AllCategoriesPresenterProtocol!
     
     private var items: [String] = []
     
@@ -47,8 +49,9 @@ class SubcategoryCell: UITableViewCell {
         }
     }
 
-    func configure(with subcategories: [String]) {
+    func configure(with subcategories: [String], presenter: AllCategoriesPresenterProtocol) {
         self.items = subcategories
+        self.presenter = presenter
         collectionView.reloadData()
     }
     
@@ -83,7 +86,7 @@ extension SubcategoryCell: UICollectionViewDataSource, UICollectionViewDelegate 
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let selectedItem = items[indexPath.item]
-        print("Выбрана подкатегория: \(selectedItem)")
+        presenter.fetchSelectedSubcategory(selectedItem)
     }
 }
 

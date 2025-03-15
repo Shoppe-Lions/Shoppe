@@ -69,10 +69,10 @@ struct Product: Codable {
             return "Backpacks"
         case 2...4:
             return "Clothing"
-        case 5, 8:
-            return "Cheap"
-        case 6...7:
+        case 5...6:
             return "Expensive"
+        case 7...8:
+            return "Cheap"
         case 9...12:
             return "Hard Drives"
         case 13...14:
