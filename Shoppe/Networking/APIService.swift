@@ -58,14 +58,6 @@ final class APIService {
                         group.leave()
                     }
                 }
-                // имитируем наличие вишлиста на сервере:
-//                products[0].toggleLike()
-//                products[1].toggleLike()
-//                products[2].toggleLike()
-//                products[3].toggleLike()
-//                products[4].toggleLike()
-//                products[5].toggleLike()
-//                products[6].toggleLike()
                 
                 group.notify(queue: .main) {
                     self.cachedProducts = products

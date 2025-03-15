@@ -148,5 +148,6 @@ extension AllCategoriesViewController: UITableViewDataSource, UITableViewDelegat
 extension AllCategoriesViewController: AllCategoriesViewProtocol {
     func showCategories(_ categories: [Category]) {
         self.categories = categories
+        categoriesTableView.reloadData()
     }
 }

@@ -9,7 +9,7 @@ import UIKit
 
 protocol AllCategoriesRouterProtocol {
     static func createModule() -> UIViewController
-    func showShopViewController()
+    func showShopViewController(_ products: [Product])
 }
 
 final class AllCategoriesRouter: AllCategoriesRouterProtocol {
@@ -29,7 +29,9 @@ final class AllCategoriesRouter: AllCategoriesRouterProtocol {
         return view
     }
     
-    func showShopViewController() {
-        
+    func showShopViewController(_ products: [Product]) {
+//        let viewModel = PresentingControllerViewModel(title: "Shop", products: products)
+//        let vc = WishlistRouter.createModule(viewModel: viewModel)
+//        navigationController?.pushViewController(vc, animated: false)
     }
 }

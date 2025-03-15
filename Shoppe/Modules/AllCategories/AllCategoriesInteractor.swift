@@ -7,6 +7,7 @@
 
 protocol AllCategoriesInteractorProtocol: AnyObject {
     func fetchCategories()
+    func fetchSelectedSubcategory(_ subcategory: String)
 }
 
 final class AllCategoriesInteractor: AllCategoriesInteractorProtocol {
@@ -48,6 +49,20 @@ final class AllCategoriesInteractor: AllCategoriesInteractorProtocol {
                 
                 self.presenter?.didFetchCategories(categories)
                 
+            case .failure(let error):
+                print("Failed to fetch products: \(error)")
+            }
+        }
+    }
+    
+    func fetchSelectedSubcategory(_ subcategory: String) {
+        apiService.fetchProducts { [weak self] result in
+            guard let self = self else { return }
+            
+            switch result {
+            case .success(let products):
+                let subProducts = products.filter { $0.subcategory == subcategory }
+                self.presenter?.goToShop(subProducts)
             case .failure(let error):
                 print("Failed to fetch products: \(error)")
             }

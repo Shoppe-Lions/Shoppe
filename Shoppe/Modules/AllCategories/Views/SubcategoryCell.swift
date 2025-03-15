@@ -24,6 +24,8 @@ class SubcategoryCell: UITableViewCell {
     
     // MARK: - Properties
     
+    var presenter: AllCategoriesPresenterProtocol!
+    
     private var items: [String] = []
     
     // MARK: - Life Cycle
@@ -83,7 +85,7 @@ extension SubcategoryCell: UICollectionViewDataSource, UICollectionViewDelegate 
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let selectedItem = items[indexPath.item]
-        print("Выбрана подкатегория: \(selectedItem)")
+        presenter.fetchSelectedSubcategory(selectedItem)
     }
 }
 
