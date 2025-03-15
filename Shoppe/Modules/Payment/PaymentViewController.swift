@@ -23,6 +23,7 @@ protocol AnyPaymentView: AnyObject {
     func showVoucherAlert()
     func dismissVoucherAlert()
     func updateItems(with items: [CartItem])
+    func updatedShippingCurrency()
 }
 
 final class PaymentViewController: UIViewController, AnyPaymentView {
@@ -253,6 +254,10 @@ extension PaymentViewController {
     
     func dismissVoucherAlert() {
         addVoucherView.dismiss()
+    }
+    
+    func updatedShippingCurrency() {
+        shippingExpress.setPrice()
     }
 }
 

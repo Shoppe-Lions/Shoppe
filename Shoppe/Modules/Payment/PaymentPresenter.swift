@@ -56,6 +56,7 @@ final class PaymentPresenter: AnyPaymentPresenter {
         view?.updateItems(with: result)
         getViewUpdateTotalPriceAndDelivery()
         updateShippingAddress()
+        view?.updatedShippingCurrency()
     }
     
     func viewDidSelectDelivery() {
