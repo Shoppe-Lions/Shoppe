@@ -192,7 +192,7 @@ extension WishlistViewController: ProductCellDelegate {
 
 extension WishlistViewController: FakeSearchViewDelegate {
     func didTapSearch() { //это роутер должен сделать
-        let vc = SearchResultsRouter.createModule(viewModel: PresentingControllerViewModel(title: "Wishlist", products: presenter?.products))
+        let vc = SearchResultsRouter.createModule(viewModel: PresentingControllerViewModel(title: presenter?.getTitle() ?? "Wishlist", products: presenter?.products))
         navigationController?.pushViewController(vc, animated: true)
     }
 }
