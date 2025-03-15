@@ -14,6 +14,7 @@ protocol AnyPaymentView: AnyObject {
     func setupItems(with items:[CartItem])
     func updateTotalPrice(with total: String)
     func updateDeliveryDate(date: String)
+    func updateShippingAddress(address: String)
     func showAlert()
     func dismissAlert()
     func showEditAddressAlert()
@@ -111,7 +112,7 @@ final class PaymentViewController: UIViewController, AnyPaymentView {
         shippingExpress.button.addTarget(self, action: #selector(didSelectDelivery), for: .touchUpInside)
         totalView.button.addTarget(self, action: #selector(didShowPaymentAlert), for: .touchUpInside)
         alertView.button.addTarget(self, action: #selector(didDismissPaymentAlert), for: .touchUpInside)
-        shippingDetails.editButton.addTarget(self, action: #selector(didShowEditAddress), for: .touchUpInside)
+        shippingDetails.editButton.addTarget(self, action: #selector(didEditAddressTapped), for: .touchUpInside)
         editAddressView.button.addTarget(self, action: #selector(didDismissEditAddressAlert), for: .touchUpInside)
         deliveryDetails.editButton.addTarget(self, action: #selector(didShowEditContacts), for: .touchUpInside)
         editContactsView.button.addTarget(self, action: #selector(didDismissEditContactsAlert), for: .touchUpInside)
@@ -158,6 +159,10 @@ final class PaymentViewController: UIViewController, AnyPaymentView {
         presenter?.viewDidDismissVoucherAlert()
     }
     
+    @objc func didEditAddressTapped() {
+        presenter?.viewDidEditAddressTapped()
+    }
+    
     
 }
 
@@ -195,6 +200,10 @@ extension PaymentViewController {
     
     func updateDeliveryDate(date: String) {
         shippingDescription.text = "Delivered on or before \(date)"
+    }
+    
+    func updateShippingAddress(address: String) {
+        shippingDetails.addressLabel.text = address
     }
     
     func showAlert() {
