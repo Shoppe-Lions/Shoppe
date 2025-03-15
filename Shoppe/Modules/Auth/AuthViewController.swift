@@ -87,6 +87,7 @@ final class AuthViewController: UIViewController, UITextFieldDelegate, AnyAuthVi
     lazy var plainButton: UIButton = {
         var config = UIButton.Configuration.plain()
         config.image = UIImage(named: "arrowButtonAuth")
+        config.title = "I already have an account"
         config.imagePlacement = .trailing
         config.imagePadding = 8
         
@@ -287,7 +288,6 @@ extension AuthViewController {
         label.text = "Shoppe"
         welcomeLabel.isHidden = true
         button.setTitle("Let's get started", for: .normal)
-        plainButton.setTitle("I already have an account", for: .normal)
         emailTextField.isHidden = true
         passwordTextField.isHidden = true
         
@@ -295,6 +295,7 @@ extension AuthViewController {
         config.image = UIImage(named: "arrowButtonAuth")
         config.imagePlacement = .trailing
         config.imagePadding = 8
+        config.title = "I already have an account"
         plainButton.configuration = config
     }
     
@@ -310,9 +311,9 @@ extension AuthViewController {
         emailTextField.resignFirstResponder()
         passwordTextField.resignFirstResponder()
         
-        plainButton.setTitle("Cancel", for: .normal)
         var config = UIButton.Configuration.plain()
         config.image = nil
+        config.title = "Cancel"
         plainButton.configuration = config
     }
     
@@ -329,9 +330,9 @@ extension AuthViewController {
         emailTextField.resignFirstResponder()
         passwordTextField.resignFirstResponder()
         
-        plainButton.setTitle("Cancel", for: .normal)
         var config = UIButton.Configuration.plain()
         config.image = nil
+        config.title = "Cancel"
         plainButton.configuration = config
     }
     
