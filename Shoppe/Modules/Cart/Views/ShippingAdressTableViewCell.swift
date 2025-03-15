@@ -7,14 +7,11 @@
 
 import UIKit
 import SnapKit
+import FirebaseAuth
 
 final class ShippingAdressTableViewCell: UITableViewCell {
     
-    lazy var editAddressView = TextFieldAlertView(
-        title: "Change address",
-        message: "Your shipping address",
-        buttonText: "Change"
-    )
+    weak var parentViewController: UIViewController?
     
     // MARK: - UI
     private lazy var shippingAdressSV: UIStackView = {
@@ -72,14 +69,35 @@ final class ShippingAdressTableViewCell: UITableViewCell {
     
     // MARK: - Action
     @objc private func editAddressButtonTapped() {
-        editAddressView.show()
-        editAddressView.button.addTarget(self, action: #selector(changeButtonTapped), for: .touchUpInside)
+        guard let parentVC = parentViewController else {
+            print("UIViewController не найден")
+            return
+        }
+        
+        let addressesVC = AddressesViewController()
+        addressesVC.onAddressSelected = { [weak self] selectedAddress in
+            self?.updateAddress(with: selectedAddress)
+        }
+        
+        let nav = UINavigationController(rootViewController: addressesVC)
+        nav.modalPresentationStyle = .pageSheet
+        
+        if let sheet = nav.sheetPresentationController {
+            let customDetent = UISheetPresentationController.Detent.custom { context in
+                return context.maximumDetentValue * 0.3
+            }
+            sheet.detents = [customDetent]
+        }
+        
+        parentVC.present(nav, animated: true)
     }
     
-    @objc func changeButtonTapped() {
-        editAddressView.dismiss()
+    private func updateAddress(with address: AddressModel) {
+        detailsAdressLabel.text = "\(address.street), \(address.houseNumber), \(address.city), \(address.zipCode)"
+        print("Адрес обновлен: \(address.street)")
     }
 }
+
 
 private extension ShippingAdressTableViewCell {
     func setupViews() {
