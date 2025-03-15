@@ -103,6 +103,11 @@ final class AuthViewController: UIViewController, UITextFieldDelegate, AnyAuthVi
         super.viewDidLoad()
         setupViews()
         setCommonConstraints()
+        addKeyboardObservers()
+    }
+
+    deinit {
+        removeKeyboardObservers()
     }
     
     // MARK: - UI Setup
@@ -155,7 +160,43 @@ final class AuthViewController: UIViewController, UITextFieldDelegate, AnyAuthVi
         passwordTextField.text = "A1234567"
     }
     
+    // MARK: - Keyboard notifications
+    func addKeyboardObservers() {
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(keyboardWillShow(_:)),
+                                               name: UIResponder.keyboardWillShowNotification,
+                                               object: nil)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(keyboardWillHide(_:)),
+                                               name: UIResponder.keyboardWillHideNotification,
+                                               object: nil)
+    }
+
+    func removeKeyboardObservers() {
+        NotificationCenter.default.removeObserver(self,
+                                                  name: UIResponder.keyboardWillShowNotification,
+                                                  object: nil)
+        NotificationCenter.default.removeObserver(self,
+                                                  name: UIResponder.keyboardWillHideNotification,
+                                                  object: nil)
+    }
+    
     // MARK: - Actions
+    @objc func keyboardWillShow(_ notification: Notification) {
+        guard let userInfo = notification.userInfo else { return }
+        let keyboardFrame = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect
+        let keyboardHeight = keyboardFrame?.height ?? 0
+        
+        UIView.animate(withDuration: 0.3) {
+            self.view.frame.origin.y = -keyboardHeight / 2
+        }
+    }
+
+    @objc func keyboardWillHide(_ notification: Notification) {
+        UIView.animate(withDuration: 0.3) {
+            self.view.frame.origin.y = 0
+        }
+    }
   
     @objc func didGetStartedTapped() {
         presenter?.viewDidGetStartedTapped()
@@ -231,13 +272,6 @@ extension AuthViewController {
     }
     
     func animateImageScale() {
-//        let animation = CABasicAnimation(keyPath: "transform.scale")
-//        animation.fromValue = 1.3
-//        animation.toValue = 1.0
-//        animation.duration = 1
-//        animation.timingFunction = CAMediaTimingFunction(name: .easeOut)
-//    
-//        view.layer.add(animation, forKey: "scaleAnimation")
         let animation = CABasicAnimation(keyPath: "contentsRect")
             animation.fromValue = CGRect(x: -0.15, y: -0.15, width: 1.3, height: 1.3) // Увеличенный размер
             animation.toValue = CGRect(x: 0, y: 0, width: 1, height: 1) // Обычный размер
