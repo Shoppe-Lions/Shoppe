@@ -22,6 +22,29 @@ class AddressManager {
         }
     }
     
+    func fetchDefaultAddress(for userId: String, completion: @escaping (AddressModel?, String?) -> Void) {
+        db.collection("users").document(userId).collection("addresses")
+            .whereField("isDefault", isEqualTo: true)
+            .getDocuments { snapshot, error in
+                if let error = error {
+                    completion(nil, "Ошибка при загрузке адресов: \(error.localizedDescription)")
+                    return
+                }
+                
+                guard let docs = snapshot?.documents, !docs.isEmpty else {
+                    completion(nil, "Нет дефолтного адреса.")
+                    return
+                }
+                
+                // Если адрес найден
+                if let address = try? docs.first?.data(as: AddressModel.self) {
+                    completion(address, nil)
+                } else {
+                    completion(nil, "Ошибка при извлечении адреса.")
+                }
+            }
+    }
+    
     func addAddress(_ address: AddressModel, for userId: String, completion: @escaping (Bool) -> Void) {
         do {
             try db.collection("users").document(userId).collection("addresses").document(address.id).setData(from: address)
