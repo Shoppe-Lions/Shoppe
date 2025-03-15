@@ -27,6 +27,13 @@ class ProfileViewController: UIViewController, UITextFieldDelegate, UIImagePicke
         return textField
     }()
     
+    lazy var chekPasswordTextField: CustomPasswordTextField = {
+        let textField = CustomPasswordTextField()
+        textField.backgroundColor = UIColor(named: "CustomLightGray")
+        textField.delegate = self
+        return textField
+    }()
+    
     lazy var editButton: UIButton = {
         let button = UIButton(type: .custom)
         button.setImage(UIImage(named: "EditButton"), for: .normal)
@@ -167,6 +174,18 @@ class ProfileViewController: UIViewController, UITextFieldDelegate, UIImagePicke
         if let userName = nameTextField.text {
             updateDisplayName(newName: userName)
         }
+//        let vc = AddressesViewController()
+//        let nav = UINavigationController(rootViewController: vc)
+//        nav.modalPresentationStyle = .pageSheet
+//
+//        if let sheet = nav.sheetPresentationController {
+//            let customDetent = UISheetPresentationController.Detent.custom { context in
+//                return context.maximumDetentValue * 0.3
+//            }
+//            sheet.detents = [customDetent]
+//        }
+//
+//        present(nav, animated: true, completion: nil)
         print("Изменения сохранены")
     }
     
@@ -211,7 +230,7 @@ extension ProfileViewController {
         view.addSubview(nameTextField)
         view.addSubview(emailTextField)
         view.addSubview(passwordTextField)
-        
+        view.addSubview(chekPasswordTextField)
         view.addSubview(saveButton)
         
     }
@@ -270,6 +289,12 @@ extension ProfileViewController {
             make.height.equalTo(PLayout.horizontalPadding * 2.5)
         }
         
+        chekPasswordTextField.snp.makeConstraints { make in
+            make.top.equalTo(passwordTextField.snp.bottom).offset(textFieldVerticalPadding / 2)
+            make.leading.trailing.equalToSuperview().inset(horizontalPadding)
+            make.height.equalTo(PLayout.horizontalPadding * 2.5)
+        }
+        
         saveButton.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(horizontalPadding)
             make.height.equalTo(PLayout.horizontalPadding * 2.5)
@@ -316,8 +341,6 @@ extension ProfileViewController {
         textField.resignFirstResponder()
         return true
     }
-    
-    
 }
 
 
