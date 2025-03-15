@@ -17,13 +17,14 @@ protocol HomeViewProtocol: AnyObject {
     func hideLocationMenu()
     func updateLocationLabel(_ location: String)
     func updateCollectionView()
+    func endRefreshing()
 }
 
 class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     
     // MARK: - VIPER
     var presenter: HomePresenterProtocol!
-    
+
     // MARK: - Properties
     private let customNavigationBar: UIView = {
         let view = UIView()
@@ -178,6 +179,9 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         return stack
     }()
     
+    // Добавим свойство refreshControl
+    private let refreshControl = UIRefreshControl()
+    
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -322,26 +326,36 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
     
     
     private func setupCollectionView() {
+        // Используем существующий метод createLayout вместо createCompositionalLayout
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
-        view.addSubview(collectionView)
+        collectionView.backgroundColor = .white
+        collectionView.delegate = self
         
-        // Регистрация ячеек
-        collectionView.register(CategoryCell.self, forCellWithReuseIdentifier: String(describing: CategoryCell.self))
-        collectionView.register(ProductCell.self, forCellWithReuseIdentifier: String(describing: ProductCell.self))
+        // Регистрируем ячейки с правильными идентификаторами
+        collectionView.register(
+            CategoryCell.self,
+            forCellWithReuseIdentifier: String(describing: CategoryCell.self)
+        )
+        collectionView.register(
+            ProductCell.self,
+            forCellWithReuseIdentifier: String(describing: ProductCell.self)
+        )
         collectionView.register(
             SectionHeaderView.self,
-            forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
+                              forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
             withReuseIdentifier: String(describing: SectionHeaderView.self)
         )
         
-        collectionView.backgroundColor = .systemBackground
+        // Добавляем refreshControl
+        refreshControl.addTarget(self, action: #selector(refreshData), for: .valueChanged)
+        collectionView.refreshControl = refreshControl
+        
+        view.addSubview(collectionView)
         
         collectionView.snp.makeConstraints { make in
             make.top.equalTo(customNavigationBar.snp.bottom)
             make.leading.trailing.bottom.equalToSuperview()
         }
-        
-        collectionView.delegate = self
     }
 
     
@@ -349,8 +363,8 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
     
     // MARK: - Layout
     private func createLayout() -> UICollectionViewLayout {
-        let layout = UICollectionViewCompositionalLayout { [weak self] sectionIndex, _ in
-            guard let section = Section(rawValue: sectionIndex) else {
+        return UICollectionViewCompositionalLayout { [weak self] sectionIndex, _ in
+            guard let section = Section(rawValue: sectionIndex) else { 
                 return nil
             }
             
@@ -363,7 +377,6 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
                 return self?.createJustForYouSection()
             }
         }
-        return layout
     }
     
     private func createCategorySection() -> NSCollectionLayoutSection {
@@ -560,11 +573,7 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
     private func configureDataSource() {
         dataSource = UICollectionViewDiffableDataSource<Section, ItemType>(
             collectionView: collectionView
-        ) { [weak self] collectionView, indexPath, itemIdentifier in
-            guard let section = Section(rawValue: indexPath.section) else {
-                return nil
-            }
-            
+        ) { [weak self] (collectionView, indexPath, itemIdentifier) -> UICollectionViewCell? in
             switch itemIdentifier {
             case .category(let category):
                 let cell = collectionView.dequeueReusableCell(
@@ -579,21 +588,18 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
                     withReuseIdentifier: String(describing: ProductCell.self),
                     for: indexPath
                 ) as? ProductCell
-                cell?.configure(with: product.product, isPopularSection: section == .popular)
+                cell?.configure(with: product.product)
                 cell?.delegate = self
                 return cell
             }
         }
         
-        // Конфигурация заголовков
-        dataSource.supplementaryViewProvider = { [weak self] collectionView, kind, indexPath in
-            guard kind == UICollectionView.elementKindSectionHeader else {
-                return nil
-            }
+        dataSource.supplementaryViewProvider = { collectionView, kind, indexPath in
+            guard kind == UICollectionView.elementKindSectionHeader else { return nil }
             
             let header = collectionView.dequeueReusableSupplementaryView(
                 ofKind: kind,
-                withReuseIdentifier: String(describing: SectionHeaderView.self),
+                                                                        withReuseIdentifier: String(describing: SectionHeaderView.self),
                 for: indexPath
             ) as? SectionHeaderView
             
@@ -605,15 +611,20 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
                     self?.presenter.didTapSeeAllCategories()
                 }
             case .popular:
-                header?.configure(title: "Popular", showSeeAll: true)
+                header?.configure(title: "Popular", showSeeAll: false)
             case .justForYou:
-                header?.configure(title: "Just for You", showSeeAll: true)
+                header?.configure(title: "Just For You", showSeeAll: false)
             case .none:
                 break
             }
             
             return header
         }
+        
+        // Создаем начальный snapshot со всеми секциями
+        var snapshot = NSDiffableDataSourceSnapshot<Section, ItemType>()
+        snapshot.appendSections([.categories, .popular, .justForYou])
+        dataSource.apply(snapshot, animatingDifferences: false)
     }
 
     
@@ -735,6 +746,11 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         presenter.interactor.updateSelectedCurrency(indexPath.row)
         presenter.didSelectLocation(selectedCity)
     }
+    
+    // Добавим метод для обновления данных
+    @objc private func refreshData() {
+        presenter.refreshData()
+    }
 }
 
 // MARK: - Cell Types
@@ -818,24 +834,41 @@ class SectionHeaderView: UICollectionReusableView {
 // MARK: - HomeViewProtocol
 extension HomeViewController: HomeViewProtocol {
     func displayCategories(_ categories: [ShopCategory]) {
-        var snapshot = NSDiffableDataSourceSnapshot<Section, ItemType>()
-        snapshot.appendSections([.categories])
+        var snapshot = dataSource.snapshot()
         snapshot.appendItems(categories.map { ItemType.category($0) }, toSection: .categories)
         dataSource.apply(snapshot, animatingDifferences: true)
     }
     
     func displayPopularProducts(_ products: [Product]) {
         var snapshot = dataSource.snapshot()
-        snapshot.appendSections([.popular])
+        let oldItems = snapshot.itemIdentifiers(inSection: .popular)
+        snapshot.deleteItems(oldItems)
         snapshot.appendItems(products.map { ItemType.product(HashableProduct(product: $0)) }, toSection: .popular)
         dataSource.apply(snapshot, animatingDifferences: true)
+        
+        // Назначаем делегата для всех видимых ячеек в секции Popular
+        let popularIndexPaths = collectionView.indexPathsForVisibleItems.filter { $0.section == Section.popular.rawValue }
+        for indexPath in popularIndexPaths {
+            if let cell = collectionView.cellForItem(at: indexPath) as? ProductCell {
+                cell.delegate = self
+            }
+        }
     }
     
     func displayJustForYouProducts(_ products: [Product]) {
         var snapshot = dataSource.snapshot()
-        snapshot.appendSections([.justForYou])
+        let oldItems = snapshot.itemIdentifiers(inSection: .justForYou)
+        snapshot.deleteItems(oldItems)
         snapshot.appendItems(products.map { ItemType.product(HashableProduct(product: $0)) }, toSection: .justForYou)
         dataSource.apply(snapshot, animatingDifferences: true)
+        
+        // Назначаем делегата для всех видимых ячеек в секции Just For You
+        let justForYouIndexPaths = collectionView.indexPathsForVisibleItems.filter { $0.section == Section.justForYou.rawValue }
+        for indexPath in justForYouIndexPaths {
+            if let cell = collectionView.cellForItem(at: indexPath) as? ProductCell {
+                cell.delegate = self
+            }
+        }
     }
     
     func displayLocationMenu(with cities: [String], selectedCity: String) {
@@ -857,28 +890,63 @@ extension HomeViewController: HomeViewProtocol {
             locationLabel.text = location
         }
     }
+    
+    func endRefreshing() {
+        refreshControl.endRefreshing()
+    }
 }
 
 extension HomeViewController: ProductCellDelegate {
     func didTapWishlistButton(for product: Product) {
-        // Обработка нажатия на кнопку wishlist
-        var updatedProduct = product
-        updatedProduct.toggleLike()
+        // Обновляем статус в API
+        presenter.interactor.toggleWishlistStatus(for: product)
         
         // Обновляем UI
-        if var snapshot = dataSource?.snapshot() {
-            if let currentIndex = snapshot.itemIdentifiers.firstIndex(where: { 
-                if case .product(let p) = $0, p.product.id == product.id {
+        var updatedProduct = product
+        updatedProduct.like.toggle()
+        
+        var snapshot = dataSource.snapshot()
+        
+        // Находим все секции, где может быть этот продукт
+        let sectionsToCheck: [Section] = [.popular, .justForYou]
+        
+        for section in sectionsToCheck {
+            // Получаем items из секции
+            let items = snapshot.itemIdentifiers(inSection: section)
+            
+            // Ищем продукт в секции
+            if let index = items.firstIndex(where: { item in
+                if case .product(let p) = item, p.product.id == product.id {
                     return true
                 }
                 return false
             }) {
-                snapshot.deleteItems([snapshot.itemIdentifiers[currentIndex]])
+                // Обновляем продукт в этой секции
+                let oldItem = items[index]
+                snapshot.deleteItems([oldItem])
                 let newItem = ItemType.product(HashableProduct(product: updatedProduct))
-                snapshot.insertItems([newItem], beforeItem: snapshot.itemIdentifiers[currentIndex])
+                
+                // Вставляем обновленный item на то же место
+                if index == items.count - 1 {
+                    snapshot.appendItems([newItem], toSection: section)
+                } else {
+                    let nextItem = items[index + 1]
+                    snapshot.insertItems([newItem], beforeItem: nextItem)
+                }
+                
+                // Находим индекс ячейки в коллекции и обновляем её
+                if let indexPath = collectionView.indexPathsForVisibleItems.first(where: { 
+                    $0.section == section.rawValue && 
+                    $0.item == index 
+                }) {
+                    if let cell = collectionView.cellForItem(at: indexPath) as? ProductCell {
+                        cell.configure(with: updatedProduct)
+                    }
+                }
             }
-            dataSource?.apply(snapshot, animatingDifferences: true)
         }
+        
+        dataSource.apply(snapshot, animatingDifferences: true)
     }
 }
 
@@ -940,63 +1008,59 @@ extension HomeViewController: UICollectionViewDelegate {
     
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        
-        
-        let products =  [
-                    Product(id: 4,
-                           title: "Sunglasses",
-                           price: 17.00,
-                           description: "Stylish sunglasses",
-                           category: "Accessories",
-                            imageURL: "testPhotoImage",
-                           rating: Rating(rate: 4.2, count: 95),
-                           subcategory: "Eyewear",
-                           like: false),
-                    Product(id: 5,
-                           title: "Summer Hat",
-                           price: 17.00,
-                           description: "Beach hat",
-                           category: "Accessories",
-                            imageURL: "testPhotoImage",
-                           rating: Rating(rate: 4.0, count: 150),
-                           subcategory: "Hats",
-                           like: false),
-                    Product(id: 6,
-                           title: "Beach Bag",
-                           price: 17.00,
-                           description: "Large beach bag",
-                           category: "Bags",
-                            imageURL: "testPhotoImage",
-                           rating: Rating(rate: 4.6, count: 210),
-                           subcategory: "Beach",
-                           like: false),
-                    Product(id: 7,
-                           title: "Sandals",
-                           price: 17.00,
-                           description: "Summer sandals",
-                           category: "Shoes",
-                            imageURL: "testPhotoImage",
-                           rating: Rating(rate: 4.4, count: 175),
-                           subcategory: "Summer",
-                           like: false)
-                ]
-        
         guard let section = Section(rawValue: indexPath.section) else { return }
         
         switch section {
         case .categories:
             if let category = dataSource.itemIdentifier(for: indexPath), case let .category(selectedCategory) = category {
-                print("Выбрана категория: \(selectedCategory.title)")
-                let viewModel = PresentingControllerViewModel(title: selectedCategory.title.capitalized, products: products)
-                let vc = WishlistRouter.createModule(viewModel: viewModel)
-                navigationController?.pushViewController(vc, animated: false)
+                // Получаем все продукты для выбранной категории
+                presenter.interactor.fetchProductsByCategory(selectedCategory.title) { [weak self] result in
+                    DispatchQueue.main.async {
+                        switch result {
+                        case .success(let products):
+                            // Создаем viewModel с реальными данными
+                            let viewModel = PresentingControllerViewModel(
+                                title: selectedCategory.title.capitalized,
+                                products: products
+                            )
+                            // Открываем экран с продуктами выбранной категории
+                            let vc = WishlistRouter.createModule(viewModel: viewModel)
+                            self?.navigationController?.pushViewController(vc, animated: true)
+                            
+                        case .failure(let error):
+                            print("Error fetching products for category: \(error)")
+                        }
+                    }
+                }
             }
             
         case .popular, .justForYou:
             if let product = dataSource.itemIdentifier(for: indexPath), case let .product(selectedProduct) = product {
-                //print("Выбран продукт: \(selectedProduct.product.title)")
                 let newVC = ProductRouter.createModule(by: selectedProduct.product.id, navigationController: navigationController)
                 navigationController?.pushViewController(newVC, animated: true)
+            }
+        }
+    }
+}
+
+// Также добавим метод для назначения делегата при прокрутке
+extension HomeViewController {
+    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        // Назначаем делегата для всех видимых ячеек
+        for indexPath in collectionView.indexPathsForVisibleItems {
+            if let cell = collectionView.cellForItem(at: indexPath) as? ProductCell {
+                cell.delegate = self
+            }
+        }
+    }
+    
+    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        if !decelerate {
+            // Назначаем делегата для всех видимых ячеек
+            for indexPath in collectionView.indexPathsForVisibleItems {
+                if let cell = collectionView.cellForItem(at: indexPath) as? ProductCell {
+                    cell.delegate = self
+                }
             }
         }
     }

@@ -12,6 +12,8 @@ protocol HomeRouterProtocol: AnyObject {
     func openCart()
     func openProductDetail(from view: HomeViewProtocol, with product: Product)
     func openAllCategories()
+    func openProductDetail(with productId: Int, navigationController: HomeViewController?)
+    func openCart(from viewController: HomeViewController)
 }
 
 final class HomeRouter: HomeRouterProtocol {
@@ -47,8 +49,57 @@ final class HomeRouter: HomeRouterProtocol {
             let allCategoriesVC = AllCategoriesRouter.createModule()
             // Настраиваем полноэкранное представление
             allCategoriesVC.modalPresentationStyle = .fullScreen
+            
+            // Добавляем вызов viewDidLoad перед показом
+            if let categoriesVC = allCategoriesVC as? AllCategoriesViewController {
+                categoriesVC.loadViewIfNeeded() // Это заставит вызвать viewDidLoad
+            }
+            
             sourceVC.present(allCategoriesVC, animated: true)
         }
     }
     
+    func openProductDetail(with productId: Int, navigationController: HomeViewController?) {
+        guard let tabBarController = navigationController?.tabBarController else { return }
+        
+        // Переключаемся на вкладку Product (индекс 2) и обновляем underline
+        if let mainTabBar = tabBarController as? MainTabBarController {
+            mainTabBar.selectTab(at: 2)
+        }
+        
+        // Получаем ProductViewController из таббара
+        if let productNavController = tabBarController.viewControllers?[2] as? UINavigationController,
+           let productVC = productNavController.viewControllers.first as? ProductViewController {
+            
+            // Обновляем данные в существующем ProductViewController
+            productVC.updateProduct(id: productId)
+            
+            // Анимируем переход
+            UIView.animate(withDuration: 0.3, animations: {
+                navigationController?.view.alpha = 0.5
+            }) { _ in
+                UIView.animate(withDuration: 0.3) {
+                    navigationController?.view.alpha = 1.0
+                }
+            }
+        }
+    }
+    
+    func openCart(from viewController: HomeViewController) {
+        guard let tabBarController = viewController.tabBarController else { return }
+        
+        // Переключаемся на вкладку Cart (индекс 3) и обновляем underline
+        if let mainTabBar = tabBarController as? MainTabBarController {
+            mainTabBar.selectTab(at: 3)
+        }
+        
+        // Анимируем переход с затуханием
+        UIView.animate(withDuration: 0.3, animations: {
+            viewController.view.alpha = 0.5
+        }) { _ in
+            UIView.animate(withDuration: 0.3) {
+                viewController.view.alpha = 1.0
+            }
+        }
+    }
 }

@@ -10,9 +10,8 @@ import SnapKit
 import FirebaseAuth
 
 final class ShippingAdressTableViewCell: UITableViewCell {
-    
+  
     weak var parentViewController: UIViewController?
-    
     // MARK: - UI
     private lazy var shippingAdressSV: UIStackView = {
         let element = UIStackView()
@@ -51,7 +50,6 @@ final class ShippingAdressTableViewCell: UITableViewCell {
     private lazy var editButton: UIButton = {
         let element = UIButton(type: .custom)
         element.setImage(UIImage(named: "EditButton"), for: .normal)
-        element.addTarget(self, action: #selector(editAddressButtonTapped), for: .touchUpInside)
         return element
     }()
     
@@ -66,7 +64,7 @@ final class ShippingAdressTableViewCell: UITableViewCell {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+  
     // MARK: - Action
     @objc private func editAddressButtonTapped() {
         guard let parentVC = parentViewController else {

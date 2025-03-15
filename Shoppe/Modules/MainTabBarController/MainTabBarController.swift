@@ -88,6 +88,11 @@ class MainTabBarController: UITabBarController {
             }
         }
     }
+
+    public func selectTab(at index: Int) {
+        selectedIndex = index
+        updateUnderlinePosition()
+    }
 }
 
 extension Collection {

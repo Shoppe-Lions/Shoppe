@@ -198,6 +198,12 @@ extension CartViewController: CartViewProtocol {
     
     func updateCartCount(_ count: Int) {
         cartCountLabel.text = "\(count)"
+        
+        // Обновляем бейдж в HomeViewController
+        if let tabBarController = tabBarController,
+           let homeVC = tabBarController.viewControllers?[0] as? HomeViewController {
+//            homeVC.presenter.updateCartBadge()
+        }
     }
     
     func updateTotalPrice(_ totalPrice: String) {
