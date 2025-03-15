@@ -66,11 +66,11 @@ class OnboardingViewController: UIViewController {
         view.addSubview(backgroundImage)
         view.addSubview(scrollView)
         view.addSubview(pageControl)
-        
     }
     
     private func setDeligates() {
         scrollView.delegate = self
+        pageControl.addTarget(self, action: #selector(pageControlDidChange(_:)), for: .valueChanged)
     }
     
     // возвращаем массив каждый элемент которого - это OnboardingView
@@ -80,7 +80,6 @@ class OnboardingViewController: UIViewController {
         firstOnboardingView.setPageDescriptiontext(text: "Discover a fast and easy way to shop online.")
         firstOnboardingView.setImage(image: UIImage(named: "OnboardingOne")!)
         firstOnboardingView.hideButton(true)
-        
         
         let secondOnboardingView = OnboardingView()
         secondOnboardingView.setPageLabeltext(text: "SmartSearch & Favorites")
@@ -94,7 +93,6 @@ class OnboardingViewController: UIViewController {
         thirdOnboardingView.setImage(image: UIImage(named: "OnboardingThree")!)
         thirdOnboardingView.hideButton(true)
         
-        
         let fourthOnboardingView = OnboardingView()
         fourthOnboardingView.setPageLabeltext(text: "Manage Your Store")
         fourthOnboardingView.setPageDescriptiontext(text: "Become a manager, add products, and control your catalog!")
@@ -104,9 +102,7 @@ class OnboardingViewController: UIViewController {
         return [firstOnboardingView, secondOnboardingView, thirdOnboardingView, fourthOnboardingView]
     }
     
-    
     private func setupSlidesScrollView(slides: [OnboardingView]) {
-        
         scrollView.contentSize = CGSize(width: view.frame.width * CGFloat(slides.count), height: view.frame.height)
         
         for i in 0..<slides.count {
@@ -115,13 +111,18 @@ class OnboardingViewController: UIViewController {
                                      height: view.frame.height)
             scrollView.addSubview(slides[i])
         }
-        
     }
+    
     @objc func startButtonTapped() {
         print("Кнопка 'Начать' нажата!")
         didFinishOnboarding?()
     }
     
+    @objc private func pageControlDidChange(_ sender: UIPageControl) {
+        let pageIndex = sender.currentPage
+        let offsetX = view.frame.width * CGFloat(pageIndex)
+        scrollView.setContentOffset(CGPoint(x: offsetX, y: 0), animated: true)
+    }
 }
 
 //MARK: - UIScrollViewDelegate
@@ -129,7 +130,7 @@ extension OnboardingViewController: UIScrollViewDelegate {
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         let pageIndex = Int(round(scrollView.contentOffset.x / view.frame.width))
-        pageControl.currentPage = Int(pageIndex)
+        pageControl.currentPage = pageIndex
     }
 }
 
@@ -155,5 +156,3 @@ extension OnboardingViewController {
         }
     }
 }
-
-

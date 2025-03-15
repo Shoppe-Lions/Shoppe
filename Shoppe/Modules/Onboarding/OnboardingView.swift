@@ -129,8 +129,6 @@ class OnboardingView: UIView {
     
     //MARK: - Set Constraints
     private func setupConstraints() {
-        
-        // надо создать какое-нибудь небольшое число которое будет зависеть от размера экрана и его потом умножать
         let horizontalPadding = UIScreen.main.bounds.width * 0.05
         let verticalPadding = UIScreen.main.bounds.height * 0.05
 

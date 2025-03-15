@@ -10,7 +10,7 @@ import SnapKit
 import FirebaseAuth
 import FirebaseFirestore
 
-class ProfileViewController: UIViewController, UITextFieldDelegate {
+class ProfileViewController: UIViewController, UITextFieldDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
     lazy var nameTextField: UITextField = {
         return createTextField(placeholder: "Name", keyboardType: .default, isSecure: false)
@@ -21,6 +21,13 @@ class ProfileViewController: UIViewController, UITextFieldDelegate {
     }()
     
     lazy var passwordTextField: CustomPasswordTextField = {
+        let textField = CustomPasswordTextField()
+        textField.backgroundColor = UIColor(named: "CustomLightGray")
+        textField.delegate = self
+        return textField
+    }()
+    
+    lazy var chekPasswordTextField: CustomPasswordTextField = {
         let textField = CustomPasswordTextField()
         textField.backgroundColor = UIColor(named: "CustomLightGray")
         textField.delegate = self
@@ -167,11 +174,40 @@ class ProfileViewController: UIViewController, UITextFieldDelegate {
         if let userName = nameTextField.text {
             updateDisplayName(newName: userName)
         }
+//        let vc = AddressesViewController()
+//        let nav = UINavigationController(rootViewController: vc)
+//        nav.modalPresentationStyle = .pageSheet
+//
+//        if let sheet = nav.sheetPresentationController {
+//            let customDetent = UISheetPresentationController.Detent.custom { context in
+//                return context.maximumDetentValue * 0.3
+//            }
+//            sheet.detents = [customDetent]
+//        }
+//
+//        present(nav, animated: true, completion: nil)
         print("Изменения сохранены")
     }
     
     @objc private func editButtonTapped() {
-        print("Кнопка редактирования нажата")
+        if UIImagePickerController.isSourceTypeAvailable(.photoLibrary) {
+            let imagePickerController = UIImagePickerController()
+            imagePickerController.delegate = self
+            imagePickerController.sourceType = .photoLibrary
+            imagePickerController.allowsEditing = true
+            present(imagePickerController, animated: true, completion: nil)
+        }
+    }
+    
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        if let selectedImage = info[.editedImage] as? UIImage {
+            profileImage.image = selectedImage
+        }
+        dismiss(animated: true, completion: nil)
+    }
+
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        dismiss(animated: true, completion: nil)
     }
     
     @objc func dismissKeyboard() {
@@ -194,7 +230,7 @@ extension ProfileViewController {
         view.addSubview(nameTextField)
         view.addSubview(emailTextField)
         view.addSubview(passwordTextField)
-        
+        view.addSubview(chekPasswordTextField)
         view.addSubview(saveButton)
         
     }
@@ -253,6 +289,12 @@ extension ProfileViewController {
             make.height.equalTo(PLayout.horizontalPadding * 2.5)
         }
         
+        chekPasswordTextField.snp.makeConstraints { make in
+            make.top.equalTo(passwordTextField.snp.bottom).offset(textFieldVerticalPadding / 2)
+            make.leading.trailing.equalToSuperview().inset(horizontalPadding)
+            make.height.equalTo(PLayout.horizontalPadding * 2.5)
+        }
+        
         saveButton.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(horizontalPadding)
             make.height.equalTo(PLayout.horizontalPadding * 2.5)
@@ -299,8 +341,6 @@ extension ProfileViewController {
         textField.resignFirstResponder()
         return true
     }
-    
-    
 }
 
 
