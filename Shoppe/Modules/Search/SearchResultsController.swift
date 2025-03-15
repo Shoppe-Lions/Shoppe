@@ -101,7 +101,7 @@ class SearchResultsController: UIViewController {
         view.addSubview(collectionView)
         collectionView.dataSource = self
         collectionView.delegate = self
-        collectionView.register(WishlistProductCell.self, forCellWithReuseIdentifier: wishlistProductCellId)
+        collectionView.register(ProductCell.self, forCellWithReuseIdentifier: ProductCell.identifier)
         
         historyLabelContainerView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(20)
@@ -237,7 +237,7 @@ extension SearchResultsController: UICollectionViewDataSource {
             cell.configure(with: query)
             return cell
         } else {
-            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: wishlistProductCellId, for: indexPath) as? WishlistProductCell else {
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ProductCell.identifier, for: indexPath) as? ProductCell else {
                 return UICollectionViewCell()
             }
             guard let presenter = presenter,
@@ -279,7 +279,7 @@ extension SearchResultsController: SearchResultsViewProtocol {
     }
 }
 
-extension SearchResultsController: WishlistProductCellDelegate {
+extension SearchResultsController: ProductCellDelegate {
     func didTapWishlistButton(for product: Product) {
         presenter?.toggleWishlist(for: product)
         //todo сделать так, чтобы базовый контроллер обновил у себя отображение лайков
