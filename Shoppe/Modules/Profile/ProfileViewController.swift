@@ -171,21 +171,21 @@ class ProfileViewController: UIViewController, UITextFieldDelegate, UIImagePicke
     }
     
     @objc private func saveButtonTapped() {
-        if let userName = nameTextField.text {
-            updateDisplayName(newName: userName)
-        }
-//        let vc = AddressesViewController()
-//        let nav = UINavigationController(rootViewController: vc)
-//        nav.modalPresentationStyle = .pageSheet
-//
-//        if let sheet = nav.sheetPresentationController {
-//            let customDetent = UISheetPresentationController.Detent.custom { context in
-//                return context.maximumDetentValue * 0.3
-//            }
-//            sheet.detents = [customDetent]
+//        if let userName = nameTextField.text {
+//            updateDisplayName(newName: userName)
 //        }
-//
-//        present(nav, animated: true, completion: nil)
+        let vc = AddressesViewController()
+        let nav = UINavigationController(rootViewController: vc)
+        nav.modalPresentationStyle = .pageSheet
+
+        if let sheet = nav.sheetPresentationController {
+            let customDetent = UISheetPresentationController.Detent.custom { context in
+                return context.maximumDetentValue * 0.3
+            }
+            sheet.detents = [customDetent]
+        }
+
+        present(nav, animated: true, completion: nil)
         print("Изменения сохранены")
     }
     

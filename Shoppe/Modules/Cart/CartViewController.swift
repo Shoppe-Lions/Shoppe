@@ -7,6 +7,7 @@
 
 import UIKit
 import SnapKit
+import FirebaseAuth
 
 protocol CartViewProtocol: AnyObject {
     func showCartProducts(_ products: [Product], quantities: [Int])
@@ -144,18 +145,34 @@ final class CartViewController: UIViewController {
         super.viewWillAppear(animated)
         navigationController?.navigationBar.isHidden = true
         presenter?.fetchCartProducts()
-        
-        // Обновляем бейдж в HomeViewController
-        if let tabBarController = tabBarController,
-           let homeVC = tabBarController.viewControllers?[0] as? HomeViewController {
-//            homeVC.presenter.updateCartBadge()
-        }
+        loadDefaultAddress()
     }
     
     // MARK: - Action
     
     @objc func showPaymentScreen() {
         presenter?.didTapCheckoutButton()
+    }
+    
+    private func loadDefaultAddress() {
+        if let user = Auth.auth().currentUser {
+            let userId = user.uid
+            AddressManager.shared.fetchDefaultAddress(for: userId) { [weak self] address, errorMessage in
+                if let address = address {
+                    self?.updateShippingAddressCell(with: address)
+                } else if let errorMessage = errorMessage {
+                    print(errorMessage)
+                }
+            }
+        } else {
+            print("Пользователь не авторизован")
+        }
+    }
+    
+    private func updateShippingAddressCell(with address: AddressModel) {
+        if let cell = cartTableView.cellForRow(at: IndexPath(row: 0, section: 0)) as? ShippingAdressTableViewCell {
+            cell.updateAddress(with: address)
+        }
     }
 }
 
@@ -214,6 +231,7 @@ extension CartViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if indexPath.row == 0 {
             let cell = tableView.dequeueReusableCell(withIdentifier: "ShippingAdressTableViewCell", for: indexPath) as! ShippingAdressTableViewCell
+            cell.parentViewController = self
             cell.selectionStyle = .none
             return cell
         } else {

@@ -7,8 +7,11 @@
 
 import UIKit
 import SnapKit
+import FirebaseAuth
 
 final class ShippingAdressTableViewCell: UITableViewCell {
+  
+    weak var parentViewController: UIViewController?
     // MARK: - UI
     private lazy var shippingAdressSV: UIStackView = {
         let element = UIStackView()
@@ -61,7 +64,37 @@ final class ShippingAdressTableViewCell: UITableViewCell {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+  
+    // MARK: - Action
+    @objc private func editAddressButtonTapped() {
+        guard let parentVC = parentViewController else {
+            print("UIViewController не найден")
+            return
+        }
+        
+        let addressesVC = AddressesViewController()
+        addressesVC.onAddressSelected = { [weak self] selectedAddress in
+            self?.updateAddress(with: selectedAddress)
+        }
+        
+        let nav = UINavigationController(rootViewController: addressesVC)
+        nav.modalPresentationStyle = .pageSheet
+        
+        if let sheet = nav.sheetPresentationController {
+            let customDetent = UISheetPresentationController.Detent.custom { context in
+                return context.maximumDetentValue * 0.3
+            }
+            sheet.detents = [customDetent]
+        }
+        
+        parentVC.present(nav, animated: true)
+    }
+    
+    func updateAddress(with address: AddressModel) {
+        detailsAdressLabel.text = "\(address.zipCode), \(address.city), \(address.street), \(address.houseNumber)"
+    }
 }
+
 
 private extension ShippingAdressTableViewCell {
     func setupViews() {
