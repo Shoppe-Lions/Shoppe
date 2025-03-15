@@ -20,13 +20,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let onboardingCompleted = UserDefaults.standard.bool(forKey: "onboardingCompleted")
         
         let onboardingViewController = OnboardingViewController()
-        let mainTabBarController = MainTabBarController()
         
         onboardingViewController.didFinishOnboarding = {
             UserDefaults.standard.set(true, forKey: "onboardingCompleted")
             
             UIWindow.transition(with: self.window!, duration: 0.5) {
-                self.window?.rootViewController = mainTabBarController
+                self.window?.rootViewController = AuthRouter.createModule()
             }
         }
         
