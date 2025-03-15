@@ -30,8 +30,8 @@ final class AllCategoriesRouter: AllCategoriesRouterProtocol {
     }
     
     func showShopViewController(_ products: [Product]) {
-//        let viewModel = PresentingControllerViewModel(title: "Shop", products: products)
-//        let vc = WishlistRouter.createModule(viewModel: viewModel)
-//        navigationController?.pushViewController(vc, animated: false)
+        let viewModel = PresentingControllerViewModel(title: products.first?.subcategory ?? "Shop", products: products)
+        let vc = WishlistRouter.createModule(viewModel: viewModel)
+        view?.navigationController?.pushViewController(vc, animated: true)
     }
 }

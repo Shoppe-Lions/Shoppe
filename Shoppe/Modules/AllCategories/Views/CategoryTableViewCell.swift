@@ -72,7 +72,7 @@ class CategoryTableViewCell: UITableViewCell {
         let arrowColor: UIColor = category.isExpanded ? .systemBlue : .black
         arrowButton.tintColor = arrowColor
     }
-
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -83,6 +83,7 @@ class CategoryTableViewCell: UITableViewCell {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setViews()
         setConstraints()
+        addTapGestureToCell()
     }
     
     // MARK: - Set UI
@@ -96,21 +97,29 @@ class CategoryTableViewCell: UITableViewCell {
     }
     
     private func setConstraints() {
-            containerView.snp.makeConstraints { make in
-                make.edges.equalToSuperview().inset(ACLayout.CategoryTableViewCell.containerInset)
-            }
-            
-            mainStackView.snp.makeConstraints { make in
-                make.height.equalTo(ACLayout.CategoryTableViewCell.itemHeight)
-                make.edges.equalToSuperview().inset(ACLayout.CategoryTableViewCell.containerInset)
-            }
-            
-            iconImageView.snp.makeConstraints { make in
-                make.width.equalTo(mainStackView.snp.height)
-            }
-            
-            arrowButton.snp.makeConstraints { make in
-                make.width.equalTo(mainStackView.snp.height)
-            }
+        containerView.snp.makeConstraints { make in
+            make.edges.equalToSuperview().inset(ACLayout.CategoryTableViewCell.containerInset)
         }
+        
+        mainStackView.snp.makeConstraints { make in
+            make.height.equalTo(ACLayout.CategoryTableViewCell.itemHeight)
+            make.edges.equalToSuperview().inset(ACLayout.CategoryTableViewCell.containerInset)
+        }
+        
+        iconImageView.snp.makeConstraints { make in
+            make.width.equalTo(mainStackView.snp.height)
+        }
+        
+        arrowButton.snp.makeConstraints { make in
+            make.width.equalTo(mainStackView.snp.height)
+        }
+    }
+    private func addTapGestureToCell() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(cellTapped))
+        containerView.addGestureRecognizer(tapGesture)
+    }
+    
+    @objc private func cellTapped() {
+        arrowTapped()
+    }
 }

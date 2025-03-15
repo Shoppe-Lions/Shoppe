@@ -6,7 +6,7 @@
 //
 import UIKit
 
-class SubcategoryCell: UITableViewCell {
+class SubcategoryCell: UITableViewCell  {
     
     // MARK: - UI
     
@@ -49,8 +49,9 @@ class SubcategoryCell: UITableViewCell {
         }
     }
 
-    func configure(with subcategories: [String]) {
+    func configure(with subcategories: [String], presenter: AllCategoriesPresenterProtocol) {
         self.items = subcategories
+        self.presenter = presenter
         collectionView.reloadData()
     }
     

@@ -138,7 +138,7 @@ extension AllCategoriesViewController: UITableViewDataSource, UITableViewDelegat
             return cell
         } else {
             let cell = SubcategoryCell()
-            cell.configure(with: category.subcategories)
+            cell.configure(with: category.subcategories, presenter: presenter)
             cell.clipsToBounds = false
             return cell
         }

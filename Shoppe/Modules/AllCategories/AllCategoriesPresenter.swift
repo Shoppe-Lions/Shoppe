@@ -40,6 +40,6 @@ class AllCategoriesPresenter: AllCategoriesPresenterProtocol {
     }
     
     func goToShop(_ products: [Product]) {
-//        router.showShopViewController(with: products)
+        router.showShopViewController(products)
     }
 }
