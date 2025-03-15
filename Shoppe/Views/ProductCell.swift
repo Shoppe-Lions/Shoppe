@@ -71,16 +71,61 @@ class ProductCell: UICollectionViewCell {
         return label
     }()
     
-    private let addToCartButton: UIButton = {
-        let button = UIButton()
+    private lazy var buttonStackView: UIStackView = {
+        let element = UIStackView()
+        element.axis = .horizontal
+        element.spacing = ProductConstants.spacing
+        element.distribution = .fillProportionally
+        return element
+    }()
+    
+    private lazy var addToCartButton: UIButton = {
+        let button = UIButton(type: .system)
         button.setTitle("Add to cart", for: .normal)
         button.setTitleColor(.white, for: .normal)
         button.titleLabel?.textAlignment = .center
-        button.titleLabel?.font = UIFont(name: Fonts.Inter.regular, size: 10)
+        button.titleLabel?.font = UIFont(name: Fonts.Inter.regular, size: ProductFontSize.normal)
         button.backgroundColor = .customBlue
         button.layer.cornerRadius = 4
+        button.addTarget(self, action: #selector(addToCartButtonTapped), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
+    }()
+    
+    private lazy var quantityStackView: UIStackView = {
+        let element = UIStackView()
+        element.axis = .horizontal
+        element.distribution = .fillEqually
+        element.layer.cornerRadius = ProductConstants.cornerRadius
+        element.clipsToBounds = true
+        element.isHidden = true
+        return element
+    }()
+
+    private lazy var minusButton: UIButton = {
+        let element = UIButton(type: .system)
+        element.setTitle("-", for: .normal)
+        element.titleLabel?.font = UIFont(name: Fonts.NunitoSans.light, size: ProductFontSize.buttonSymbolSize)
+        element.backgroundColor = .customLightGray
+        element.addTarget(self, action: #selector(minusButtonTapped), for: .touchUpInside)
+        return element
+    }()
+
+    private lazy var quantityLabel: UILabel = {
+        let element = UILabel()
+        element.textAlignment = .center
+        element.font = UIFont(name: Fonts.NunitoSans.light, size: ProductFontSize.normal)
+        element.backgroundColor = .customLightGray
+        return element
+    }()
+
+    private lazy var plusButton: UIButton = {
+        let element = UIButton(type: .system)
+        element.setTitle("+", for: .normal)
+        element.titleLabel?.font = UIFont(name: Fonts.NunitoSans.light, size: ProductFontSize.buttonSymbolSize)
+        element.backgroundColor = .customLightGray
+        element.addTarget(self, action: #selector(addToCartButtonTapped), for: .touchUpInside)
+        return element
     }()
 
     private let wishlistButton: UIButton = {
@@ -109,8 +154,13 @@ class ProductCell: UICollectionViewCell {
         photoContainerView.addSubview(photoImageView)
         contentView.addSubview(nameLabel)
         contentView.addSubview(priceLabel)
-        contentView.addSubview(addToCartButton)
-        contentView.addSubview(wishlistButton)
+        contentView.addSubview(buttonStackView)
+        buttonStackView.addArrangedSubview(addToCartButton)
+        buttonStackView.addArrangedSubview(quantityStackView)
+        quantityStackView.addArrangedSubview(minusButton)
+        quantityStackView.addArrangedSubview(quantityLabel)
+        quantityStackView.addArrangedSubview(plusButton)
+        buttonStackView.addArrangedSubview(wishlistButton)
         
     }
     
@@ -155,19 +205,84 @@ class ProductCell: UICollectionViewCell {
             make.trailing.equalTo(photoContainerView)
         }
         
-        addToCartButton.snp.makeConstraints { make in
+        buttonStackView.snp.makeConstraints { make in
             make.top.equalTo(priceLabel.snp.bottom).offset(5)
             make.height.equalTo(31)
-            make.leading.equalTo(photoContainerView)
+            make.leading.trailing.equalTo(photoContainerView)
             make.bottom.equalToSuperview()
         }
         
         wishlistButton.snp.makeConstraints { make in
-            make.centerY.equalTo(addToCartButton)
-            make.leading.equalTo(addToCartButton.snp.trailing).offset(19)
-            make.trailing.equalTo(photoContainerView)
             make.height.equalTo(22)
             make.width.equalTo(22)
+        }
+    }
+    
+    // MARK: - Нужно перенести логику
+    
+    private func fetchProduct(id: Int, completion: @escaping (Product?) -> Void) {
+        APIService.shared.fetchProduct(by: id) { result in
+            switch result {
+            case .success(let product):
+                self.setCartCount(by: product.id)
+                completion(product)
+            case .failure:
+                completion(nil)
+            }
+        }
+    }
+    
+    @objc private func addToCartButtonTapped() {
+        guard let product = product else { return }
+        
+        fetchProduct(id: product.id, completion: { product in
+            if let product = product {
+                StorageCartManager.shared.addProduct(product) {
+                    self.setCartCount(by: product.id)
+                }
+            }
+        })
+    }
+    
+    @objc private func minusButtonTapped() {
+        guard let product = product else { return }
+        
+        StorageCartManager.shared.loadCart { cartItems in
+            guard let item = cartItems.first(where: { $0.id == product.id }) else { return }
+
+            if item.quantity > 1 {
+                var updatedItem = item
+                updatedItem.quantity -= 1
+                StorageCartManager.shared.updateProduct(updatedItem) {
+                    self.setCartCount(by: product.id)
+                }
+            } else {
+                APIService.shared.fetchProduct(by: product.id) { result in
+                    switch result {
+                    case .success(let product):
+                        StorageCartManager.shared.removeProduct(product) {
+                            self.setCartCount(by: product.id)
+                        }
+                    case .failure:
+                        break
+                    }
+                }
+            }
+        }
+    }
+    
+    func setCartCount(by id: Int) {
+        StorageCartManager.shared.loadCart { cart in
+            if let productInCart = cart.first(where: { $0.id == id }) {
+                self.addToCartButton.isHidden = true
+                self.quantityStackView.isHidden = false
+                self.wishlistButton.isHidden = false
+                self.quantityLabel.text = "\(productInCart.quantity)"
+            } else {
+                self.addToCartButton.isHidden = false
+                self.quantityStackView.isHidden = true
+                self.wishlistButton.isHidden = false
+            }
         }
     }
     
@@ -179,8 +294,13 @@ class ProductCell: UICollectionViewCell {
         priceLabel.text = CurrencyManager.shared.convertToString(priceInUSD: product.price)
         wishlistButton.setImage(product.like ? .wishlistOn : .wishlistOff, for: .normal)
         
-        addToCartButton.isHidden = isPopularSection
-        wishlistButton.isHidden = isPopularSection
+        if isPopularSection {
+            addToCartButton.isHidden = isPopularSection
+            quantityStackView.isHidden = isPopularSection
+            wishlistButton.isHidden = isPopularSection
+        } else {
+            setCartCount(by: product.id)
+        }
         
         // Загрузка изображения
         if product.localImagePath != "Path",
