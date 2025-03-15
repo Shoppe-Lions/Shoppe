@@ -1001,4 +1001,3 @@ extension HomeViewController: UICollectionViewDelegate {
         }
     }
 }
-
