@@ -144,7 +144,12 @@ final class CartViewController: UIViewController {
         super.viewWillAppear(animated)
         navigationController?.navigationBar.isHidden = true
         presenter?.fetchCartProducts()
-//        presenter?.updateTotalPrice()
+        
+        // Обновляем бейдж в HomeViewController
+        if let tabBarController = tabBarController,
+           let homeVC = tabBarController.viewControllers?[0] as? HomeViewController {
+//            homeVC.presenter.updateCartBadge()
+        }
     }
     
     // MARK: - Action
@@ -176,6 +181,12 @@ extension CartViewController: CartViewProtocol {
     
     func updateCartCount(_ count: Int) {
         cartCountLabel.text = "\(count)"
+        
+        // Обновляем бейдж в HomeViewController
+        if let tabBarController = tabBarController,
+           let homeVC = tabBarController.viewControllers?[0] as? HomeViewController {
+//            homeVC.presenter.updateCartBadge()
+        }
     }
     
     func updateTotalPrice(_ totalPrice: String) {

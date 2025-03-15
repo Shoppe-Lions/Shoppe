@@ -16,6 +16,7 @@ protocol HomePresenterProtocol: AnyObject {
     func didTapCartButton()
     func didTapSeeAllCategories()
     func didCurrencyUpdated()
+    func refreshData()
 }
 
 class HomePresenter: HomePresenterProtocol {
@@ -58,5 +59,9 @@ class HomePresenter: HomePresenterProtocol {
     
     func didCurrencyUpdated() {
         view?.updateCollectionView()
+    }
+    
+    func refreshData() {
+        interactor.refreshRandomizedProducts()
     }
 }

@@ -167,11 +167,23 @@ final class CartTableViewCell: UITableViewCell {
     @objc private func increaseQuantity() {
         guard let index else { return }
         presenter?.increaseProductQuantity(at: index)
+        
+        // Обновляем бейдж в HomeViewController
+        if let tabBarController = UIApplication.shared.windows.first?.rootViewController as? UITabBarController,
+           let homeVC = tabBarController.viewControllers?[0] as? HomeViewController {
+//            homeVC.presenter.updateCartBadge()
+        }
     }
     
     @objc private func decreaseQuantity() {
         guard let index else { return }
         presenter?.decreaseProductQuantity(at: index)
+        
+        // Обновляем бейдж в HomeViewController
+        if let tabBarController = UIApplication.shared.windows.first?.rootViewController as? UITabBarController,
+           let homeVC = tabBarController.viewControllers?[0] as? HomeViewController {
+//            homeVC.presenter.updateCartBadge()
+        }
     }
     
     @objc private func didTapDeleteButton() {

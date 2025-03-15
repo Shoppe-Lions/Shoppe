@@ -254,6 +254,12 @@ final class ProductViewController: UIViewController {
         
         NotificationCenter.default.addObserver(self, selector: #selector(updatePrices), name: .currencyDidChange, object: nil)
     }
+    
+    // Добавим публичный метод для обновления ID
+    public func updateProduct(id: Int) {
+        self.id = id
+        presenter?.viewDidLoad(id: id)
+    }
 }
 
 // MARK: - Set UI
