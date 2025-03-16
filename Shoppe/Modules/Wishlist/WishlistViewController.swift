@@ -65,10 +65,11 @@ final class WishlistViewController: UIViewController {
         setupActivityIndicator()
         showLoadingIndicator()
         presenter?.viewDidLoad()
-        setupTitle()
+        //setupTitle()
         setupSearchView()
         setupCollectionView()
         setupPullToRefresh()
+        setupNavBar()
         navigationController?.navigationBar.isHidden = false
     }
     
@@ -103,7 +104,7 @@ private extension WishlistViewController {
         view.addSubview(searchView)
         searchView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(16)
-            make.top.equalTo(titleLabel.snp.bottom)
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
             make.height.equalTo(36)
         }
     }
@@ -132,6 +133,16 @@ private extension WishlistViewController {
             refreshControl.addTarget(self, action: #selector(refreshData), for: .valueChanged)
             collectionView.refreshControl = refreshControl
         }
+    }
+    
+    func setupNavBar() {
+        let customFont = UIFont(name: "Raleway-Bold", size: PFontSize.extraLarge)
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: customFont,
+            .foregroundColor: UIColor.black // Цвет текста
+        ]
+            
+        self.navigationController?.navigationBar.titleTextAttributes = attributes
     }
 }
 
