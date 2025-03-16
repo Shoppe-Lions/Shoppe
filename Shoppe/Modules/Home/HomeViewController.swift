@@ -191,14 +191,14 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
-        navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
-        navigationController?.navigationBar.shadowImage = UIImage()
-        navigationController?.navigationBar.isTranslucent = true
-        navigationController?.navigationBar.backgroundColor = .clear
-        
-        // Делаем navigationBar полностью прозрачным
-        navigationController?.navigationBar.alpha = 0
+        navigationController?.navigationBar.isHidden = true
+//        navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
+//        navigationController?.navigationBar.shadowImage = UIImage()
+//        navigationController?.navigationBar.isTranslucent = true
+//        navigationController?.navigationBar.backgroundColor = .clear
+//        
+//        // Делаем navigationBar полностью прозрачным
+//        navigationController?.navigationBar.alpha = 0
     }
     
     override func viewWillDisappear(_ animated: Bool) {

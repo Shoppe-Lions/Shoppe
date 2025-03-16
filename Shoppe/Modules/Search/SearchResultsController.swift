@@ -75,6 +75,7 @@ class SearchResultsController: UIViewController {
         presenter?.loadHistory()
         historyCollectionView.reloadData()
         searchView.setFirstResponder()
+        navigationController?.navigationBar.isHidden = false
     }
     
     override func viewWillAppear(_ animated: Bool) {

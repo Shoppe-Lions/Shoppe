@@ -69,11 +69,11 @@ final class WishlistViewController: UIViewController {
         setupSearchView()
         setupCollectionView()
         setupPullToRefresh()
+        navigationController?.navigationBar.isHidden = false
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        navigationController?.navigationBar.isHidden = true
     }
     
     func showLoadingIndicator() {
