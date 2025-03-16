@@ -688,11 +688,10 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "LocationCell", for: indexPath) as! LocationCell
         let cities = presenter.interactor.getAvailableCities()
-        let selectedCity = presenter.interactor.getSelectedCity()
+        let selectedCity = presenter.interactor.getSelectedCity()//
         
         let city = cities[indexPath.row]
-        cell.configure(with: city, isSelected: city == selectedCity)
-        
+        cell.configure(with: city, isSelected: city == selectedCity)        
         return cell
     }
     

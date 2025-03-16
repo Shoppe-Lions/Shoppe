@@ -11,6 +11,7 @@ import UIKit
 protocol AnyPaymentRouter: AnyObject {
     static func createModule(product: CartItem?) -> UIViewController
     func navigateToCart(from view: UIViewController)
+    func showEditAddress(from view: UIViewController)
 }
 
 final class PaymentRouter: AnyPaymentRouter {
@@ -35,5 +36,24 @@ final class PaymentRouter: AnyPaymentRouter {
         if let tabBarController = view.tabBarController {
             tabBarController.selectedIndex = 3
         }
+    }
+    
+    func showEditAddress(from view: UIViewController) {
+        let addressesVC = AddressesViewController()
+        addressesVC.onAddressSelected = { [weak self] selectedAddress in
+            //self?.updateAddress(with: selectedAddress)
+        }
+            
+        let nav = UINavigationController(rootViewController: addressesVC)
+        nav.modalPresentationStyle = .pageSheet
+            
+        if let sheet = nav.sheetPresentationController {
+            let customDetent = UISheetPresentationController.Detent.custom { context in
+                return context.maximumDetentValue * 0.3
+            }
+            sheet.detents = [customDetent]
+        }
+            
+        view.present(nav, animated: true)
     }
 }
