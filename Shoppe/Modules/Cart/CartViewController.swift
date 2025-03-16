@@ -164,9 +164,14 @@ final class CartViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        NotificationCenter.default.addObserver(self, selector: #selector(loadDefaultAddress), name: .addressUpdated, object: nil)
         navigationController?.navigationBar.isHidden = true
         presenter?.fetchCartProducts()
         loadDefaultAddress()
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
     
     // MARK: - Action
@@ -175,7 +180,7 @@ final class CartViewController: UIViewController {
         presenter?.didTapCheckoutButton()
     }
     
-    private func loadDefaultAddress() {
+    @objc private func loadDefaultAddress() {
         if let user = Auth.auth().currentUser {
             let userId = user.uid
             AddressManager.shared.fetchDefaultAddress(for: userId) { [weak self] address, errorMessage in

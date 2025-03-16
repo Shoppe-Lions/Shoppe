@@ -26,7 +26,6 @@ class AddressesViewController: UIViewController {
         } else {
             print("Пользователь не авторизован")
         }
-
     }
     
     private func setupTableView() {
@@ -53,6 +52,7 @@ class AddressesViewController: UIViewController {
 
     private func fetchAddresses() {
         guard let userId = userId else { return }
+
         AddressManager.shared.fetchAddresses(for: userId) { [weak self] addresses in
             self?.addresses = addresses
             DispatchQueue.main.async {
@@ -102,12 +102,15 @@ extension AddressesViewController: UITableViewDataSource, UITableViewDelegate {
             self?.dismiss(animated: true) { [weak self] in
                 self?.onAddressSelected?(selectedAddress) 
             }
+            
+            NotificationCenter.default.post(name: .addressUpdated, object: nil)
         }
     }
 
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         guard let userId = userId else { return }
         guard editingStyle == .delete else { return }
+        guard let userId = userId else { return }
         let address = addresses[indexPath.row]
         AddressManager.shared.deleteAddress(address.id, for: userId) { [weak self] success in
             if success {
