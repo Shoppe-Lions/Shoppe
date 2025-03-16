@@ -4,13 +4,12 @@
 //
 //  Created by Игорь Клевжиц on 15.03.2025.
 //
-
 import UIKit
 
 class AddressesViewController: UIViewController {
     var addresses: [AddressModel] = []
     let tableView = UITableView()
-    let userId = "currentUserId"
+    var userId: String?
     var onAddressSelected: ((AddressModel) -> Void)?
     
     override func viewDidLoad() {
@@ -19,7 +18,14 @@ class AddressesViewController: UIViewController {
         view.backgroundColor = .systemBackground
         setupTableView()
         setupAddButton()
-        fetchAddresses()
+        
+        if let user = Auth.auth().currentUser {
+            userId = user.uid
+            fetchAddresses()
+        } else {
+            print("Пользователь не авторизован")
+        }
+
     }
     
     private func setupTableView() {
@@ -45,6 +51,7 @@ class AddressesViewController: UIViewController {
     }
 
     private func fetchAddresses() {
+        guard let userId = userId else { return }
         AddressManager.shared.fetchAddresses(for: userId) { [weak self] addresses in
             self?.addresses = addresses
             DispatchQueue.main.async {
