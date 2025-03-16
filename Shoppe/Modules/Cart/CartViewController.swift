@@ -15,6 +15,7 @@ protocol CartViewProtocol: AnyObject {
     func updateCartCount(_ count: Int)
     func updateTotalPrice(_ totalPrice: String)
     func removeProduct(at index: Int)
+    func clearCart()
 }
 
 final class CartViewController: UIViewController {
@@ -195,6 +196,7 @@ final class CartViewController: UIViewController {
     }
     
     @objc private func cartIconTapped() {
+        self.presenter?.clearCart()
         print("Cart icon tapped")
     }
 }
@@ -240,6 +242,15 @@ extension CartViewController: CartViewProtocol {
         let indexPath = IndexPath(row: index + 1, section: 0)
         cartTableView.deleteRows(at: [indexPath], with: .automatic)
         emptyCartLabel.isHidden = !products.isEmpty
+    }
+    
+    func clearCart() {
+        products.removeAll()
+        quantities.removeAll()
+        cartTableView.reloadData()
+        emptyCartLabel.isHidden = false
+        updateCartCount(0)
+        updateTotalPrice("$0.00")
     }
 }
 
