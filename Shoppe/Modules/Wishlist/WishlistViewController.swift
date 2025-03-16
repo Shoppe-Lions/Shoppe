@@ -141,15 +141,16 @@ extension WishlistViewController: UICollectionViewDelegate, UICollectionViewData
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ProductCell.identifier, for: indexPath) as? ProductCell,
-              let presenter = presenter,
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ProductCell.identifier, for: indexPath) as? ProductCell else {
+            return UICollectionViewCell()
+        }
+        guard let presenter = presenter,
               indexPath.row < presenter.products.count
         else {
             return UICollectionViewCell()
         }
-        
-        let product = presenter.products[indexPath.row]
-        cell.configure(with: product, isPopularSection: false)
+        let product = presenter.products[indexPath.row] //[safe: indexPath.row]
+        cell.configure(with: product)
         cell.delegate = self
         return cell
     }
@@ -183,7 +184,6 @@ extension WishlistViewController: WishlistViewProtocol {
         activityIndicator.stopAnimating()
         collectionView.isHidden = false
     }
-    
     func updateCell(at index: Int) {
         let indexPath = IndexPath(item: index, section: 0)
         if let cell = collectionView.cellForItem(at: indexPath) as? ProductCell,

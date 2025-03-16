@@ -18,8 +18,6 @@ protocol HomeInteractorProtocol: AnyObject {
     func fetchProductsByCategory(_ category: String, completion: @escaping (Result<[Product], NetworkError>) -> Void)
     func refreshRandomizedProducts()
     func toggleWishlistStatus(for product: Product)
-    func getPopularProducts() -> [Product]
-    func getJustForYouProducts() -> [Product]
 }
 
 class HomeInteractor: HomeInteractorProtocol {
@@ -86,27 +84,13 @@ class HomeInteractor: HomeInteractorProtocol {
     
     func fetchPopularProducts() {
         apiService.fetchProducts { [weak self] result in
-            guard let self = self else { return }
-            
             switch result {
             case .success(let products):
-                // Перемешиваем продукты и обновляем APIService
-                let shuffledProducts = products.shuffled()
-                let popularProducts = Array(shuffledProducts.prefix(6))
-                let startIndex = 6
-                let endIndex = min(startIndex + 8, shuffledProducts.count)
-                let justForYouProducts = Array(shuffledProducts[startIndex..<endIndex])
-                
-                // Обновляем коллекции в APIService
-                self.apiService.popularProducts = popularProducts
-                self.apiService.justForYouProducts = justForYouProducts
-                
+                // Берем первые 6 продуктов для Popular секции
+                let popularProducts = Array(products.prefix(6))
                 DispatchQueue.main.async {
-                    // Отображаем обе секции сразу
-                    self.presenter?.view?.displayPopularProducts(popularProducts)
-                    self.presenter?.view?.displayJustForYouProducts(justForYouProducts)
+                    self?.presenter?.view?.displayPopularProducts(popularProducts)
                 }
-                
             case .failure(let error):
                 print("Error fetching popular products: \(error)")
             }
@@ -114,13 +98,22 @@ class HomeInteractor: HomeInteractorProtocol {
     }
     
     func fetchJustForYouProducts() {
-        // Используем уже обновленные данные из APIService
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
-            self.presenter?.view?.displayJustForYouProducts(self.apiService.justForYouProducts)
+        apiService.fetchProducts { [weak self] result in
+            switch result {
+            case .success(let products):
+                // Берем следующие 8 продуктов для Just For You секции
+                let startIndex = min(6, products.count)
+                let endIndex = min(startIndex + 8, products.count)
+                let justForYouProducts = Array(products[startIndex..<endIndex])
+                DispatchQueue.main.async {
+                    self?.presenter?.view?.displayJustForYouProducts(justForYouProducts)
+                }
+            case .failure(let error):
+                print("Error fetching just for you products: \(error)")
+                // Можно добавить обработку ошибок через presenter
+            }
         }
     }
-    
     func getAvailableCities() -> [String] {
         return cities
     }
@@ -180,11 +173,22 @@ class HomeInteractor: HomeInteractorProtocol {
     }
     
     func refreshRandomizedProducts() {
-        apiService.updateCollections { [weak self] result in
+        apiService.fetchProducts { [weak self] result in
             guard let self = self else { return }
             
             switch result {
-            case .success((let popularProducts, let justForYouProducts)):
+            case .success(let products):
+                // Перемешиваем продукты
+                let shuffledProducts = products.shuffled()
+                
+                // Берем первые 6 для Popular секции
+                let popularProducts = Array(shuffledProducts.prefix(6))
+                
+                // Берем следующие 8 для Just For You секции
+                let startIndex = 6
+                let endIndex = min(startIndex + 8, shuffledProducts.count)
+                let justForYouProducts = Array(shuffledProducts[startIndex..<endIndex])
+                
                 DispatchQueue.main.async {
                     self.presenter?.view?.displayPopularProducts(popularProducts)
                     self.presenter?.view?.displayJustForYouProducts(justForYouProducts)
@@ -198,13 +202,5 @@ class HomeInteractor: HomeInteractorProtocol {
                 }
             }
         }
-    }
-    
-    func getPopularProducts() -> [Product] {
-        return apiService.popularProducts
-    }
-    
-    func getJustForYouProducts() -> [Product] {
-        return apiService.justForYouProducts
     }
 }

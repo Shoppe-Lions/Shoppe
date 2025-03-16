@@ -16,8 +16,6 @@ final class APIService {
     private let productsKey = "cachedProducts"
     
     var cachedProducts: [Product] = []
-    var popularProducts: [Product] = []
-    var justForYouProducts: [Product] = []
     
     init() {
         loadCachedProducts()
@@ -37,14 +35,6 @@ final class APIService {
     }
     
     //        UserDefaults.standard.removePersistentDomain(forName: Bundle.main.bundleIdentifier!)
-    private func updatePopularAndJustForYou(from products: [Product]) {
-        let shuffledProducts = products.shuffled()
-        popularProducts = Array(shuffledProducts.prefix(6))
-        let startIndex = 6
-        let endIndex = min(startIndex + 8, shuffledProducts.count)
-        justForYouProducts = Array(shuffledProducts[startIndex..<endIndex])
-    }
-    
     func fetchProducts(completion: @escaping (Result<[Product], NetworkError>) -> Void) {
         // UserDefaults.standard.removePersistentDomain(forName: Bundle.main.bundleIdentifier!)
 //        if !cachedProducts.isEmpty {
@@ -71,7 +61,6 @@ final class APIService {
                 
                 group.notify(queue: .main) {
                     self.cachedProducts = products
-                    self.updatePopularAndJustForYou(from: products)
                     self.saveProductsToCache(products)
                     completion(.success(products))
                 }
@@ -163,15 +152,4 @@ final class APIService {
                 }
             }
         }
-
-    func updateCollections(completion: @escaping (Result<([Product], [Product]), NetworkError>) -> Void) {
-        fetchProducts { result in
-            switch result {
-            case .success(_):
-                completion(.success((self.popularProducts, self.justForYouProducts)))
-            case .failure(let error):
-                completion(.failure(error))
-            }
-        }
-    }
 }
