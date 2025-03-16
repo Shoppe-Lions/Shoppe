@@ -4,13 +4,13 @@
 //
 //  Created by Игорь Клевжиц on 15.03.2025.
 //
-
 import UIKit
 import FirebaseAuth
 
 class AddressesViewController: UIViewController {
     var addresses: [AddressModel] = []
     let tableView = UITableView()
+    //fix id
     var userId: String?
     var onAddressSelected: ((AddressModel) -> Void)?
     
