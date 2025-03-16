@@ -114,7 +114,7 @@ class AddAddressViewController: UIViewController, UITextFieldDelegate {
         } else if houseNumberField.isFirstResponder {
             commentField.becomeFirstResponder()
         } else if commentField.isFirstResponder {
-            commentField.resignFirstResponder() // Скрываем клавиатуру, если это последнее поле
+            commentField.resignFirstResponder()
         }
     }
     
@@ -129,7 +129,6 @@ class AddAddressViewController: UIViewController, UITextFieldDelegate {
               let zip = zipField.text, !zip.isEmpty,
               let house = houseNumberField.text, !house.isEmpty else { return }
 
-        // Используем новый адрес с дополнительными данными
         let newAddress = AddressModel(
             id: existingAddress?.id ?? UUID().uuidString,
             street: street,
@@ -161,6 +160,8 @@ class AddAddressViewController: UIViewController, UITextFieldDelegate {
                         DispatchQueue.main.async {
                             self.onAddressAdded?()
                             self.dismiss(animated: true)
+                            
+                            NotificationCenter.default.post(name: .addressUpdated, object: nil)
                         }
                     }
                 }
