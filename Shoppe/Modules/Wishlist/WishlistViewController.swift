@@ -62,6 +62,7 @@ final class WishlistViewController: UIViewController {
     //MARK: Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        view.backgroundColor = .white
         setupActivityIndicator()
         showLoadingIndicator()
         presenter?.viewDidLoad()
@@ -71,11 +72,7 @@ final class WishlistViewController: UIViewController {
         setupNavBar()
         navigationController?.navigationBar.isHidden = false
     }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-    }
-    
+
     func showLoadingIndicator() {
         activityIndicator.startAnimating()
         collectionView.isHidden = true
