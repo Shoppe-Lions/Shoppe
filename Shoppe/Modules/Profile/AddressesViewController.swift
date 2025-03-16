@@ -110,7 +110,6 @@ extension AddressesViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         guard let userId = userId else { return }
         guard editingStyle == .delete else { return }
-        guard let userId = userId else { return }
         let address = addresses[indexPath.row]
         AddressManager.shared.deleteAddress(address.id, for: userId) { [weak self] success in
             if success {
