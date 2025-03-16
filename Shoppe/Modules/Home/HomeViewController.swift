@@ -186,18 +186,28 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
-        if presenter != nil {
-            presenter.viewDidLoad()
-            // Обновляем locationLabel начальным значением
-            if let locationLabel = locationButton.viewWithTag(100) as? UILabel {
-                locationLabel.text = presenter.interactor.getSelectedCity()
-            }
+        presenter.viewDidLoad()
+        
+        // Добавляем наблюдателя за изменениями корзины
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(updateCartBadge(_:)),
+            name: .cartDidUpdate,
+            object: nil
+        )
+        
+        // Загружаем начальное состояние корзины
+        StorageCartManager.shared.loadCart { _ in }
+        
+        if let locationLabel = locationButton.viewWithTag(100) as? UILabel {
+            locationLabel.text = presenter.interactor.getSelectedCity()
         }
         
         NotificationCenter.default.addObserver(self, selector: #selector(currencyUpdated), name: .currencyDidChange, object: nil)
     }
     
     deinit {
+        NotificationCenter.default.removeObserver(self)
         NotificationCenter.default.removeObserver(self, name: .currencyDidChange, object: nil)
     }
     
@@ -335,6 +345,8 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         addressStackView.backgroundColor = .clear
         topStackView.backgroundColor = .clear
         customNavigationBar.backgroundColor = .white
+        
+        cartButton.addTarget(self, action: #selector(cartButtonTapped), for: .touchUpInside)
     }
     
     
@@ -527,8 +539,9 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
     }
     
     // MARK: - Actions
-    @objc private func cartTapped() {
-        // Handle cart tap
+    @objc private func cartButtonTapped() {
+        let cartVC = CartRouter.createModule()
+        navigationController?.pushViewController(cartVC, animated: true)
     }
     
     @objc func currencyUpdated() {
@@ -790,6 +803,13 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
     // Добавим метод для обновления данных
     @objc private func refreshData() {
         presenter.refreshData()
+    }
+    
+    @objc private func updateCartBadge(_ notification: Notification) {
+        if let count = notification.userInfo?["count"] as? Int {
+            cartBadgeLabel.text = "\(count)"
+            cartBadgeLabel.isHidden = count == 0
+        }
     }
 }
 
