@@ -17,12 +17,14 @@ protocol SearchResultsPresenterProtocol: AnyObject {
     func didRemoveHistory()
     func toggleWishlist(for product: Product)
     func didSelectProduct(_ product: Product)
+    func getTitle() -> String
 }
 
 final class SearchResultsPresenter: SearchResultsPresenterProtocol {
     var filteredProducts: [Product] = []
-    private var products: [Product] = []
+    private var products: [Product]?
     private var searchHistory: [String] = []
+    private var viewModel: PresentingControllerViewModel
     
     weak var view: SearchResultsViewProtocol?
     var interactor: SearchResultsInteractorProtocol
@@ -32,15 +34,20 @@ final class SearchResultsPresenter: SearchResultsPresenterProtocol {
         view: SearchResultsViewProtocol,
         interactor: SearchResultsInteractorProtocol,
         router: SearchResultsRouterProtocol,
-        products: [Product]
+        viewModel: PresentingControllerViewModel
     ) {
         self.view = view
         self.interactor = interactor
         self.router = router
-        self.products = products
+        self.products = viewModel.products
+        self.viewModel = viewModel
     }
     
     func didFilterProducts(with query: String) {
+        guard let products = products else {
+            print("no products in searchResultController ")
+            return
+        }
         filteredProducts = products.filter { $0.title.lowercased().contains(query.lowercased()) }
     }
     
@@ -60,6 +67,10 @@ final class SearchResultsPresenter: SearchResultsPresenterProtocol {
             }
             interactor.saveSearchHistory(searchHistory)
         }
+    }
+    
+    func getTitle() -> String {
+        return viewModel.title
     }
     
     //?

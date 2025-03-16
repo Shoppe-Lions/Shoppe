@@ -6,11 +6,13 @@
 //
 
 import UIKit
+import FirebaseAuth
 
 class AddressesViewController: UIViewController {
     var addresses: [AddressModel] = []
     let tableView = UITableView()
-    let userId = "currentUserId"
+    var userId: String?
+    var onAddressSelected: ((AddressModel) -> Void)?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -18,7 +20,13 @@ class AddressesViewController: UIViewController {
         view.backgroundColor = .systemBackground
         setupTableView()
         setupAddButton()
-        fetchAddresses()
+        
+        if let user = Auth.auth().currentUser {
+            userId = user.uid
+            fetchAddresses()
+        } else {
+            print("Пользователь не авторизован")
+        }
     }
     
     private func setupTableView() {
@@ -44,6 +52,8 @@ class AddressesViewController: UIViewController {
     }
 
     private func fetchAddresses() {
+        guard let userId = userId else { return }
+        
         AddressManager.shared.fetchAddresses(for: userId) { [weak self] addresses in
             self?.addresses = addresses
             DispatchQueue.main.async {
@@ -67,9 +77,12 @@ extension AddressesViewController: UITableViewDataSource, UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        guard let userId = userId else { return }
         let selectedAddress = addresses[indexPath.row]
         guard selectedAddress.isDefault == false else {
-            dismiss(animated: true, completion: nil)
+            dismiss(animated: true) { [weak self] in
+                self?.onAddressSelected?(selectedAddress)
+            }
             return
         }
 
@@ -87,12 +100,17 @@ extension AddressesViewController: UITableViewDataSource, UITableViewDelegate {
 
         group.notify(queue: .main) { [weak self] in
             self?.tableView.reloadData()
-            self?.dismiss(animated: true, completion: nil)
+            self?.dismiss(animated: true) { [weak self] in
+                self?.onAddressSelected?(selectedAddress) 
+            }
+            
+            NotificationCenter.default.post(name: .addressUpdated, object: nil)
         }
     }
 
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         guard editingStyle == .delete else { return }
+        guard let userId = userId else { return }
         let address = addresses[indexPath.row]
         AddressManager.shared.deleteAddress(address.id, for: userId) { [weak self] success in
             if success {

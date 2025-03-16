@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import FirebaseAuth
 
 protocol AnyPaymentPresenter: AnyObject {
     var view: AnyPaymentView? { get set }
@@ -24,6 +25,7 @@ protocol AnyPaymentPresenter: AnyObject {
     func viewDidDismissEditContactsAlert()
     func viewDidShowVoucherAlert()
     func viewDidDismissVoucherAlert()
+    func viewDidEditAddressTapped()
 }
 
 final class PaymentPresenter: AnyPaymentPresenter {
@@ -51,8 +53,10 @@ final class PaymentPresenter: AnyPaymentPresenter {
     }
     
     func interactorDidFetchBasketItems(with result: [CartItem]) {
-        view?.setupItems(with: result)
+        view?.updateItems(with: result)
         getViewUpdateTotalPriceAndDelivery()
+        updateShippingAddress()
+        view?.updatedShippingCurrency()
     }
     
     func viewDidSelectDelivery() {
@@ -95,6 +99,27 @@ final class PaymentPresenter: AnyPaymentPresenter {
     
     func viewDidDismissVoucherAlert() {
         view?.dismissVoucherAlert()
+    }
+    
+    func viewDidEditAddressTapped() {
+        guard let viewController = view as? UIViewController else { return }
+        router?.showEditAddress(from: viewController)
+    }
+    
+    func updateShippingAddress() {
+            if let user = Auth.auth().currentUser {
+                let userId = user.uid
+                AddressManager.shared.fetchDefaultAddress(for: userId) { [weak self] address, errorMessage in
+                    if let address = address {
+                        let addressString = "\(address.zipCode), \(address.city), \(address.street), \(address.houseNumber)"
+                        self?.view?.updateShippingAddress(address: addressString)
+                    } else if let errorMessage = errorMessage {
+                        self?.view?.updateShippingAddress(address: "Please, add your address.")
+                    }
+                }
+            } else {
+                print("Пользователь не авторизован")
+            }
     }
 }
 

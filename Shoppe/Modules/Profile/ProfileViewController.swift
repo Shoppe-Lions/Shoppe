@@ -90,9 +90,10 @@ class ProfileViewController: UIViewController, UITextFieldDelegate, UIImagePicke
         button.layer.masksToBounds = true
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(nil, action: #selector(saveButtonTapped), for: .touchUpInside)
-        
         return button
     }()
+    
+    // MARK: - Life Cycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -113,6 +114,26 @@ class ProfileViewController: UIViewController, UITextFieldDelegate, UIImagePicke
         view.addGestureRecognizer(tap)
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+//        if let user = Auth.auth().currentUser {
+//            let userId = user.uid
+//        AddressManager.shared.fetchDefaultAddress(for: userId) { address, errorMessage in
+//            if let address = address {
+//                // Дефолтный адрес найден
+//                print("Default address: \(address)")
+//            } else if let errorMessage = errorMessage {
+//                // Ошибка или нет дефолтного адреса
+//                print(errorMessage)
+//            }
+//        }
+//        } else {
+//            // Пользователь не авторизован
+//            print("Пользователь не авторизован")
+//        }
+        
+    }
+    
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         
@@ -122,6 +143,8 @@ class ProfileViewController: UIViewController, UITextFieldDelegate, UIImagePicke
             self.saveButton.layer.cornerRadius = self.saveButton.frame.height * 0.25
         }
     }
+    
+    // MARK: - Methods
     
     @objc private func logOutButtonTapped() {
         print("Выход из аккаунта")
@@ -171,21 +194,21 @@ class ProfileViewController: UIViewController, UITextFieldDelegate, UIImagePicke
     }
     
     @objc private func saveButtonTapped() {
-        if let userName = nameTextField.text {
-            updateDisplayName(newName: userName)
-        }
-//        let vc = AddressesViewController()
-//        let nav = UINavigationController(rootViewController: vc)
-//        nav.modalPresentationStyle = .pageSheet
-//
-//        if let sheet = nav.sheetPresentationController {
-//            let customDetent = UISheetPresentationController.Detent.custom { context in
-//                return context.maximumDetentValue * 0.3
-//            }
-//            sheet.detents = [customDetent]
+//        if let userName = nameTextField.text {
+//            updateDisplayName(newName: userName)
 //        }
-//
-//        present(nav, animated: true, completion: nil)
+        let vc = AddressesViewController()
+        let nav = UINavigationController(rootViewController: vc)
+        nav.modalPresentationStyle = .pageSheet
+
+        if let sheet = nav.sheetPresentationController {
+            let customDetent = UISheetPresentationController.Detent.custom { context in
+                return context.maximumDetentValue * 0.3
+            }
+            sheet.detents = [customDetent]
+        }
+
+        present(nav, animated: true, completion: nil)
         print("Изменения сохранены")
     }
     

@@ -8,6 +8,7 @@
 import Foundation
 
 protocol HomePresenterProtocol: AnyObject {
+    var products: [Product] { get set }
     var view: HomeViewProtocol? { get }
     var interactor: HomeInteractorProtocol { get }
     func viewDidLoad()
@@ -22,6 +23,8 @@ protocol HomePresenterProtocol: AnyObject {
 }
 
 class HomePresenter: HomePresenterProtocol {
+    var products: [Product] = []
+    
     weak var view: HomeViewProtocol?
     let interactor: HomeInteractorProtocol
     let router: HomeRouterProtocol

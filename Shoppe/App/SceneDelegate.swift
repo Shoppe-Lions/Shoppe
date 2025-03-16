@@ -17,7 +17,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         window?.overrideUserInterfaceStyle = .light
         
-        let onboardingCompleted = UserDefaults.standard.bool(forKey: "onboardingCompleted")
+        var onboardingCompleted = UserDefaults.standard.bool(forKey: "onboardingCompleted")
         
         let onboardingViewController = OnboardingViewController()
         
@@ -28,7 +28,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                 self.window?.rootViewController = AuthRouter.createModule()
             }
         }
-        
+        onboardingCompleted = true
         if onboardingCompleted {
             window?.rootViewController = AuthRouter.createModule()
         } else {
