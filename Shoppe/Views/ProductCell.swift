@@ -42,21 +42,11 @@ class ProductCell: UICollectionViewCell {
     
     private let nameLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 17, weight: .medium)
+        label.font = UIFont(name: Fonts.NunitoSans.regular, size: 12)
         label.textColor = .label
         label.numberOfLines = 2
-        label.lineBreakMode = .byCharWrapping
-        var paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.lineHeightMultiple = 0.98
-        label.attributedText = NSMutableAttributedString(
-            string: "Lorem ipsum dolor sit amet consectetur",
-            attributes: [
-                .paragraphStyle: paragraphStyle,
-                .baselineOffset: 1
-            ]
-        )
-        label.font = UIFont(name: Fonts.NunitoSans.regular, size: 12)
-        label.translatesAutoresizingMaskIntoConstraints = false
+        label.lineBreakMode = .byTruncatingTail
+        label.textAlignment = .left
         return label
     }()
     
@@ -72,11 +62,12 @@ class ProductCell: UICollectionViewCell {
     }()
     
     private lazy var buttonStackView: UIStackView = {
-        let element = UIStackView()
-        element.axis = .horizontal
-        element.spacing = ProductConstants.spacing
-        element.distribution = .fillProportionally
-        return element
+        let stackView = UIStackView()
+        stackView.axis = .horizontal
+        stackView.distribution = .fillProportionally
+        stackView.alignment = .center
+        stackView.spacing = 8
+        return stackView
     }()
     
     private lazy var addToCartButton: UIButton = {
@@ -166,63 +157,83 @@ class ProductCell: UICollectionViewCell {
     
     private func setupConstraints(isPopular: Bool) {
         if isPopular {
-            // Констрейнты для popular секции
-            photoContainerView.snp.remakeConstraints { make in
-                make.top.equalToSuperview()
-                make.centerX.equalToSuperview()
+                  // Констрейнты для popular секции
+                  photoContainerView.snp.remakeConstraints { make in
+                      make.top.equalToSuperview()
+                      make.centerX.equalToSuperview()
                 make.width.height.equalTo(160)
-            }
-            
+                  }
+                  
             photoImageView.snp.remakeConstraints { make in
-                make.center.equalToSuperview()
+                      make.center.equalToSuperview()
                 make.width.height.equalTo(145)
-            }
-        } else {
-            // Стандартные констрейнты
-            photoContainerView.snp.remakeConstraints { make in
+                  }
+              } else {
+                  // Стандартные констрейнты
+                  photoContainerView.snp.remakeConstraints { make in
                 make.top.equalToSuperview().inset(15)
                 make.centerX.equalToSuperview()
                 make.height.equalTo(181)
                 make.width.equalTo(165)
-            }
-
-            photoImageView.snp.remakeConstraints { make in
-                make.center.equalToSuperview()
-                make.width.height.equalToSuperview().multipliedBy(0.9)
-            }
-        }
+                  }
+                  
+                  photoImageView.snp.remakeConstraints { make in
+                      make.center.equalToSuperview()
+                      make.width.height.equalToSuperview().multipliedBy(0.9)
+                  }
+              }
         
-        nameLabel.snp.makeConstraints { make in
-            make.top.equalTo(photoContainerView.snp.bottom).offset(8)
-            make.leading.equalTo(photoContainerView)
-            make.trailing.equalTo(photoContainerView)
-            make.height.lessThanOrEqualTo(36)
+        nameLabel.snp.remakeConstraints { make in
+            make.top.equalTo(photoContainerView.snp.bottom).offset(4)
+            make.leading.equalTo(photoContainerView.snp.leading).offset(4)
+            make.trailing.equalTo(photoContainerView.snp.trailing).offset(8)
+            make.height.equalTo(36)
         }
         
         if isPopular {
-            // Для Popular секции - priceLabel ближе к nameLabel
+            // Для Popular секции - только priceLabel
             priceLabel.snp.remakeConstraints { make in
-                make.top.equalTo(nameLabel.snp.bottom).offset(4) // уменьшаем отступ
-                make.leading.trailing.equalToSuperview().inset(8)
+                make.top.equalTo(nameLabel.snp.bottom).offset(4)
+                make.leading.trailing.equalToSuperview().inset(4)
+                make.height.equalTo(24)
             }
+            
+            buttonStackView.isHidden = true
         } else {
-            // Стандартные констрейнты для priceLabel
+            // Стандартные констрейнты для обычной ячейки
             priceLabel.snp.remakeConstraints { make in
-                make.top.equalTo(nameLabel.snp.bottom).offset(8)
-                make.leading.trailing.equalToSuperview().inset(8)
+                make.top.equalTo(nameLabel.snp.bottom).offset(4)
+                make.leading.equalTo(photoContainerView.snp.leading).offset(4)
+                make.trailing.equalTo(photoContainerView.snp.trailing).offset(8)
+                make.height.equalTo(24)
             }
-        }
-        
-        buttonStackView.snp.makeConstraints { make in
-            make.top.equalTo(priceLabel.snp.bottom).offset(5)
-            make.height.equalTo(31)
-            make.leading.trailing.equalTo(photoContainerView)
-            make.bottom.equalToSuperview()
-        }
-        
-        wishlistButton.snp.makeConstraints { make in
-            make.height.equalTo(22)
-            make.width.equalTo(22)
+            
+            // Показываем и настраиваем buttonStackView
+            buttonStackView.isHidden = false
+            
+            // Настраиваем фиксированные размеры для всех кнопок
+            addToCartButton.snp.remakeConstraints { make in
+                make.width.equalTo(100)
+                make.height.equalTo(35)
+            }
+            
+            quantityStackView.snp.remakeConstraints { make in
+                make.width.equalTo(100)
+                make.height.equalTo(35)
+            }
+            
+            wishlistButton.snp.remakeConstraints { make in
+                make.width.height.equalTo(26)
+            }
+            
+            // Увеличиваем отступ от priceLabel до buttonStackView
+            buttonStackView.snp.remakeConstraints { make in
+                make.top.equalTo(priceLabel.snp.bottom).offset(8)
+                make.leading.equalTo(photoContainerView.snp.leading).offset(4)
+                make.trailing.equalTo(photoContainerView.snp.trailing).offset(8)
+                make.bottom.equalToSuperview().offset(-4)
+                make.height.equalTo(35)
+            }
         }
     }
     
@@ -280,36 +291,48 @@ class ProductCell: UICollectionViewCell {
     }
     
     func setCartCount(by id: Int) {
-        StorageCartManager.shared.loadCart { cart in
-            if let productInCart = cart.first(where: { $0.id == id }) {
-                self.addToCartButton.isHidden = true
-                self.quantityStackView.isHidden = false
-                self.wishlistButton.isHidden = false
-                self.quantityLabel.text = "\(productInCart.quantity)"
-            } else {
-                self.addToCartButton.isHidden = false
-                self.quantityStackView.isHidden = true
-                self.wishlistButton.isHidden = false
+        StorageCartManager.shared.loadCart { [weak self] cart in
+            guard let self = self else { return }
+            
+            DispatchQueue.main.async {
+                if let productInCart = cart.first(where: { $0.id == id }) {
+                    self.addToCartButton.isHidden = true
+                    self.quantityStackView.isHidden = false
+                    self.quantityLabel.text = "\(productInCart.quantity)"
+                } else {
+                    self.addToCartButton.isHidden = false
+                    self.quantityStackView.isHidden = true
+                }
+                // Не меняем видимость wishlistButton здесь
             }
         }
     }
     
     // MARK: Configure
-    // Метод для обновления данных в ячейке
-    func configure(with product: Product, isPopularSection: Bool = false) {
+    // Метод для начальной настройки ячейки
+    private func setupInitialState(with product: Product, isPopularSection: Bool) {
         self.product = product
-        nameLabel.text = product.title
+        
+        // Настраиваем nameLabel с правильным форматированием
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.lineHeightMultiple = 0.98
+        paragraphStyle.lineBreakMode = .byTruncatingTail
+        paragraphStyle.alignment = .left
+        
+        let attributedString = NSMutableAttributedString(
+            string: product.title,
+            attributes: [
+                .paragraphStyle: paragraphStyle,
+                .baselineOffset: 1,
+                .font: UIFont(name: Fonts.NunitoSans.regular, size: 12) ?? .systemFont(ofSize: 12),
+                .foregroundColor: UIColor.label
+            ]
+        )
+        
+        nameLabel.attributedText = attributedString
+        nameLabel.numberOfLines = 2 // Явно устанавливаем количество строк
+        
         priceLabel.text = CurrencyManager.shared.convertToString(priceInUSD: product.price)
-        wishlistButton.setImage(product.like ? .wishlistOn : .wishlistOff, for: .normal)
-        
-        // Настраиваем видимость элементов для Popular секции
-        addToCartButton.isHidden = isPopularSection
-        quantityStackView.isHidden = isPopularSection
-        wishlistButton.isHidden = isPopularSection
-        
-        if !isPopularSection {
-            setCartCount(by: product.id)
-        }
         
         // Загрузка изображения
         if product.localImagePath != "Path",
@@ -329,8 +352,38 @@ class ProductCell: UICollectionViewCell {
         setupConstraints(isPopular: isPopularSection)
     }
     
+    // Метод для обновления только состояния кнопок
+    private func updateButtonsState(isLiked: Bool, isPopularSection: Bool) {
+        wishlistButton.setImage(isLiked ? .wishlistOn : .wishlistOff, for: .normal)
+        
+        if isPopularSection {
+            buttonStackView.isHidden = true
+        } else {
+            buttonStackView.isHidden = false
+            if let product = product {
+                setCartCount(by: product.id)
+            }
+        }
+    }
+    
+    func configure(with product: Product, isPopularSection: Bool = false) {
+        if self.product?.id != product.id {
+            // Если это новый продукт, настраиваем всю ячейку
+            setupInitialState(with: product, isPopularSection: isPopularSection)
+        } else {
+            // Обновляем существующий продукт
+            self.product = product
+        }
+        // Обновляем только состояние кнопок
+        updateButtonsState(isLiked: product.like, isPopularSection: isPopularSection)
+    }
+    
     @objc func handleWishlistButtonTapped() {
         guard let product = product else { print("no product"); return }
+        // Обновляем состояние продукта локально перед вызовом делегата
+        var updatedProduct = product
+        updatedProduct.like.toggle()
+        self.product = updatedProduct
         delegate?.didTapWishlistButton(for: product)
     }
     
