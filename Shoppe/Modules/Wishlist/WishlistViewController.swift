@@ -11,7 +11,6 @@ import UIKit
 protocol WishlistViewProtocol: AnyObject {
     func reloadData()
     func hideLoadingIndicator() //?
-    func setupSearchController() // !
     func updateCell(at index: Int) // Добавляем новый метод
 }
 
@@ -173,6 +172,8 @@ extension WishlistViewController: UICollectionViewDelegate, UICollectionViewData
 }
 
 extension WishlistViewController: WishlistViewProtocol {
+
+    
     func reloadData() {
         self.refreshControl.endRefreshing()
         collectionView.reloadData() //reload item at indexpath
@@ -181,22 +182,6 @@ extension WishlistViewController: WishlistViewProtocol {
     func hideLoadingIndicator() {
         activityIndicator.stopAnimating()
         collectionView.isHidden = false
-    }
-    // setup search controller
-    func setupSearchController() {
-        guard let presenter = presenter else {
-            print("presenter is nil")
-            return
-        }
-        searchResultsController = SearchResultsRouter.createModule(products: presenter.products) as? SearchResultsController
-        searchResultsController!.delegate = self //!
-        searchController = UISearchController(searchResultsController: searchResultsController)
-        searchController?.searchResultsUpdater = searchResultsController
-        searchController?.searchBar.placeholder = "Search"
-        searchController?.searchBar.delegate = searchResultsController
-        searchController?.showsSearchResultsController = true
-        navigationItem.hidesSearchBarWhenScrolling = false
-        navigationItem.searchController = searchController
     }
     
     func updateCell(at index: Int) {
