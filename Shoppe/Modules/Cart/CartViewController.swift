@@ -25,6 +25,12 @@ final class CartViewController: UIViewController {
     private var products: [Product] = []
     private var quantities: [Int] = []
     
+    lazy var alertView = CustomAlertView(
+        title: "Delete Item?",
+        message: "Are you shure?",
+        buttonText: "Delete",
+        secondButtonText: "Cancel"
+    )
     // MARK: - UI
     private lazy var topStackView: UIStackView = {
         let element = UIStackView()
@@ -60,7 +66,7 @@ final class CartViewController: UIViewController {
     
     private lazy var cartIconImageView: UIImageView = {
         let element = UIImageView()
-        element.image = UIImage(systemName: "cart.fill")
+        element.image = UIImage(systemName: "trash.fill")
         element.tintColor = UIColor(named: "CustomBlack")
         element.isUserInteractionEnabled = true
         return element
@@ -195,9 +201,21 @@ final class CartViewController: UIViewController {
         cartIconImageView.addGestureRecognizer(tapGesture)
     }
     
+    
     @objc private func cartIconTapped() {
-        self.presenter?.clearCart()
+        alertView.show()
+        alertView.button.addTarget(self, action: #selector(confirmDelete), for: .touchUpInside)
+        alertView.secondButton.addTarget(self, action: #selector(cancelDelete), for: .touchUpInside)
         print("Cart icon tapped")
+    }
+    
+    @objc func confirmDelete() {
+        alertView.dismiss()
+        presenter?.clearCart()
+    }
+    
+    @objc func cancelDelete() {
+        alertView.dismiss()
     }
 }
 
