@@ -200,6 +200,7 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
     }
     
     private func setupCustomNavigationBar() {
+        // Сначала добавляем все views в иерархию
         view.addSubview(customNavigationBar)
     
         // Настраиваем адресный стек
@@ -216,12 +217,6 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         addressStackView.isUserInteractionEnabled = true
         customNavigationBar.isUserInteractionEnabled = true
         
-        // Настраиваем размеры locationButton
-        locationButton.snp.makeConstraints { make in
-            make.height.equalTo(20)
-            make.width.greaterThanOrEqualTo(200)
-        }
-        
         // Настраиваем верхний стек
         customNavigationBar.addSubview(topStackView)
         customNavigationBar.addSubview(searchView)
@@ -230,53 +225,41 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         topStackView.addArrangedSubview(cartButton)
         cartButton.addSubview(cartBadgeLabel)
         
-        
-        // Настраиваем констрейнты для навбара
+        // Настраиваем констрейнты для customNavigationBar
         customNavigationBar.snp.makeConstraints { make in
-            make.top.leading.trailing.equalToSuperview()
-            make.bottom.equalTo(searchView.snp.bottom).offset(16)
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+            make.leading.trailing.equalToSuperview()
+            make.height.equalTo(100)
         }
         
-        // Обновляем констрейнты для topStackView
+        // Настраиваем констрейнты для topStackView
         topStackView.snp.makeConstraints { make in
-            make.top.equalTo(view.safeAreaLayoutGuide).offset(10)
-            make.leading.equalToSuperview().offset(13)
-            make.trailing.equalToSuperview().offset(-13)
-        }
-        
-        // Обновляем констрейнты для addressStackView
-        addressStackView.snp.makeConstraints { make in
-            make.height.equalTo(30)
-        }
-        
-        // Обновляем констрейнты для cartButton
-        cartButton.snp.remakeConstraints { make in
-            make.width.equalTo(31)
-            make.height.equalTo(28)
-        }
-        
-        // Обновляем констрейнты для cartBadgeLabel
-        cartBadgeLabel.snp.remakeConstraints { make in
-            make.top.equalToSuperview().offset(-2)
-            make.trailing.equalToSuperview().offset(2)
-            make.width.height.equalTo(14)
-        }
-        
-        // Обновим констрейнты для collectionView
-        collectionView?.snp.remakeConstraints { make in
-            make.top.equalTo(customNavigationBar.snp.bottom)
-            make.leading.trailing.bottom.equalToSuperview()
-        }
-        
-        // Обновляем констрейнты для searchView        
-        searchView.snp.makeConstraints { make in
-            make.top.equalTo(topStackView.snp.bottom).offset(15)
-            make.leading.equalToSuperview().offset(13)
-            make.trailing.equalToSuperview().offset(-13)
+            make.top.equalToSuperview().offset(8)
+            make.leading.trailing.equalToSuperview().inset(16)
             make.height.equalTo(36)
         }
         
-        // Для отладки добавим цвета фона
+        // Настраиваем констрейнты для locationButton
+        locationButton.snp.makeConstraints { make in
+            make.height.equalTo(20)
+            make.width.greaterThanOrEqualTo(200)
+        }
+        
+        // Настраиваем констрейнты для searchView
+        searchView.snp.makeConstraints { make in
+            make.top.equalTo(topStackView.snp.bottom).offset(8)
+            make.leading.trailing.equalToSuperview().inset(16)
+            make.bottom.equalToSuperview().offset(-8)
+        }
+        
+        // Настраиваем констрейнты для cartBadgeLabel
+        cartBadgeLabel.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(-5)
+            make.trailing.equalToSuperview().offset(5)
+            make.width.height.equalTo(14)
+        }
+        
+        // Настраиваем внешний вид
         locationButton.backgroundColor = .clear
         addressStackView.backgroundColor = .clear
         topStackView.backgroundColor = .clear
@@ -440,7 +423,13 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         
         // Section
         let section = NSCollectionLayoutSection(group: group)
-        section.contentInsets = NSDirectionalEdgeInsets(top: 16, leading: 8, bottom: 16, trailing: 8)
+        section.interGroupSpacing = 16
+        section.contentInsets = NSDirectionalEdgeInsets(
+            top: 8,
+            leading: 8,
+            bottom: 16,
+            trailing: 8
+        )
         
         // Header
         let headerSize = NSCollectionLayoutSize(

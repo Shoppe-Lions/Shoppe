@@ -11,6 +11,7 @@ import UIKit
 protocol WishlistViewProtocol: AnyObject {
     func reloadData()
     func hideLoadingIndicator() //?
+    func updateCell(at index: Int) // Добавляем новый метод
 }
 
 final class WishlistViewController: UIViewController {
@@ -172,6 +173,8 @@ extension WishlistViewController: UICollectionViewDelegate, UICollectionViewData
 }
 
 extension WishlistViewController: WishlistViewProtocol {
+
+    
     func reloadData() {
         self.refreshControl.endRefreshing()
         collectionView.reloadData() //reload item at indexpath
@@ -180,6 +183,13 @@ extension WishlistViewController: WishlistViewProtocol {
     func hideLoadingIndicator() {
         activityIndicator.stopAnimating()
         collectionView.isHidden = false
+    }
+    func updateCell(at index: Int) {
+        let indexPath = IndexPath(item: index, section: 0)
+        if let cell = collectionView.cellForItem(at: indexPath) as? ProductCell,
+           let product = presenter?.products[index] {
+            cell.configure(with: product, isPopularSection: false)
+        }
     }
 }
 
