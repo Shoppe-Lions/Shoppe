@@ -5,6 +5,7 @@
 //  Created by Игорь Клевжиц on 15.03.2025.
 //
 import UIKit
+import FirebaseAuth
 
 class AddressesViewController: UIViewController {
     var addresses: [AddressModel] = []
@@ -75,6 +76,7 @@ extension AddressesViewController: UITableViewDataSource, UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        guard let userId = userId else { return }
         let selectedAddress = addresses[indexPath.row]
         guard selectedAddress.isDefault == false else {
             dismiss(animated: true) { [weak self] in
@@ -104,6 +106,7 @@ extension AddressesViewController: UITableViewDataSource, UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        guard let userId = userId else { return }
         guard editingStyle == .delete else { return }
         let address = addresses[indexPath.row]
         AddressManager.shared.deleteAddress(address.id, for: userId) { [weak self] success in
