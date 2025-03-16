@@ -480,7 +480,7 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         
         let cities = presenter.interactor.getAvailableCities()
         let selectedCity = presenter.interactor.getSelectedCity()
-        
+        ////
         let dropDownMenu = UITableView(frame: .zero, style: .plain)
         dropDownMenu.backgroundColor = .white
         dropDownMenu.layer.cornerRadius = 12
