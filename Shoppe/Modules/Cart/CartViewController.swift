@@ -15,6 +15,7 @@ protocol CartViewProtocol: AnyObject {
     func updateCartCount(_ count: Int)
     func updateTotalPrice(_ totalPrice: String)
     func removeProduct(at index: Int)
+    func clearCart()
 }
 
 final class CartViewController: UIViewController {
@@ -23,7 +24,13 @@ final class CartViewController: UIViewController {
     
     private var products: [Product] = []
     private var quantities: [Int] = []
-
+    
+    lazy var alertView = CustomAlertView(
+        title: "Delete Item?",
+        message: "Are you shure?",
+        buttonText: "Delete",
+        secondButtonText: "Cancel"
+    )
     // MARK: - UI
     private lazy var topStackView: UIStackView = {
         let element = UIStackView()
@@ -51,6 +58,20 @@ final class CartViewController: UIViewController {
         return element
     }()
     
+    private lazy var spacerView: UIView = {
+        let element = UIView()
+        element.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        return element
+    }()
+    
+    private lazy var cartIconImageView: UIImageView = {
+        let element = UIImageView()
+        element.image = UIImage(systemName: "trash.fill")
+        element.tintColor = UIColor(named: "CustomBlack")
+        element.isUserInteractionEnabled = true
+        return element
+    }()
+    
     private lazy var cartTableView: UITableView = {
         let element = UITableView()
         element.dataSource = self
@@ -58,11 +79,11 @@ final class CartViewController: UIViewController {
         element.separatorStyle = .none
         element.showsVerticalScrollIndicator = false
         element.register(
-            CartTableViewCell.self, 
+            CartTableViewCell.self,
             forCellReuseIdentifier: "CartTableViewCell"
         )
         element.register(
-            ShippingAdressTableViewCell.self, 
+            ShippingAdressTableViewCell.self,
             forCellReuseIdentifier: "ShippingAdressTableViewCell"
         )
         return element
@@ -115,7 +136,7 @@ final class CartViewController: UIViewController {
         return element
     }()
     
-    private lazy var spacerView: UIView = {
+    private lazy var topSpacerView: UIView = {
         let element = UIView()
         element.setContentHuggingPriority(.defaultLow, for: .horizontal)
         return element
@@ -176,6 +197,28 @@ final class CartViewController: UIViewController {
             cell.updateAddress(with: address) 
         }
     }
+    
+    private func setupCartIconTapGesture() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(cartIconTapped))
+        cartIconImageView.addGestureRecognizer(tapGesture)
+    }
+    
+    
+    @objc private func cartIconTapped() {
+        alertView.show()
+        alertView.button.addTarget(self, action: #selector(confirmDelete), for: .touchUpInside)
+        alertView.secondButton.addTarget(self, action: #selector(cancelDelete), for: .touchUpInside)
+        print("Cart icon tapped")
+    }
+    
+    @objc func confirmDelete() {
+        alertView.dismiss()
+        presenter?.clearCart()
+    }
+    
+    @objc func cancelDelete() {
+        alertView.dismiss()
+    }
 }
 
 // MARK: - CartViewProtocol
@@ -196,7 +239,7 @@ extension CartViewController: CartViewProtocol {
             cell.updateQuantity(quantity)
         }
     }
-
+    
     
     func updateCartCount(_ count: Int) {
         cartCountLabel.text = "\(count)"
@@ -204,7 +247,7 @@ extension CartViewController: CartViewProtocol {
         // Обновляем бейдж в HomeViewController
         if let tabBarController = tabBarController,
            let homeVC = tabBarController.viewControllers?[0] as? HomeViewController {
-//            homeVC.presenter.updateCartBadge()
+            //            homeVC.presenter.updateCartBadge()
         }
     }
     
@@ -219,6 +262,15 @@ extension CartViewController: CartViewProtocol {
         let indexPath = IndexPath(row: index + 1, section: 0)
         cartTableView.deleteRows(at: [indexPath], with: .automatic)
         emptyCartLabel.isHidden = !products.isEmpty
+    }
+    
+    func clearCart() {
+        products.removeAll()
+        quantities.removeAll()
+        cartTableView.reloadData()
+        emptyCartLabel.isHidden = false
+        updateCartCount(0)
+        updateTotalPrice("$0.00")
     }
 }
 
@@ -244,11 +296,11 @@ extension CartViewController: UITableViewDataSource, UITableViewDelegate {
             
             if let presenter = presenter {
                 cell.configure(
-                        with: product,
-                        at: indexPath.row - 1,
-                        quantity: quantity,
-                        presenter: presenter
-                    )
+                    with: product,
+                    at: indexPath.row - 1,
+                    quantity: quantity,
+                    presenter: presenter
+                )
             }
             cell.selectionStyle = .none
             return cell
@@ -278,6 +330,8 @@ private extension CartViewController {
         
         topStackView.addArrangedSubview(cartTitle)
         topStackView.addArrangedSubview(cartCountLabel)
+        topStackView.addArrangedSubview(topSpacerView)
+        topStackView.addArrangedSubview(cartIconImageView)
         
         view.addSubview(cartTableView)
         
@@ -290,15 +344,22 @@ private extension CartViewController {
         bottomStackView.addArrangedSubview(checkoutButton)
         
         view.addSubview(emptyCartLabel)
+        
+        setupCartIconTapGesture()
     }
     
-    func setupConstraints() {
+    private func setupConstraints() {
         topStackView.snp.makeConstraints { make in
             make.leading.equalTo(view.safeAreaLayoutGuide).inset(20)
+            make.trailing.equalTo(view.safeAreaLayoutGuide).inset(20)
             make.top.equalTo(view.safeAreaLayoutGuide).inset(5)
         }
         
         cartCountLabel.snp.makeConstraints { make in
+            make.width.height.equalTo(30)
+        }
+        
+        cartIconImageView.snp.makeConstraints { make in
             make.width.height.equalTo(30)
         }
         

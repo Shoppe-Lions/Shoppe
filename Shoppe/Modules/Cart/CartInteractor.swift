@@ -13,6 +13,7 @@ protocol CartInteractorProtocol: AnyObject {
     func loadTotalItems()
     func loadTotalAmount()
     func deleteProduct(at index: Int)
+    func clearCart()
 }
 
 final class CartInteractor: CartInteractorProtocol {
@@ -92,6 +93,14 @@ final class CartInteractor: CartInteractorProtocol {
                 self.loadTotalItems()
                 self.loadTotalAmount()
             }
+        }
+    }
+    
+    func clearCart() {
+        StorageCartManager.shared.clearCart { [weak self] in
+            self?.fetchCartProducts()
+            self?.loadTotalItems()
+            self?.loadTotalAmount()
         }
     }
 }

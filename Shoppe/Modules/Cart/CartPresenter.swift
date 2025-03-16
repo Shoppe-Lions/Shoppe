@@ -22,6 +22,7 @@ protocol CartPresenterProtocol: AnyObject {
     func didTapCheckoutButton()
     func deleteProduct(at index: Int)
     func didSelectProduct(_ product: Product)
+    func clearCart()
 }
 
 final class CartPresenter: CartPresenterProtocol {
@@ -91,6 +92,10 @@ final class CartPresenter: CartPresenterProtocol {
 
     func didSelectProduct(_ product: Product) {
         router.showProductViewController(productId: product.id)
+    }
+    
+    func clearCart() {
+        interactor.clearCart()
     }
 }
 
