@@ -128,8 +128,10 @@ private extension WishlistViewController {
     }
     
     func setupPullToRefresh() {
-        refreshControl.addTarget(self, action: #selector(refreshData), for: .valueChanged)
-        collectionView.refreshControl = refreshControl
+        if titleLabel.text == "Wishlist" { // перенести проверку в презентер
+            refreshControl.addTarget(self, action: #selector(refreshData), for: .valueChanged)
+            collectionView.refreshControl = refreshControl
+        }
     }
 }
 
