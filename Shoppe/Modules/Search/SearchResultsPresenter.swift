@@ -88,6 +88,7 @@ final class SearchResultsPresenter: SearchResultsPresenterProtocol {
         interactor.toggleWishlistStatus(for: product)
         if let index = filteredProducts.firstIndex(where: { $0.id == product.id }) {
             filteredProducts[index].like.toggle()
+            view?.updateCell(at: index)
         }
         view?.reloadData()
     }

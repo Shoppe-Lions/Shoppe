@@ -14,6 +14,7 @@ import UIKit
 protocol SearchResultsViewProtocol: AnyObject {
     func reloadData()
     func reloadHistory()
+    func updateCell(at index: Int)
 }
 
 class SearchResultsController: UIViewController {
@@ -139,7 +140,7 @@ class SearchResultsController: UIViewController {
         
         collectionView.snp.makeConstraints { make in
             make.leading.trailing.bottom.equalToSuperview()
-            make.top.equalTo(searchView.snp.bottom)
+            make.top.equalTo(searchView.snp.bottom).inset(-8)
         }
     }
     
@@ -288,6 +289,14 @@ extension SearchResultsController: UICollectionViewDelegateFlowLayout {
 extension SearchResultsController: SearchResultsViewProtocol {
     func reloadData() {
         collectionView.reloadData()
+    }
+    
+    func updateCell(at index: Int) {
+        let indexPath = IndexPath(item: index, section: 0)
+        if let cell = collectionView.cellForItem(at: indexPath) as? ProductCell,
+           let product = presenter?.filteredProducts[index] {
+            cell.configure(with: product, isPopularSection: false)
+        }
     }
     
     func reloadHistory() {

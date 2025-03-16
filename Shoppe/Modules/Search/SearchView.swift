@@ -62,7 +62,7 @@ final class SearchView: UIView {
     
     private lazy var searchTextField: PaddedTextField = {
         let textField = PaddedTextField()
-        textField.clearButtonMode = .unlessEditing
+        textField.clearButtonMode = .always
         textField.font = UIFont(name: Fonts.Raleway.regular, size: 16)
         textField.borderStyle = .none
         textField.returnKeyType = .search
