@@ -203,7 +203,21 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        navigationController?.navigationBar.isHidden = true
+        
+        navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
+        navigationController?.navigationBar.shadowImage = UIImage()
+        navigationController?.navigationBar.isTranslucent = true
+        navigationController?.navigationBar.backgroundColor = .clear
+        
+        // Делаем navigationBar полностью прозрачным
+        navigationController?.navigationBar.alpha = 0
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        navigationController?.navigationBar.alpha = 1
+        navigationController?.navigationBar.setBackgroundImage(nil, for: .default)
+        navigationController?.navigationBar.shadowImage = nil
     }
     
     // MARK: - Private Methods
@@ -251,15 +265,16 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         bottomStackView.addSubview(searchContainer)
         searchContainer.addSubview(searchTextField)
         
-        // Настраиваем констрейнты для навбара
+        // Настраиваем констрейнты для customNavigationBar
         customNavigationBar.snp.makeConstraints { make in
-            make.top.leading.trailing.equalToSuperview()
+            make.top.equalTo(view.snp.top)
+            make.leading.trailing.equalToSuperview()
             make.bottom.equalTo(bottomStackView.snp.bottom).offset(16)
         }
         
-        // Обновляем констрейнты для topStackView
+        // Обновляем констрейнты для topStackView - привязываем к верху экрана + отступ для статус бара
         topStackView.snp.makeConstraints { make in
-            make.top.equalTo(view.safeAreaLayoutGuide).offset(10)
+            make.top.equalTo(customNavigationBar).offset(UIApplication.shared.statusBarFrame.height + 10)
             make.leading.equalToSuperview().offset(13)
             make.trailing.equalToSuperview().offset(-13)
         }
@@ -307,9 +322,9 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
             make.leading.trailing.bottom.equalToSuperview()
         }
         
-        // Обновляем констрейнты для bottomStackView
+        // Обновляем констрейнты для bottomStackView - уменьшаем отступ сверху
         bottomStackView.snp.makeConstraints { make in
-            make.top.equalTo(topStackView.snp.bottom).offset(15)
+            make.top.equalTo(topStackView.snp.bottom).offset(8) // уменьшаем отступ
             make.leading.equalToSuperview().offset(13)
             make.trailing.equalToSuperview().offset(-13)
             make.height.equalTo(30)

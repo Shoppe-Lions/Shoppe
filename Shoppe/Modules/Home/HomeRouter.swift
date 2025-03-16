@@ -47,15 +47,9 @@ final class HomeRouter: HomeRouterProtocol {
     func openAllCategories() {
         if let sourceVC = view as? UIViewController {
             let allCategoriesVC = AllCategoriesRouter.createModule()
-            // Настраиваем полноэкранное представление
-            allCategoriesVC.modalPresentationStyle = .fullScreen
             
-            // Добавляем вызов viewDidLoad перед показом
-            if let categoriesVC = allCategoriesVC as? AllCategoriesViewController {
-                categoriesVC.loadViewIfNeeded() // Это заставит вызвать viewDidLoad
-            }
-            
-            sourceVC.present(allCategoriesVC, animated: true)
+            // Используем push вместо present
+            sourceVC.navigationController?.pushViewController(allCategoriesVC, animated: true)
         }
     }
     
