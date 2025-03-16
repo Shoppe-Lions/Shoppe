@@ -26,6 +26,7 @@ protocol AnyPaymentPresenter: AnyObject {
     func viewDidShowVoucherAlert()
     func viewDidDismissVoucherAlert()
     func viewDidEditAddressTapped()
+    func updateShippingAddress()
 }
 
 final class PaymentPresenter: AnyPaymentPresenter {
