@@ -72,6 +72,7 @@ final class PaymentViewController: UIViewController, AnyPaymentView {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         navigationController?.navigationBar.isHidden = false
         setupViews()
         setConstraints()
@@ -83,10 +84,12 @@ final class PaymentViewController: UIViewController, AnyPaymentView {
         updateShippingUI()
         
         presenter?.viewDidLoad()
+//        NotificationCenter.default.addObserver(self, selector: #selector(updateShippingAddress), name: .addressUpdated, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(currencyUpdated), name: .currencyDidChange, object: nil)
     }
     
     deinit {
+//        NotificationCenter.default.removeObserver(self, name: .addressUpdated, object: nil)
         NotificationCenter.default.removeObserver(self, name: .currencyDidChange, object: nil)
     }
     
@@ -220,7 +223,7 @@ extension PaymentViewController {
         shippingDescription.text = "Delivered on or before \(date)"
     }
     
-    func updateShippingAddress(address: String) {
+    @objc func updateShippingAddress(address: String) {
         shippingDetails.addressLabel.text = address
     }
     
