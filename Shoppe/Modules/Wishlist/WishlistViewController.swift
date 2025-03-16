@@ -65,7 +65,6 @@ final class WishlistViewController: UIViewController {
         setupActivityIndicator()
         showLoadingIndicator()
         presenter?.viewDidLoad()
-        //setupTitle()
         setupSearchView()
         setupCollectionView()
         setupPullToRefresh()
@@ -117,7 +116,7 @@ private extension WishlistViewController {
         view.addSubview(collectionView)
         collectionView.snp.makeConstraints { make in
             make.leading.trailing.bottom.equalToSuperview()
-            make.top.equalTo(searchView.snp.bottom)
+            make.top.equalTo(searchView.snp.bottom).inset(-8)
         }
     }
     
@@ -136,9 +135,9 @@ private extension WishlistViewController {
     }
     
     func setupNavBar() {
-        let customFont = UIFont(name: "Raleway-Bold", size: PFontSize.extraLarge)
+        let customFont = UIFont(name: Fonts.Raleway.bold, size: PFontSize.extraLarge)
         let attributes: [NSAttributedString.Key: Any] = [
-            .font: customFont,
+            .font: customFont ?? UIFont.systemFont(ofSize: PFontSize.extraLarge),
             .foregroundColor: UIColor.black // Цвет текста
         ]
             
