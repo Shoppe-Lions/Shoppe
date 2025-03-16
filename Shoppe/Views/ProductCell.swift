@@ -199,10 +199,18 @@ class ProductCell: UICollectionViewCell {
             make.height.lessThanOrEqualTo(36)
         }
         
-        priceLabel.snp.makeConstraints { make in
-            make.top.equalTo(nameLabel.snp.bottom).offset(1)
-            make.leading.equalTo(photoContainerView)
-            make.trailing.equalTo(photoContainerView)
+        if isPopular {
+            // Для Popular секции - priceLabel ближе к nameLabel
+            priceLabel.snp.remakeConstraints { make in
+                make.top.equalTo(nameLabel.snp.bottom).offset(4) // уменьшаем отступ
+                make.leading.trailing.equalToSuperview().inset(8)
+            }
+        } else {
+            // Стандартные констрейнты для priceLabel
+            priceLabel.snp.remakeConstraints { make in
+                make.top.equalTo(nameLabel.snp.bottom).offset(8)
+                make.leading.trailing.equalToSuperview().inset(8)
+            }
         }
         
         buttonStackView.snp.makeConstraints { make in
@@ -294,11 +302,12 @@ class ProductCell: UICollectionViewCell {
         priceLabel.text = CurrencyManager.shared.convertToString(priceInUSD: product.price)
         wishlistButton.setImage(product.like ? .wishlistOn : .wishlistOff, for: .normal)
         
-        if isPopularSection {
-            addToCartButton.isHidden = isPopularSection
-            quantityStackView.isHidden = isPopularSection
-            wishlistButton.isHidden = isPopularSection
-        } else {
+        // Настраиваем видимость элементов для Popular секции
+        addToCartButton.isHidden = isPopularSection
+        quantityStackView.isHidden = isPopularSection
+        wishlistButton.isHidden = isPopularSection
+        
+        if !isPopularSection {
             setCartCount(by: product.id)
         }
         
@@ -307,10 +316,7 @@ class ProductCell: UICollectionViewCell {
            let image = UIImage(contentsOfFile: product.localImagePath) {
             photoImageView.image = image
         } else {
-            // Показываем placeholder пока загружается изображение
             photoImageView.image = UIImage(named: "placeholderImage")
-            
-            // Загружаем изображение
             imageLoader.loadImage(from: product.imageURL) { [weak self] image, localPath in
                 DispatchQueue.main.async {
                     if let image = image {

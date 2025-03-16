@@ -603,13 +603,17 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
                     withReuseIdentifier: String(describing: ProductCell.self),
                     for: indexPath
                 ) as? ProductCell
-                cell?.configure(with: product.product)
+                
+                // Определяем, является ли секция Popular
+                let isPopularSection = Section(rawValue: indexPath.section) == .popular
+                
+                cell?.configure(with: product.product, isPopularSection: isPopularSection)
                 cell?.delegate = self
                 return cell
             }
         }
         
-        dataSource.supplementaryViewProvider = { collectionView, kind, indexPath in
+        dataSource.supplementaryViewProvider = { [weak self] collectionView, kind, indexPath in
             guard kind == UICollectionView.elementKindSectionHeader else { return nil }
             
             let header = collectionView.dequeueReusableSupplementaryView(
@@ -626,9 +630,15 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
                     self?.presenter.didTapSeeAllCategories()
                 }
             case .popular:
-                header?.configure(title: "Popular", showSeeAll: false)
+                header?.configure(title: "Popular", showSeeAll: true)
+                header?.seeAllTapped = { [weak self] in
+                    self?.presenter.didTapSeeAllPopular()
+                }
             case .justForYou:
-                header?.configure(title: "Just For You", showSeeAll: false)
+                header?.configure(title: "Just For You", showSeeAll: true)
+                header?.seeAllTapped = { [weak self] in
+                    self?.presenter.didTapSeeAllJustForYou()
+                }
             case .none:
                 break
             }

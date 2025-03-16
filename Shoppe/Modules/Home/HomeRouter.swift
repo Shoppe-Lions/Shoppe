@@ -14,6 +14,7 @@ protocol HomeRouterProtocol: AnyObject {
     func openAllCategories()
     func openProductDetail(with productId: Int, navigationController: HomeViewController?)
     func openCart(from viewController: HomeViewController)
+    func openWishlistViewController(with viewModel: PresentingControllerViewModel)
 }
 
 final class HomeRouter: HomeRouterProtocol {
@@ -94,6 +95,13 @@ final class HomeRouter: HomeRouterProtocol {
             UIView.animate(withDuration: 0.3) {
                 viewController.view.alpha = 1.0
             }
+        }
+    }
+    
+    func openWishlistViewController(with viewModel: PresentingControllerViewModel) {
+        if let sourceVC = view as? UIViewController {
+            let wishlistVC = WishlistRouter.createModule(viewModel: viewModel)
+            sourceVC.navigationController?.pushViewController(wishlistVC, animated: true)
         }
     }
 }

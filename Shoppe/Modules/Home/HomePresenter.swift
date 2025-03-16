@@ -17,6 +17,8 @@ protocol HomePresenterProtocol: AnyObject {
     func didTapSeeAllCategories()
     func didCurrencyUpdated()
     func refreshData()
+    func didTapSeeAllPopular()
+    func didTapSeeAllJustForYou()
 }
 
 class HomePresenter: HomePresenterProtocol {
@@ -34,7 +36,6 @@ class HomePresenter: HomePresenterProtocol {
     func viewDidLoad() {
         interactor.fetchCategories()
         interactor.fetchPopularProducts()
-        interactor.fetchJustForYouProducts()
     }
     
     func didSelectLocation(_ location: String) {
@@ -63,5 +64,21 @@ class HomePresenter: HomePresenterProtocol {
     
     func refreshData() {
         interactor.refreshRandomizedProducts()
+    }
+    
+    func didTapSeeAllPopular() {
+        let viewModel = PresentingControllerViewModel(
+            title: "Popular",
+            products: interactor.getPopularProducts()
+        )
+        router.openWishlistViewController(with: viewModel)
+    }
+    
+    func didTapSeeAllJustForYou() {
+        let viewModel = PresentingControllerViewModel(
+            title: "Just For You",
+            products: interactor.getJustForYouProducts()
+        )
+        router.openWishlistViewController(with: viewModel)
     }
 }
