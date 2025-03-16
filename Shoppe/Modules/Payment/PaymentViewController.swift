@@ -84,13 +84,12 @@ final class PaymentViewController: UIViewController, AnyPaymentView {
         updateShippingUI()
         
         presenter?.viewDidLoad()
-//        NotificationCenter.default.addObserver(self, selector: #selector(updateShippingAddress), name: .addressUpdated, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(shippingAddressUpdated), name: .addressUpdated, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(currencyUpdated), name: .currencyDidChange, object: nil)
     }
     
     deinit {
-//        NotificationCenter.default.removeObserver(self, name: .addressUpdated, object: nil)
-        NotificationCenter.default.removeObserver(self, name: .currencyDidChange, object: nil)
+        NotificationCenter.default.removeObserver(self)
     }
     
     // MARK: - UI Setup
@@ -176,6 +175,9 @@ final class PaymentViewController: UIViewController, AnyPaymentView {
         presenter?.viewDidLoad()
     }
     
+    @objc func shippingAddressUpdated() {
+        presenter?.updateShippingAddress()
+    }
     
 }
 
