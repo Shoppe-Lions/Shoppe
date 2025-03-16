@@ -23,6 +23,8 @@ final class WishlistRouter: WishlistRouterProtocol {
         
         view.presenter = presenter
         interactor.presenter = presenter
+        
+        view.title = viewModel.title
 
         return view
     }
