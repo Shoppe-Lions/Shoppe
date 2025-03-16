@@ -164,24 +164,48 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
-        if presenter != nil {
-            presenter.viewDidLoad()
-            // Обновляем locationLabel начальным значением
-            if let locationLabel = locationButton.viewWithTag(100) as? UILabel {
-                locationLabel.text = presenter.interactor.getSelectedCity()
-            }
+        presenter.viewDidLoad()
+        
+        // Добавляем наблюдателя за изменениями корзины
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(updateCartBadge(_:)),
+            name: .cartDidUpdate,
+            object: nil
+        )
+        
+        // Загружаем начальное состояние корзины
+        StorageCartManager.shared.loadCart { _ in }
+        
+        if let locationLabel = locationButton.viewWithTag(100) as? UILabel {
+            locationLabel.text = presenter.interactor.getSelectedCity()
         }
         
         NotificationCenter.default.addObserver(self, selector: #selector(currencyUpdated), name: .currencyDidChange, object: nil)
     }
     
     deinit {
+        NotificationCenter.default.removeObserver(self)
         NotificationCenter.default.removeObserver(self, name: .currencyDidChange, object: nil)
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        navigationController?.navigationBar.isHidden = true
+        
+        navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
+        navigationController?.navigationBar.shadowImage = UIImage()
+        navigationController?.navigationBar.isTranslucent = true
+        navigationController?.navigationBar.backgroundColor = .clear
+        
+        // Делаем navigationBar полностью прозрачным
+        navigationController?.navigationBar.alpha = 0
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        navigationController?.navigationBar.alpha = 1
+        navigationController?.navigationBar.setBackgroundImage(nil, for: .default)
+        navigationController?.navigationBar.shadowImage = nil
     }
     
     // MARK: - Private Methods
@@ -236,6 +260,7 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         topStackView.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(8)
             make.leading.trailing.equalToSuperview().inset(16)
+
             make.height.equalTo(36)
         }
         
@@ -264,14 +289,16 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         addressStackView.backgroundColor = .clear
         topStackView.backgroundColor = .clear
         customNavigationBar.backgroundColor = .white
+        
+        cartButton.addTarget(self, action: #selector(cartButtonTapped), for: .touchUpInside)
     }
     
     
     
     
     private func setupCollectionView() {
-        // Используем существующий метод createLayout вместо createCompositionalLayout
-        collectionView = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
+        let layout = createCompositionalLayout()
+        collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.backgroundColor = .white
         collectionView.delegate = self
         
@@ -306,15 +333,13 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
     
     
     // MARK: - Layout
-    private func createLayout() -> UICollectionViewLayout {
-        return UICollectionViewCompositionalLayout { [weak self] sectionIndex, _ in
-            guard let section = Section(rawValue: sectionIndex) else { 
-                return nil
-            }
+    private func createCompositionalLayout() -> UICollectionViewLayout {
+        return UICollectionViewCompositionalLayout { [weak self] (sectionIndex, layoutEnvironment) -> NSCollectionLayoutSection? in
+            guard let section = Section(rawValue: sectionIndex) else { return nil }
             
             switch section {
             case .categories:
-                return self?.createCategorySection()
+                return self?.createCategoriesSection()
             case .popular:
                 return self?.createPopularSection()
             case .justForYou:
@@ -323,7 +348,7 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         }
     }
     
-    private func createCategorySection() -> NSCollectionLayoutSection {
+    private func createCategoriesSection() -> NSCollectionLayoutSection {
         // Item
         let itemSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(0.5),
@@ -372,7 +397,7 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         // Group
         let groupSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(0.4),
-            heightDimension: .absolute(270)
+            heightDimension: .absolute(250)
         )
         let group = NSCollectionLayoutGroup.horizontal(
             layoutSize: groupSize,
@@ -386,14 +411,14 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         section.contentInsets = NSDirectionalEdgeInsets(
             top: 16,
             leading: 16,
-            bottom: 16,
-            trailing: 16
+            bottom: 0,
+            trailing: 8
         )
         
         // Header
         let headerSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
-            heightDimension: .estimated(44)
+            heightDimension: .absolute(44)
         )
         let header = NSCollectionLayoutBoundarySupplementaryItem(
             layoutSize: headerSize,
@@ -409,17 +434,21 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         // Item
         let itemSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(0.5),
-            heightDimension: .fractionalHeight(1.0)
+            heightDimension: .absolute(282)
         )
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
-        item.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 5, bottom: 5, trailing: 5)
         
         // Group
         let groupSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
-            heightDimension: .absolute(307)
+            heightDimension: .absolute(282)
         )
-        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
+        let group = NSCollectionLayoutGroup.horizontal(
+            layoutSize: groupSize,
+            subitem: item,
+            count: 2
+        )
+        group.interItemSpacing = .fixed(16) // Отступ между ячейками по горизонтали
         
         // Section
         let section = NSCollectionLayoutSection(group: group)
@@ -434,21 +463,29 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         // Header
         let headerSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
-            heightDimension: .estimated(44)
+            heightDimension: .absolute(44)
         )
         let header = NSCollectionLayoutBoundarySupplementaryItem(
             layoutSize: headerSize,
             elementKind: UICollectionView.elementKindSectionHeader,
             alignment: .top
         )
+        header.contentInsets = NSDirectionalEdgeInsets(
+            top: 8,
+            leading: 0,
+            bottom: 0,
+            trailing: 0
+        )
+        
         section.boundarySupplementaryItems = [header]
         
         return section
     }
     
     // MARK: - Actions
-    @objc private func cartTapped() {
-        // Handle cart tap
+    @objc private func cartButtonTapped() {
+        let cartVC = CartRouter.createModule()
+        navigationController?.pushViewController(cartVC, animated: true)
     }
     
     @objc func currencyUpdated() {
@@ -538,13 +575,17 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
                     withReuseIdentifier: String(describing: ProductCell.self),
                     for: indexPath
                 ) as? ProductCell
-                cell?.configure(with: product.product)
+                
+                // Определяем, является ли секция Popular
+                let isPopularSection = Section(rawValue: indexPath.section) == .popular
+                
+                cell?.configure(with: product.product, isPopularSection: isPopularSection)
                 cell?.delegate = self
                 return cell
             }
         }
         
-        dataSource.supplementaryViewProvider = { collectionView, kind, indexPath in
+        dataSource.supplementaryViewProvider = { [weak self] collectionView, kind, indexPath in
             guard kind == UICollectionView.elementKindSectionHeader else { return nil }
             
             let header = collectionView.dequeueReusableSupplementaryView(
@@ -561,113 +602,119 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
                     self?.presenter.didTapSeeAllCategories()
                 }
             case .popular:
-                header?.configure(title: "Popular", showSeeAll: false)
+                header?.configure(title: "Popular", showSeeAll: true)
+                header?.seeAllTapped = { [weak self] in
+                    self?.presenter.didTapSeeAllPopular()
+                }
             case .justForYou:
-                header?.configure(title: "Just For You", showSeeAll: false)
+                header?.configure(title: "Just For You", showSeeAll: true)
+                header?.seeAllTapped = { [weak self] in
+                    self?.presenter.didTapSeeAllJustForYou()
+                }
             case .none:
                 break
             }
             
             return header
-        }
-        
+    }
+    
         // Создаем начальный snapshot со всеми секциями
         var snapshot = NSDiffableDataSourceSnapshot<Section, ItemType>()
         snapshot.appendSections([.categories, .popular, .justForYou])
         dataSource.apply(snapshot, animatingDifferences: false)
     }
-
     
     
-    private func applyInitialSnapshot() {
-        var snapshot = NSDiffableDataSourceSnapshot<Section, ItemType>()
-        
-        let categories = [
-            ShopCategory(title: "Clothing", image: "testPhotoImage", itemCount: 109),
-            ShopCategory(title: "Shoes", image: "testPhotoImage", itemCount: 530),
-            ShopCategory(title: "Bags", image: "testPhotoImage", itemCount: 87),
-            ShopCategory(title: "Lingerie", image: "testPhotoImage", itemCount: 218),
-            ShopCategory(title: "Watch", image: "testPhotoImage", itemCount: 218),
-            ShopCategory(title: "Hoodies", image: "testPhotoImage", itemCount: 218)
-        ].map { ItemType.category($0) }
-        
-        let popularProducts = [
-            Product(id: 1,
-                   title: "Blue Sport Shoes",
-                   price: 17.00,
-                   description: "Comfortable sport shoes",
-                   category: "Shoes",
-                   imageURL: "testPhotoImage",
-                   rating: Rating(rate: 4.5, count: 120),
-                   subcategory: "Sport",
-                   like: false),
-            Product(id: 2,
-                   title: "Red Running Shoes",
-                   price: 32.00,
-                   description: "Professional running shoes",
-                   category: "Shoes",
-                    imageURL: "testPhotoImage",
-                   rating: Rating(rate: 4.8, count: 230),
-                   subcategory: "Running",
-                   like: false),
-            Product(id: 3,
-                   title: "White Sneakers",
-                   price: 21.00,
-                   description: "Casual sneakers",
-                   category: "Shoes",
-                    imageURL: "testPhotoImage",
-                   rating: Rating(rate: 4.3, count: 180),
-                   subcategory: "Casual",
-                   like: false)
-        ].map { ItemType.product(HashableProduct(product: $0)) }
-        
-        let justForYouProducts = [
-            Product(id: 4,
-                   title: "Sunglasses",
-                   price: 17.00,
-                   description: "Stylish sunglasses",
-                   category: "Accessories",
-                    imageURL: "testPhotoImage",
-                   rating: Rating(rate: 4.2, count: 95),
-                   subcategory: "Eyewear",
-                   like: false),
-            Product(id: 5,
-                   title: "Summer Hat",
-                   price: 17.00,
-                   description: "Beach hat",
-                   category: "Accessories",
-                    imageURL: "testPhotoImage",
-                   rating: Rating(rate: 4.0, count: 150),
-                   subcategory: "Hats",
-                   like: false),
-            Product(id: 6,
-                   title: "Beach Bag",
-                   price: 17.00,
-                   description: "Large beach bag",
-                   category: "Bags",
-                    imageURL: "testPhotoImage",
-                   rating: Rating(rate: 4.6, count: 210),
-                   subcategory: "Beach",
-                   like: false),
-            Product(id: 7,
-                   title: "Sandals",
-                   price: 17.00,
-                   description: "Summer sandals",
-                   category: "Shoes",
-                    imageURL: "testPhotoImage",
-                   rating: Rating(rate: 4.4, count: 175),
-                   subcategory: "Summer",
-                   like: false)
-        ].map { ItemType.product(HashableProduct(product: $0)) }
-        
-        let sections: [Section] = [.categories, .popular, .justForYou]
-        snapshot.appendSections(sections)
-        snapshot.appendItems(categories, toSection: .categories)
-        snapshot.appendItems(popularProducts, toSection: .popular)
-        snapshot.appendItems(justForYouProducts, toSection: .justForYou)
-        
-        dataSource.apply(snapshot, animatingDifferences: false)
-    }
+    
+//    private func applyInitialSnapshot() {
+//        var snapshot = NSDiffableDataSourceSnapshot<Section, ItemType>()
+//        
+//        let categories = [
+//            ShopCategory(title: "Clothing", image: "testPhotoImage", itemCount: 109),
+//            ShopCategory(title: "Shoes", image: "testPhotoImage", itemCount: 530),
+//            ShopCategory(title: "Bags", image: "testPhotoImage", itemCount: 87),
+//            ShopCategory(title: "Lingerie", image: "testPhotoImage", itemCount: 218),
+//            ShopCategory(title: "Watch", image: "testPhotoImage", itemCount: 218),
+//            ShopCategory(title: "Hoodies", image: "testPhotoImage", itemCount: 218)
+//        ].map { ItemType.category($0) }
+//        
+//        let popularProducts = [
+//            Product(id: 1,
+//                   title: "Blue Sport Shoes",
+//                   price: 17.00,
+//                   description: "Comfortable sport shoes",
+//                   category: "Shoes",
+//                   imageURL: "testPhotoImage",
+//                   rating: Rating(rate: 4.5, count: 120),
+//                   subcategory: "Sport",
+//                   like: false),
+//            Product(id: 2,
+//                   title: "Red Running Shoes",
+//                   price: 32.00,
+//                   description: "Professional running shoes",
+//                   category: "Shoes",
+//                    imageURL: "testPhotoImage",
+//                   rating: Rating(rate: 4.8, count: 230),
+//                   subcategory: "Running",
+//                   like: false),
+//            Product(id: 3,
+//                   title: "White Sneakers",
+//                   price: 21.00,
+//                   description: "Casual sneakers",
+//                   category: "Shoes",
+//                    imageURL: "testPhotoImage",
+//                   rating: Rating(rate: 4.3, count: 180),
+//                   subcategory: "Casual",
+//                   like: false)
+//        ].map { ItemType.product(HashableProduct(product: $0)) }
+//        
+//        let justForYouProducts = [
+//            Product(id: 4,
+//                   title: "Sunglasses",
+//                   price: 17.00,
+//                   description: "Stylish sunglasses",
+//                   category: "Accessories",
+//                    imageURL: "testPhotoImage",
+//                   rating: Rating(rate: 4.2, count: 95),
+//                   subcategory: "Eyewear",
+//                   like: false),
+//            Product(id: 5,
+//                   title: "Summer Hat",
+//                   price: 17.00,
+//                   description: "Beach hat",
+//                   category: "Accessories",
+//                    imageURL: "testPhotoImage",
+//                   rating: Rating(rate: 4.0, count: 150),
+//                   subcategory: "Hats",
+//                   like: false),
+//            Product(id: 6,
+//                   title: "Beach Bag",
+//                   price: 17.00,
+//                   description: "Large beach bag",
+//                   category: "Bags",
+//                    imageURL: "testPhotoImage",
+//                   rating: Rating(rate: 4.6, count: 210),
+//                   subcategory: "Beach",
+//                   like: false),
+//            Product(id: 7,
+//                   title: "Sandals",
+//                   price: 17.00,
+//                   description: "Summer sandals",
+//                   category: "Shoes",
+//                    imageURL: "testPhotoImage",
+//                   rating: Rating(rate: 4.4, count: 175),
+//                   subcategory: "Summer",
+//                   like: false)
+//        ].map { ItemType.product(HashableProduct(product: $0)) }
+//        
+//        let sections: [Section] = [.categories, .popular, .justForYou]
+//        snapshot.appendSections(sections)
+//        snapshot.appendItems(categories, toSection: .categories)
+//        snapshot.appendItems(popularProducts, toSection: .popular)
+//        snapshot.appendItems(justForYouProducts, toSection: .justForYou)
+//        
+//        dataSource.apply(snapshot, animatingDifferences: false)
+//    }
     
     // MARK: - UITableViewDataSource
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -699,6 +746,13 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
     // Добавим метод для обновления данных
     @objc private func refreshData() {
         presenter.refreshData()
+    }
+    
+    @objc private func updateCartBadge(_ notification: Notification) {
+        if let count = notification.userInfo?["count"] as? Int {
+            cartBadgeLabel.text = "\(count)"
+            cartBadgeLabel.isHidden = count == 0
+        }
     }
 }
 
@@ -847,55 +901,36 @@ extension HomeViewController: HomeViewProtocol {
 
 extension HomeViewController: ProductCellDelegate {
     func didTapWishlistButton(for product: Product) {
-        // Обновляем статус в API
         presenter.interactor.toggleWishlistStatus(for: product)
         
         // Обновляем UI
         var updatedProduct = product
         updatedProduct.like.toggle()
         
-        var snapshot = dataSource.snapshot()
-        
-        // Находим все секции, где может быть этот продукт
+        // Находим и обновляем ячейку в каждой секции
         let sectionsToCheck: [Section] = [.popular, .justForYou]
         
         for section in sectionsToCheck {
-            // Получаем items из секции
-            let items = snapshot.itemIdentifiers(inSection: section)
-            
-            // Ищем продукт в секции
-            if let index = items.firstIndex(where: { item in
-                if case .product(let p) = item, p.product.id == product.id {
-                    return true
-                }
-                return false
-            }) {
-                // Обновляем продукт в этой секции
-                let oldItem = items[index]
-                snapshot.deleteItems([oldItem])
-                let newItem = ItemType.product(HashableProduct(product: updatedProduct))
-                
-                // Вставляем обновленный item на то же место
-                if index == items.count - 1 {
-                    snapshot.appendItems([newItem], toSection: section)
-                } else {
-                    let nextItem = items[index + 1]
-                    snapshot.insertItems([newItem], beforeItem: nextItem)
-                }
-                
-                // Находим индекс ячейки в коллекции и обновляем её
-                if let indexPath = collectionView.indexPathsForVisibleItems.first(where: { 
-                    $0.section == section.rawValue && 
-                    $0.item == index 
-                }) {
-                    if let cell = collectionView.cellForItem(at: indexPath) as? ProductCell {
-                        cell.configure(with: updatedProduct)
-                    }
-                }
+            if let indexPath = findIndexPath(for: product.id, in: section),
+               let cell = collectionView.cellForItem(at: indexPath) as? ProductCell {
+                cell.configure(with: updatedProduct, isPopularSection: section == .popular)
             }
         }
+    }
+    
+    private func findIndexPath(for productId: Int, in section: Section) -> IndexPath? {
+        guard let snapshot = dataSource?.snapshot() else { return nil }
+        let items = snapshot.itemIdentifiers(inSection: section)
         
-        dataSource.apply(snapshot, animatingDifferences: true)
+        if let index = items.firstIndex(where: { item in
+            if case .product(let p) = item, p.product.id == productId {
+                return true
+            }
+            return false
+        }) {
+            return IndexPath(item: index, section: section.rawValue)
+        }
+        return nil
     }
 }
 

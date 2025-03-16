@@ -141,16 +141,15 @@ extension WishlistViewController: UICollectionViewDelegate, UICollectionViewData
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ProductCell.identifier, for: indexPath) as? ProductCell else {
-            return UICollectionViewCell()
-        }
-        guard let presenter = presenter,
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ProductCell.identifier, for: indexPath) as? ProductCell,
+              let presenter = presenter,
               indexPath.row < presenter.products.count
         else {
             return UICollectionViewCell()
         }
-        let product = presenter.products[indexPath.row] //[safe: indexPath.row]
-        cell.configure(with: product)
+        
+        let product = presenter.products[indexPath.row]
+        cell.configure(with: product, isPopularSection: false)
         cell.delegate = self
         return cell
     }
