@@ -420,7 +420,7 @@ extension AuthViewController {
     
     func setLoginConstraints() {
         label.snp.makeConstraints { make in
-            make.centerY.centerY.equalToSuperview().offset(-PLayout.horizontalPadding*2)
+            make.bottom.equalTo(emailTextField.snp.top).offset(-PLayout.horizontalPadding*3)
             make.leading.equalToSuperview().offset(PLayout.horizontalPadding)
         }
         

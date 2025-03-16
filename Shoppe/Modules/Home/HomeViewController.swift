@@ -20,7 +20,12 @@ protocol HomeViewProtocol: AnyObject {
     func endRefreshing()
 }
 
-class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, FakeSearchViewDelegate {
+   
+    func didTapSearch() { //это роутер должен сделать
+        let vc = SearchResultsRouter.createModule(viewModel: PresentingControllerViewModel(title: "Shop", products: presenter?.products))
+        navigationController?.pushViewController(vc, animated: true)
+    }
     
     // MARK: - VIPER
     var presenter: HomePresenterProtocol!
@@ -114,34 +119,7 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         return label
     }()
     
-    private let titleLabel: UILabel = {
-        let label = UILabel()
-        label.text = "Shop"
-        label.font = UIFont(name: Fonts.Raleway.bold, size: 28)
-        label.textColor = .black
-        label.setContentHuggingPriority(.required, for: .horizontal)
-        label.setContentCompressionResistancePriority(.required, for: .horizontal)
-        return label
-    }()
-    
-    private let searchContainer: UIView = {
-        let view = UIView()
-        view.backgroundColor = .systemGray6
-        view.layer.cornerRadius = 20
-        view.clipsToBounds = true
-        return view
-    }()
-    
-    private let searchTextField: UITextField = {
-        let textField = UITextField()
-        textField.placeholder = "Search"
-        textField.font = UIFont(name: Fonts.Raleway.regular, size: 16)
-        textField.borderStyle = .none
-        textField.backgroundColor = .clear
-        textField.returnKeyType = .search
-        textField.textColor = .black
-        return textField
-    }()
+    private var searchView: SearchView =  SearchView()
     
     private var collectionView: UICollectionView!
     
@@ -233,12 +211,18 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
     // MARK: - Private Methods
     private func setupUI() {
         view.backgroundColor = .systemBackground
+        setupSearchView()
         setupCustomNavigationBar()
         setupCollectionView()
         configureDataSource()
     }
     
     // MARK: - Setup
+    private func setupSearchView() {
+        searchView = SearchView(title: "Shop")
+        searchView.fakeSearchViewDelegate = self
+    }
+    
     private func setupCustomNavigationBar() {
         view.addSubview(customNavigationBar)
     
@@ -264,16 +248,12 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         
         // Настраиваем верхний стек
         customNavigationBar.addSubview(topStackView)
-        customNavigationBar.addSubview(bottomStackView)
+        customNavigationBar.addSubview(searchView)
         
         topStackView.addArrangedSubview(addressStackView)
         topStackView.addArrangedSubview(cartButton)
         cartButton.addSubview(cartBadgeLabel)
         
-        // Настраиваем нижний стек
-        bottomStackView.addSubview(titleLabel)
-        bottomStackView.addSubview(searchContainer)
-        searchContainer.addSubview(searchTextField)
         
         // Настраиваем констрейнты для customNavigationBar
         customNavigationBar.snp.makeConstraints { make in
@@ -307,25 +287,6 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
             make.width.height.equalTo(14)
         }
         
-        // Обновим констрейнты для titleLabel
-        titleLabel.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(16)
-            make.height.equalTo(40)
-        }
-        
-        // Обновим констрейнты для searchContainer
-        searchContainer.snp.makeConstraints { make in
-            make.top.equalTo(titleLabel.snp.top)
-            make.leading.equalTo(titleLabel.snp.trailing).offset(13)
-            make.trailing.equalToSuperview().offset(0)
-            make.height.equalTo(40)
-        }
-        
-        // Обновим констрейнты для searchTextField
-        searchTextField.snp.makeConstraints { make in
-            make.edges.equalToSuperview().inset(UIEdgeInsets(top: 0, left: 13, bottom: 0, right: 13))
-        }
-        
         // Обновим констрейнты для collectionView
         collectionView?.snp.remakeConstraints { make in
             make.top.equalTo(customNavigationBar.snp.bottom)
@@ -337,7 +298,7 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
             make.top.equalTo(topStackView.snp.bottom).offset(8) // уменьшаем отступ
             make.leading.equalToSuperview().offset(13)
             make.trailing.equalToSuperview().offset(-13)
-            make.height.equalTo(30)
+            make.height.equalTo(36)
         }
         
         // Для отладки добавим цвета фона
@@ -780,11 +741,10 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "LocationCell", for: indexPath) as! LocationCell
         let cities = presenter.interactor.getAvailableCities()
-        let selectedCity = presenter.interactor.getSelectedCity()
+        let selectedCity = presenter.interactor.getSelectedCity()//
         
         let city = cities[indexPath.row]
-        cell.configure(with: city, isSelected: city == selectedCity)
-        
+        cell.configure(with: city, isSelected: city == selectedCity)        
         return cell
     }
     

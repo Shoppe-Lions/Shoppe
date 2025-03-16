@@ -8,32 +8,20 @@
 import UIKit
 
 // TODO:
-    // 1. отрисовать searchBar в соответствии с дизайном
     // 2. разобраться с обновлением базового контроллера после проставления лайков
-    // 3. реализовать добавление в карзину на экране поиска (метод делегата?)
     // 4. рефакторинг - константы, магические числа, вопросы с архитектурой для этого экрана (Viper, delegate)
-
-// todo: remove global constants
-let historyCellId = "HistoryCell"
-let wishlistProductCellId = "WishlistProductCell"
-
-protocol SearchResultsControllerDelegate: AnyObject {
-    func updateSearchBar(with text: String)
-   // func updateData()
-}
 
 protocol SearchResultsViewProtocol: AnyObject {
     func reloadData()
     func reloadHistory()
-    var delegate: SearchResultsControllerDelegate? { get set } //?
 }
 
 class SearchResultsController: UIViewController {
     
     // MARK: Properties
-    weak var delegate: SearchResultsControllerDelegate?
     var presenter: SearchResultsPresenterProtocol?
-        
+    private var searchView: SearchView =  SearchView()
+    
     private let searchHistoryLabel: UILabel = {
         let label = UILabel()
         label.text = "Search history"
@@ -77,6 +65,7 @@ class SearchResultsController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupSearchView()
         setupUI()
         deleteSearchHistoryButton.addTarget(
             self,
@@ -85,10 +74,30 @@ class SearchResultsController: UIViewController {
         )
         presenter?.loadHistory()
         historyCollectionView.reloadData()
+        searchView.setFirstResponder()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.navigationBar.isHidden = false
+    }
+    
+    private func setupSearchView() {
+        searchView = SearchView(title: presenter?.getTitle())
+        searchView.delegate = self
+        searchView.setupReal()
     }
     
     private func setupUI() {
         view.backgroundColor = .white
+        
+        view.addSubview(searchView)
+        
+        view.addSubview(collectionView)
+        collectionView.dataSource = self
+        collectionView.delegate = self
+        collectionView.register(ProductCell.self, forCellWithReuseIdentifier: ProductCell.identifier)
+        
         view.addSubview(historyLabelContainerView)
         historyLabelContainerView.addSubview(searchHistoryLabel)
         historyLabelContainerView.addSubview(deleteSearchHistoryButton)
@@ -96,16 +105,17 @@ class SearchResultsController: UIViewController {
         view.addSubview(historyCollectionView)
         historyCollectionView.dataSource = self
         historyCollectionView.delegate = self
-        historyCollectionView.register(HistoryCell.self, forCellWithReuseIdentifier: historyCellId)
+        historyCollectionView.register(HistoryCell.self, forCellWithReuseIdentifier: HistoryCell.reuseIdentifier)
         
-        view.addSubview(collectionView)
-        collectionView.dataSource = self
-        collectionView.delegate = self
-        collectionView.register(ProductCell.self, forCellWithReuseIdentifier: ProductCell.identifier)
+        searchView.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(20)
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top).inset(20)
+            make.height.equalTo(36)
+        }
         
         historyLabelContainerView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(20)
-            make.top.equalTo(view.safeAreaLayoutGuide.snp.top).inset(20)
+            make.top.equalTo(searchView.snp.bottom).inset(-20)
             make.height.equalTo(35)
         }
         
@@ -127,7 +137,8 @@ class SearchResultsController: UIViewController {
         }
         
         collectionView.snp.makeConstraints { make in
-            make.leading.trailing.top.bottom.equalToSuperview()
+            make.leading.trailing.bottom.equalToSuperview()
+            make.top.equalTo(searchView.snp.bottom)
         }
     }
     
@@ -165,12 +176,28 @@ private extension SearchResultsController {
     }
 }
 
+extension SearchResultsController: SearchViewDelegate {
+    func didChangeSearchText(_ text: String?) {
+        updateSearchResults(for: text)
+    }
+    
+    func searchButtonClicked(_ text: String?) {
+        updateSearchResults(for: text)
+        saveSearchQuery(text)
+    }
+    
+    private func saveSearchQuery(_ text: String?) {
+        guard let query = text, !query.isEmpty else { return }
+        presenter?.didSaveSearchQuery(query)
+    }
+}
 
-extension SearchResultsController: UISearchResultsUpdating {
-    public func updateSearchResults(for searchController: UISearchController) {
+
+extension SearchResultsController {
+    func updateSearchResults(for queryText: String?) {
         // todo: refactor this method
         // если текст не существует или он пустой, то показываем историю и выходим
-        guard let query = searchController.searchBar.text, !query.isEmpty else {
+        guard let query = queryText, !query.isEmpty else {
             hideProductsCollectionView()
             // если история поиска пустая, то не показываем историю
             if let searchHistoryIsEmpty = presenter?.getSearchHistory().isEmpty, searchHistoryIsEmpty {
@@ -183,20 +210,9 @@ extension SearchResultsController: UISearchResultsUpdating {
         }
         // а если что-то начали печатать, то начинаем искать, прячем историю и показываем товары
         presenter?.didFilterProducts(with: query)
+        hideHistory()
         showProductsCollectionView()
         collectionView.reloadData()
-    }
-}
-
-extension SearchResultsController: UISearchBarDelegate {
-    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        guard let query = searchBar.text, !query.isEmpty else { return }
-        saveSearchQuery(query)
-        searchBar.resignFirstResponder()
-    }
-    
-    private func saveSearchQuery(_ query: String) {
-        presenter?.didSaveSearchQuery(query)
     }
 }
 
@@ -204,9 +220,8 @@ extension SearchResultsController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if collectionView == self.historyCollectionView {
             let selectedQuery = presenter?.getSearchHistory()[indexPath.row] ?? "" //!
-            delegate?.updateSearchBar(with: selectedQuery)
+            searchView.updateSearchBar(with: selectedQuery)
         } else {
-            // todo: open detail
             guard let presenter = presenter,
                   indexPath.row < presenter.filteredProducts.count
             else {
@@ -230,7 +245,7 @@ extension SearchResultsController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if collectionView == self.historyCollectionView {
             let cell = collectionView.dequeueReusableCell(
-                withReuseIdentifier: historyCellId,
+                withReuseIdentifier: HistoryCell.reuseIdentifier,
                 for: indexPath
             ) as! HistoryCell // force
             let query = presenter?.getSearchHistory()[indexPath.row] ?? "" // !

@@ -11,6 +11,7 @@ class AddressesViewController: UIViewController {
     var addresses: [AddressModel] = []
     let tableView = UITableView()
     let userId = "currentUserId"
+    var onAddressSelected: ((AddressModel) -> Void)?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -69,7 +70,9 @@ extension AddressesViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let selectedAddress = addresses[indexPath.row]
         guard selectedAddress.isDefault == false else {
-            dismiss(animated: true, completion: nil)
+            dismiss(animated: true) { [weak self] in
+                self?.onAddressSelected?(selectedAddress)
+            }
             return
         }
 
@@ -87,7 +90,9 @@ extension AddressesViewController: UITableViewDataSource, UITableViewDelegate {
 
         group.notify(queue: .main) { [weak self] in
             self?.tableView.reloadData()
-            self?.dismiss(animated: true, completion: nil)
+            self?.dismiss(animated: true) { [weak self] in
+                self?.onAddressSelected?(selectedAddress) 
+            }
         }
     }
 

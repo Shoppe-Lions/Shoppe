@@ -11,9 +11,9 @@ import SnapKit
 protocol AnyPaymentView: AnyObject {
     var presenter: AnyPaymentPresenter? { get set }
     var shippingType: shippingType { get set }
-    func setupItems(with items:[CartItem])
     func updateTotalPrice(with total: String)
     func updateDeliveryDate(date: String)
+    func updateShippingAddress(address: String)
     func showAlert()
     func dismissAlert()
     func showEditAddressAlert()
@@ -22,6 +22,8 @@ protocol AnyPaymentView: AnyObject {
     func dismissEditContactsAlert()
     func showVoucherAlert()
     func dismissVoucherAlert()
+    func updateItems(with items: [CartItem])
+    func updatedShippingCurrency()
 }
 
 final class PaymentViewController: UIViewController, AnyPaymentView {
@@ -81,6 +83,11 @@ final class PaymentViewController: UIViewController, AnyPaymentView {
         updateShippingUI()
         
         presenter?.viewDidLoad()
+        NotificationCenter.default.addObserver(self, selector: #selector(currencyUpdated), name: .currencyDidChange, object: nil)
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self, name: .currencyDidChange, object: nil)
     }
     
     // MARK: - UI Setup
@@ -111,7 +118,7 @@ final class PaymentViewController: UIViewController, AnyPaymentView {
         shippingExpress.button.addTarget(self, action: #selector(didSelectDelivery), for: .touchUpInside)
         totalView.button.addTarget(self, action: #selector(didShowPaymentAlert), for: .touchUpInside)
         alertView.button.addTarget(self, action: #selector(didDismissPaymentAlert), for: .touchUpInside)
-        shippingDetails.editButton.addTarget(self, action: #selector(didShowEditAddress), for: .touchUpInside)
+        shippingDetails.editButton.addTarget(self, action: #selector(didEditAddressTapped), for: .touchUpInside)
         editAddressView.button.addTarget(self, action: #selector(didDismissEditAddressAlert), for: .touchUpInside)
         deliveryDetails.editButton.addTarget(self, action: #selector(didShowEditContacts), for: .touchUpInside)
         editContactsView.button.addTarget(self, action: #selector(didDismissEditContactsAlert), for: .touchUpInside)
@@ -158,6 +165,14 @@ final class PaymentViewController: UIViewController, AnyPaymentView {
         presenter?.viewDidDismissVoucherAlert()
     }
     
+    @objc func didEditAddressTapped() {
+        presenter?.viewDidEditAddressTapped()
+    }
+    
+    @objc func currencyUpdated() {
+        presenter?.viewDidLoad()
+    }
+    
     
 }
 
@@ -174,13 +189,21 @@ extension PaymentViewController {
         self.navigationController?.navigationBar.titleTextAttributes = attributes
     }
     
-    func setupItems(with items:[CartItem]) {
+    func updateItems(with items: [CartItem]) {
+        if !itemsStackView.arrangedSubviews.isEmpty {
+            for subview in itemsStackView.arrangedSubviews {
+                itemsStackView.removeArrangedSubview(subview)
+                subview.removeFromSuperview()
+            }
+        }
+
         for item in items {
             let itemView = ItemView(item: item)
             itemsStackView.addArrangedSubview(itemView)
         }
         
         itemsNumber.number = items.count
+        view.layoutIfNeeded()
     }
     
     func updateShippingUI() {
@@ -195,6 +218,10 @@ extension PaymentViewController {
     
     func updateDeliveryDate(date: String) {
         shippingDescription.text = "Delivered on or before \(date)"
+    }
+    
+    func updateShippingAddress(address: String) {
+        shippingDetails.addressLabel.text = address
     }
     
     func showAlert() {
@@ -227,6 +254,10 @@ extension PaymentViewController {
     
     func dismissVoucherAlert() {
         addVoucherView.dismiss()
+    }
+    
+    func updatedShippingCurrency() {
+        shippingExpress.setPrice()
     }
 }
 

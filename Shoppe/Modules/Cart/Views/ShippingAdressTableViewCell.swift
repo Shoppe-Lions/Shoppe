@@ -7,8 +7,11 @@
 
 import UIKit
 import SnapKit
+import FirebaseAuth
 
 final class ShippingAdressTableViewCell: UITableViewCell {
+  
+    weak var parentViewController: UIViewController?
     // MARK: - UI
     private lazy var shippingAdressSV: UIStackView = {
         let element = UIStackView()
@@ -38,15 +41,16 @@ final class ShippingAdressTableViewCell: UITableViewCell {
     
     private lazy var detailsAdressLabel: UILabel = {
         let element = UILabel()
-        element.text = "26, Duong So 2, Thao Dien Ward, An Phu, District 2, Ho Chi Minh city"
+        element.text = "26, Duong So 2, Thao Dien Ward, An Phu"
+        element.font = UIFont(name: Fonts.NunitoSans.regular, size: 14)
         element.numberOfLines = 0
-        element.font = UIFont(name: Fonts.NunitoSans.regular, size: 10)
         return element
     }()
     
     private lazy var editButton: UIButton = {
         let element = UIButton(type: .custom)
         element.setImage(UIImage(named: "EditButton"), for: .normal)
+        element.addTarget(self, action: #selector(editAddressButtonTapped), for: .touchUpInside)
         return element
     }()
     
@@ -61,7 +65,41 @@ final class ShippingAdressTableViewCell: UITableViewCell {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+  
+    // MARK: - Action
+    @objc private func editAddressButtonTapped() {
+        guard let parentVC = parentViewController else {
+            print("UIViewController не найден")
+            return
+        }
+        
+        let addressesVC = AddressesViewController()
+        addressesVC.onAddressSelected = { [weak self] selectedAddress in
+            self?.updateAddress(with: selectedAddress)
+        }
+        
+        let nav = UINavigationController(rootViewController: addressesVC)
+        nav.modalPresentationStyle = .pageSheet
+        
+        if let sheet = nav.sheetPresentationController {
+            let customDetent = UISheetPresentationController.Detent.custom { context in
+                return context.maximumDetentValue * 0.3
+            }
+            sheet.detents = [customDetent]
+        }
+        
+        parentVC.present(nav, animated: true)
+    }
+    
+    func updateAddress(with address: AddressModel?) {
+        if let address = address {
+            detailsAdressLabel.text = "\(address.zipCode), \(address.city), \(address.street), \(address.houseNumber)"
+        } else {
+            detailsAdressLabel.text = "No shipping address added"
+        }
+    }
 }
+
 
 private extension ShippingAdressTableViewCell {
     func setupViews() {

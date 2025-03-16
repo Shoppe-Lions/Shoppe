@@ -29,7 +29,7 @@ class DetailsView: UIView {
     lazy var addressLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "26, Duong So 2, Thao Dien Ward, An Phu, District 2, Ho Chi Minh city"
+        //label.text = "26, Duong So 2, Thao Dien Ward, An Phu, District 2, Ho Chi Minh city"
         label.font = UIFont(name: "NunitoSans10pt-Regular", size: PFontSize.small)
         label.textAlignment = .left
         label.numberOfLines = 0
