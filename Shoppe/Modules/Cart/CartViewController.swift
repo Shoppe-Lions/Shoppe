@@ -162,16 +162,18 @@ final class CartViewController: UIViewController {
                     self?.updateShippingAddressCell(with: address)
                 } else if let errorMessage = errorMessage {
                     print(errorMessage)
+                    self?.updateShippingAddressCell(with: nil)
                 }
             }
         } else {
             print("Пользователь не авторизован")
+            self.updateShippingAddressCell(with: nil)
         }
     }
     
-    private func updateShippingAddressCell(with address: AddressModel) {
+    private func updateShippingAddressCell(with address: AddressModel?) {
         if let cell = cartTableView.cellForRow(at: IndexPath(row: 0, section: 0)) as? ShippingAdressTableViewCell {
-            cell.updateAddress(with: address)
+            cell.updateAddress(with: address) 
         }
     }
 }
