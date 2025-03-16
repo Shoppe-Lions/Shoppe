@@ -11,8 +11,6 @@ import UIKit
 protocol WishlistViewProtocol: AnyObject {
     func reloadData()
     func hideLoadingIndicator() //?
-    func setupSearchController() // !
-    func updateCell(at index: Int) // Добавляем новый метод
 }
 
 final class WishlistViewController: UIViewController {
@@ -142,15 +140,16 @@ extension WishlistViewController: UICollectionViewDelegate, UICollectionViewData
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ProductCell.identifier, for: indexPath) as? ProductCell,
-              let presenter = presenter,
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ProductCell.identifier, for: indexPath) as? ProductCell else {
+            return UICollectionViewCell()
+        }
+        guard let presenter = presenter,
               indexPath.row < presenter.products.count
         else {
             return UICollectionViewCell()
         }
-        
-        let product = presenter.products[indexPath.row]
-        cell.configure(with: product, isPopularSection: false)
+        let product = presenter.products[indexPath.row] //[safe: indexPath.row]
+        cell.configure(with: product)
         cell.delegate = self
         return cell
     }
@@ -181,30 +180,6 @@ extension WishlistViewController: WishlistViewProtocol {
     func hideLoadingIndicator() {
         activityIndicator.stopAnimating()
         collectionView.isHidden = false
-    }
-    // setup search controller
-    func setupSearchController() {
-        guard let presenter = presenter else {
-            print("presenter is nil")
-            return
-        }
-        searchResultsController = SearchResultsRouter.createModule(products: presenter.products) as? SearchResultsController
-        searchResultsController!.delegate = self //!
-        searchController = UISearchController(searchResultsController: searchResultsController)
-        searchController?.searchResultsUpdater = searchResultsController
-        searchController?.searchBar.placeholder = "Search"
-        searchController?.searchBar.delegate = searchResultsController
-        searchController?.showsSearchResultsController = true
-        navigationItem.hidesSearchBarWhenScrolling = false
-        navigationItem.searchController = searchController
-    }
-    
-    func updateCell(at index: Int) {
-        let indexPath = IndexPath(item: index, section: 0)
-        if let cell = collectionView.cellForItem(at: indexPath) as? ProductCell,
-           let product = presenter?.products[index] {
-            cell.configure(with: product, isPopularSection: false)
-        }
     }
 }
 

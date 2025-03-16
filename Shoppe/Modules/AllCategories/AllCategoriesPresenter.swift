@@ -12,7 +12,6 @@ protocol AllCategoriesPresenterProtocol: AnyObject {
     func didFetchCategories(_ categories: [Category])
     func fetchSelectedSubcategory(_ selectedSucategory: String)
     func goToShop(_ products: [Product])
-    func getTitle() -> String
 }
 
 class AllCategoriesPresenter: AllCategoriesPresenterProtocol {
@@ -32,8 +31,6 @@ class AllCategoriesPresenter: AllCategoriesPresenterProtocol {
         interactor.fetchCategories()
     }
     
-    
-    
     func didFetchCategories(_ categories: [Category]) {
         view?.showCategories(categories)
     }
@@ -44,9 +41,5 @@ class AllCategoriesPresenter: AllCategoriesPresenterProtocol {
     
     func goToShop(_ products: [Product]) {
         router.showShopViewController(products)
-    }
-    
-    func getTitle() -> String {
-        return "All Categories"
     }
 }

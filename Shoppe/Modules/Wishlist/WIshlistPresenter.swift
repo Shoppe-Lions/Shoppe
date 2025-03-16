@@ -71,8 +71,8 @@ final class WishlistPresenter: WishlistPresenterProtocol {
         interactor.toggleWishlistStatus(for: product)
         if let index = products.firstIndex(where: { $0.id == product.id }) {
             products[index].like.toggle()
-            view?.updateCell(at: index)
         }
+        view?.reloadData()
     }
     
     func didPullToRefresh() {

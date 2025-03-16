@@ -8,10 +8,6 @@ import Foundation
 import FirebaseFirestore
 import FirebaseAuth
 
-extension Notification.Name {
-    static let cartDidUpdate = Notification.Name("cartDidUpdate")
-}
-
 final class StorageCartManager {
     static let shared = StorageCartManager()
     private let db = Firestore.firestore()
@@ -45,11 +41,8 @@ final class StorageCartManager {
                 }
                 return nil
             }
-            
+
             completion(cartItems)
-            // Отправляем уведомление с общим количеством товаров
-            let totalItems = cartItems.reduce(0) { $0 + $1.quantity }
-            NotificationCenter.default.post(name: .cartDidUpdate, object: nil, userInfo: ["count": totalItems])
         }
     }
 

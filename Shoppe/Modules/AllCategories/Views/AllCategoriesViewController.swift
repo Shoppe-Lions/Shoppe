@@ -14,13 +14,20 @@ class AllCategoriesViewController: UIViewController {
     
     // MARK: - UI
     
-//    private lazy var closeButton: UIButton = {
-//        let element = UIButton(type: .system)
-//        element.setImage(UIImage(systemName: "xmark"), for: .normal)
-//        element.tintColor = .customBlack
-//        element.addTarget(self, action: #selector(didTapClose), for: .touchUpInside)
-//        return element
-//    }()
+    private lazy var titleLabel: UILabel = {
+        let element = UILabel()
+        element.text = "All Categories"
+        element.font = UIFont(name: Fonts.Raleway.bold, size: ACFontSize.title)
+        return element
+    }()
+    
+    private lazy var closeButton: UIButton = {
+        let element = UIButton(type: .system)
+        element.setImage(UIImage(systemName: "xmark"), for: .normal)
+        element.tintColor = .customBlack
+        element.addTarget(self, action: #selector(didTapClose), for: .touchUpInside)
+        return element
+    }()
     
     private lazy var categoriesTableView: UITableView = {
         let element = UITableView()
@@ -52,40 +59,42 @@ class AllCategoriesViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         presenter.viewDidLoad()
-        setupNavigationBar()
         setViews()
         setConstraints()
     }
     
-    private func setViews() {
-//        view.addSubview(closeButton)
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.navigationBar.isHidden = true
+    }
+}
+
+// MARK: - Set UI
+
+private extension AllCategoriesViewController {
+    
+    func setViews() {
+        view.addSubview(titleLabel)
+        view.addSubview(closeButton)
         view.addSubview(categoriesTableView)
     }
     
-    private func setConstraints() {
-//        closeButton.snp.makeConstraints { make in
-//            make.centerY.equalTo(view.safeAreaLayoutGuide.snp.top)
-//            make.trailing.equalToSuperview().inset(ACLayout.AllCategoriesViewController.sideInset)
-//        }
+    func setConstraints() {
+        
+        titleLabel.snp.makeConstraints { make in
+            make.top.equalTo(view.safeAreaLayoutGuide)
+            make.leading.equalToSuperview().inset(ACLayout.AllCategoriesViewController.sideInset)
+        }
+        
+        closeButton.snp.makeConstraints { make in
+            make.centerY.equalTo(titleLabel)
+            make.trailing.equalToSuperview().inset(ACLayout.AllCategoriesViewController.sideInset)
+        }
         
         categoriesTableView.snp.makeConstraints { make in
-            make.top.equalTo(view.safeAreaLayoutGuide).offset(16)
+            make.top.equalTo(titleLabel.snp.bottom).offset(ACLayout.AllCategoriesViewController.elementInset)
             make.leading.trailing.bottom.equalToSuperview().inset(ACLayout.AllCategoriesViewController.elementInset)
         }
-    }
-    
-    private func setupNavigationBar() {
-        navigationController?.navigationBar.tintColor = .black
-        navigationItem.title = presenter.getTitle()
-        
-        navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
-        navigationController?.navigationBar.shadowImage = UIImage()
-        navigationController?.navigationBar.isTranslucent = true
-        
-        navigationController?.navigationBar.titleTextAttributes = [
-            .font: UIFont(name: Fonts.Raleway.bold, size: 28)!,
-            .foregroundColor: UIColor.customBlack
-        ]
     }
 }
 
