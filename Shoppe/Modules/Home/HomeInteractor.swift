@@ -42,6 +42,7 @@ class HomeInteractor: HomeInteractorProtocol {
             
             switch result {
             case .success(let products):
+                presenter?.products = products
                 var categoryDict: [String: (Set<String>, [String], Int)] = [:] // [Category: (Products, Images, Count)]
                 
                 // Собираем все категории и их изображения

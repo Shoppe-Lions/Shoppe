@@ -46,7 +46,7 @@ final class APIService {
     }
     
     func fetchProducts(completion: @escaping (Result<[Product], NetworkError>) -> Void) {
-        UserDefaults.standard.removePersistentDomain(forName: Bundle.main.bundleIdentifier!)
+        // UserDefaults.standard.removePersistentDomain(forName: Bundle.main.bundleIdentifier!)
 //        if !cachedProducts.isEmpty {
 //            print("Returning cached products")
 //            completion(.success(cachedProducts))
