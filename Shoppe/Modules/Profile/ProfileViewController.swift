@@ -12,6 +12,37 @@ import FirebaseFirestore
 
 class ProfileViewController: UIViewController, UITextFieldDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
+    let horizontalPadding = UIScreen.main.bounds.width * 0.05
+    let verticalPadding = UIScreen.main.bounds.height * 0.05
+    let textFieldVerticalPadding = UIScreen.main.bounds.height * 0.02
+    var changesMode = false
+    
+    private lazy var settingsStackView: UIStackView = {
+        let element = UIStackView()
+        element.axis = .vertical
+        element.spacing = verticalPadding / 4
+        return element
+    }()
+    
+    lazy var shippingDetails = DetailsView(type: .shipping)
+    
+    private lazy var nameLabel: UILabel = {
+        let element = UILabel()
+        element.font = UIFont(name: Fonts.Raleway.medium, size: ProductFontSize.medium)
+        return element
+    }()
+    
+    private lazy var emailLabel: UILabel = {
+        let element = UILabel()
+        element.font = UIFont(name: Fonts.Raleway.medium, size: ProductFontSize.medium)
+        return element
+    }()
+    
+    private lazy var bufferView: UIView = {
+        let element = UIView()
+        return element
+    }()
+    
     lazy var nameTextField: UITextField = {
         return createTextField(placeholder: "Name", keyboardType: .default, isSecure: false)
     }()
@@ -23,6 +54,10 @@ class ProfileViewController: UIViewController, UITextFieldDelegate, UIImagePicke
     lazy var passwordTextField: CustomPasswordTextField = {
         let textField = CustomPasswordTextField()
         textField.backgroundColor = UIColor(named: "CustomLightGray")
+        textField.placeholder = "New Password"
+        textField.textContentType = .newPassword
+        textField.autocapitalizationType = .none
+        textField.autocorrectionType = .no
         textField.delegate = self
         return textField
     }()
@@ -30,6 +65,10 @@ class ProfileViewController: UIViewController, UITextFieldDelegate, UIImagePicke
     lazy var chekPasswordTextField: CustomPasswordTextField = {
         let textField = CustomPasswordTextField()
         textField.backgroundColor = UIColor(named: "CustomLightGray")
+        textField.placeholder = "Re-enter Password"
+        textField.textContentType = .newPassword
+        textField.autocapitalizationType = .none
+        textField.autocorrectionType = .no
         textField.delegate = self
         return textField
     }()
@@ -80,10 +119,9 @@ class ProfileViewController: UIViewController, UITextFieldDelegate, UIImagePicke
         return frame
     }()
     
-    
     private let saveButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Save Changes", for: .normal)
+        button.setTitle("Edit Settings", for: .normal)
         button.titleLabel?.font = UIFont(name: Fonts.NunitoSans.light, size: 18)
         button.backgroundColor = .customBlue
         button.setTitleColor(.white, for: .normal)
@@ -99,12 +137,17 @@ class ProfileViewController: UIViewController, UITextFieldDelegate, UIImagePicke
         super.viewDidLoad()
         setupView()
         setupConstraints()
-        
+        updateShippingAddress()
+        NotificationCenter.default.addObserver(self, selector: #selector(updateShippingAddress), name: .addressUpdated, object: nil)
         fetchDisplayName { name in
             if let name = name {
-                self.nameTextField.text = name
+                self.nameLabel.text = "Name: \(name)"
             }
         }
+        if let userEmail = Auth.auth().currentUser?.email {
+            self.emailLabel.text = "Email: \(userEmail)"
+        }
+        loadProfileImage()
         
         let logOutButton = UIBarButtonItem(title: "Log Out", style: .plain, target: self, action: #selector(logOutButtonTapped))
         logOutButton.tintColor = .customBlue
@@ -112,26 +155,19 @@ class ProfileViewController: UIViewController, UITextFieldDelegate, UIImagePicke
         
         let tap = UITapGestureRecognizer(target: self, action: #selector(UIInputViewController.dismissKeyboard))
         view.addGestureRecognizer(tap)
+        
+        shippingDetails.editButton.addTarget(self, action: #selector(editShippingDetailsTapped), for: .touchUpInside)
+        
+        nameTextField.isHidden = true
+        emailTextField.isHidden = true
+        passwordTextField.isHidden = true
+        chekPasswordTextField.isHidden = true
+        editButton.isHidden = true
+        shippingDetails.editButton.isHidden = true
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-//        if let user = Auth.auth().currentUser {
-//            let userId = user.uid
-//        AddressManager.shared.fetchDefaultAddress(for: userId) { address, errorMessage in
-//            if let address = address {
-//                // Дефолтный адрес найден
-//                print("Default address: \(address)")
-//            } else if let errorMessage = errorMessage {
-//                // Ошибка или нет дефолтного адреса
-//                print(errorMessage)
-//            }
-//        }
-//        } else {
-//            // Пользователь не авторизован
-//            print("Пользователь не авторизован")
-//        }
-        
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
     
     override func viewDidLayoutSubviews() {
@@ -145,6 +181,54 @@ class ProfileViewController: UIViewController, UITextFieldDelegate, UIImagePicke
     }
     
     // MARK: - Methods
+    
+    @objc func updateShippingAddress() {
+        if let user = Auth.auth().currentUser {
+            let userId = user.uid
+            AddressManager.shared.fetchDefaultAddress(for: userId) { [weak self] address, errorMessage in
+                if let address = address {
+                    let addressString = "\(address.zipCode), \(address.city), \(address.street), \(address.houseNumber)"
+                    self?.shippingDetails.addressLabel.text = addressString
+                } else if let errorMessage = errorMessage {
+                    self?.shippingDetails.addressLabel.text = "Please, add your address."
+                }
+            }
+        } else {
+            print("Пользователь не авторизован")
+        }
+    }
+    
+    @objc func editShippingDetailsTapped() {
+        let vc = AddressesViewController()
+        let nav = UINavigationController(rootViewController: vc)
+        nav.modalPresentationStyle = .pageSheet
+
+        if let sheet = nav.sheetPresentationController {
+            let customDetent = UISheetPresentationController.Detent.custom { context in
+                return context.maximumDetentValue * 0.3
+            }
+            sheet.detents = [customDetent]
+        }
+
+        present(nav, animated: true, completion: nil)
+    }
+    
+    func loadProfileImage() {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        let db = Firestore.firestore()
+
+        db.collection("users").document(uid).getDocument { [weak self] document, error in
+            if let document = document, document.exists {
+                if let filePath = document.data()?["profileImagePath"] as? String {
+                    ImageLoader.shared.loadImage(from: filePath) { image, _ in
+                        if let image = image {
+                            self?.profileImage.image = image
+                        }
+                    }
+                }
+            }
+        }
+    }
     
     @objc private func logOutButtonTapped() {
         print("Выход из аккаунта")
@@ -193,23 +277,67 @@ class ProfileViewController: UIViewController, UITextFieldDelegate, UIImagePicke
         }
     }
     
+    private func updateUIforChanges() {
+        switch changesMode {
+        case false:
+            changesMode = true
+            UIView.transition(with: settingsStackView, duration: 0.3, options: .transitionCrossDissolve, animations: {
+                self.editButton.isHidden = false
+                self.shippingDetails.editButton.isHidden = false
+                self.nameTextField.isHidden = false
+                self.nameLabel.isHidden = true
+                self.emailTextField.isHidden = false
+                self.emailLabel.isHidden = true
+                self.passwordTextField.isHidden = false
+                self.chekPasswordTextField.isHidden = false
+                self.saveButton.setTitle("Save Changes", for: .normal)
+            }, completion: nil)
+        case true:
+            guard let user = Auth.auth().currentUser else { return }
+                
+                if let newEmail = emailTextField.text, !newEmail.isEmpty {
+                    user.updateEmail(to: newEmail) { [weak self] error in
+                        if let error = error {
+                            self?.showAlert(title: "Ошибка", message: "Не удалось изменить email: \(error.localizedDescription)")
+                            return
+                        }
+                    }
+                }
+            
+            if let newPassword = passwordTextField.text, !newPassword.isEmpty,
+                       let confirmPassword = chekPasswordTextField.text, !confirmPassword.isEmpty {
+                        if newPassword == confirmPassword {
+                            user.updatePassword(to: newPassword) { [weak self] error in
+                                if let error = error {
+                                    self?.showAlert(title: "Ошибка", message: "Не удалось изменить пароль: \(error.localizedDescription)")
+                                    return
+                                }
+                            }
+                        } else {
+                            showAlert(title: "Ошибка", message: "Пароли не совпадают.")
+                            return
+                        }
+                    }
+            changesMode = false
+            UIView.transition(with: settingsStackView, duration: 0.3, options: .transitionCrossDissolve, animations: {
+                self.editButton.isHidden = true
+                self.shippingDetails.editButton.isHidden = true
+                self.nameTextField.isHidden = true
+                self.nameLabel.isHidden = false
+                self.emailTextField.isHidden = true
+                self.emailLabel.isHidden = false
+                self.passwordTextField.isHidden = true
+                self.chekPasswordTextField.isHidden = true
+                self.saveButton.setTitle("Edit Settings", for: .normal)
+            }, completion: nil)
+        }
+    }
+    
     @objc private func saveButtonTapped() {
 //        if let userName = nameTextField.text {
 //            updateDisplayName(newName: userName)
 //        }
-        let vc = AddressesViewController()
-        let nav = UINavigationController(rootViewController: vc)
-        nav.modalPresentationStyle = .pageSheet
-
-        if let sheet = nav.sheetPresentationController {
-            let customDetent = UISheetPresentationController.Detent.custom { context in
-                return context.maximumDetentValue * 0.3
-            }
-            sheet.detents = [customDetent]
-        }
-
-        present(nav, animated: true, completion: nil)
-        print("Изменения сохранены")
+        updateUIforChanges()
     }
     
     @objc private func editButtonTapped() {
@@ -224,13 +352,34 @@ class ProfileViewController: UIViewController, UITextFieldDelegate, UIImagePicke
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         if let selectedImage = info[.editedImage] as? UIImage {
-            profileImage.image = selectedImage
+            ImageLoader.shared.loadImage(from: selectedImage) { [weak self] image, filePath in
+                if let image = image, let filePath = filePath {
+                    self?.profileImage.image = image
+                    
+                    self?.saveImagePathToFirestore(filePath)
+                }
+            }
         }
         dismiss(animated: true, completion: nil)
     }
 
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
         dismiss(animated: true, completion: nil)
+    }
+    
+    func saveImagePathToFirestore(_ filePath: String) {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        let db = Firestore.firestore()
+        
+        db.collection("users").document(uid).setData([
+            "profileImagePath": filePath
+        ], merge: true) { error in
+            if let error = error {
+                print("Ошибка при сохранении пути к изображению: \(error.localizedDescription)")
+            } else {
+                print("Путь к изображению успешно сохранен")
+            }
+        }
     }
     
     @objc func dismissKeyboard() {
@@ -250,10 +399,15 @@ extension ProfileViewController {
         view.addSubview(profileImageFrame)
         profileImageFrame.addSubview(profileImage)
         profileImageFrame.addSubview(editButton)
-        view.addSubview(nameTextField)
-        view.addSubview(emailTextField)
-        view.addSubview(passwordTextField)
-        view.addSubview(chekPasswordTextField)
+        view.addSubview(settingsStackView)
+        settingsStackView.addArrangedSubview(shippingDetails)
+        settingsStackView.addArrangedSubview(nameTextField)
+        settingsStackView.addArrangedSubview(nameLabel)
+        settingsStackView.addArrangedSubview(emailTextField)
+        settingsStackView.addArrangedSubview(emailLabel)
+        settingsStackView.addArrangedSubview(passwordTextField)
+        settingsStackView.addArrangedSubview(chekPasswordTextField)
+        settingsStackView.addArrangedSubview(bufferView)
         view.addSubview(saveButton)
         
     }
@@ -264,12 +418,8 @@ extension ProfileViewController {
     
     private func setupConstraints() {
         
-        let horizontalPadding = UIScreen.main.bounds.width * 0.05
-        let verticalPadding = UIScreen.main.bounds.height * 0.05
-        let textFieldVerticalPadding = UIScreen.main.bounds.height * 0.02
-        
         settingsLabel.snp.makeConstraints { make in
-            make.top.equalTo(view.safeAreaLayoutGuide.snp.top).offset(verticalPadding * 1)
+            make.top.equalTo(view.safeAreaLayoutGuide)
             make.leading.equalToSuperview().inset(horizontalPadding)
         }
         
@@ -289,39 +439,41 @@ extension ProfileViewController {
             make.centerX.centerY.equalTo(profileImageFrame)
         }
         
+        settingsStackView.snp.makeConstraints { make in
+            make.top.equalTo(profileImageFrame.snp.bottom).offset(verticalPadding / 2)
+            make.leading.trailing.equalToSuperview().inset(horizontalPadding)
+            make.bottom.equalTo(saveButton.snp.top).offset(-verticalPadding / 2)
+        }
+        
+        shippingDetails.snp.makeConstraints { make in
+            make.height.equalTo(PLayout.horizontalPadding * 3)
+        }
+        
         editButton.snp.makeConstraints { make in
             make.width.height.equalTo(30)
             make.trailing.equalTo(profileImageFrame).offset(1)
         }
         
         nameTextField.snp.makeConstraints { make in
-            make.top.equalTo(profileImageFrame.snp.bottom).offset(verticalPadding / 2)
-            make.leading.trailing.equalToSuperview().inset(horizontalPadding)
             make.height.equalTo(PLayout.horizontalPadding * 2.5)
         }
         
         emailTextField.snp.makeConstraints { make in
-            make.top.equalTo(nameTextField.snp.bottom).offset(textFieldVerticalPadding / 2)
-            make.leading.trailing.equalToSuperview().inset(horizontalPadding)
             make.height.equalTo(PLayout.horizontalPadding * 2.5)
         }
         
         passwordTextField.snp.makeConstraints { make in
-            make.top.equalTo(emailTextField.snp.bottom).offset(textFieldVerticalPadding / 2)
-            make.leading.trailing.equalToSuperview().inset(horizontalPadding)
             make.height.equalTo(PLayout.horizontalPadding * 2.5)
         }
         
         chekPasswordTextField.snp.makeConstraints { make in
-            make.top.equalTo(passwordTextField.snp.bottom).offset(textFieldVerticalPadding / 2)
-            make.leading.trailing.equalToSuperview().inset(horizontalPadding)
             make.height.equalTo(PLayout.horizontalPadding * 2.5)
         }
         
         saveButton.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(horizontalPadding)
             make.height.equalTo(PLayout.horizontalPadding * 2.5)
-            make.bottom.lessThanOrEqualTo(view.safeAreaLayoutGuide.snp.bottom).offset(-verticalPadding * 1)
+            make.bottom.equalToSuperview().inset(horizontalPadding)
         }
     }
     
@@ -329,6 +481,14 @@ extension ProfileViewController {
 }
 // MARK: - Create TextField
 extension ProfileViewController {
+    
+    func showAlert(title: String, message: String) {
+        let alert = UIAlertController(title: title,
+                                      message: message,
+                                      preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Ок", style: .default))
+        self.present(alert, animated: true, completion: nil)
+    }
     
     private func createTextField(placeholder: String, keyboardType: UIKeyboardType, isSecure: Bool) -> UITextField {
         let textField = UITextField()
