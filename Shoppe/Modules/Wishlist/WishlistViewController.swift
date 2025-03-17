@@ -58,6 +58,11 @@ final class WishlistViewController: UIViewController {
         setupPullToRefresh()
         setupNavBar()
         navigationController?.navigationBar.isHidden = false
+        NotificationCenter.default.addObserver(self, selector: #selector(refreshData), name: .currencyDidChange, object: nil)
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
 
     func showLoadingIndicator() {

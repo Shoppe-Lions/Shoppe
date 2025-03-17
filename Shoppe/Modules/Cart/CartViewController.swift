@@ -117,7 +117,7 @@ final class CartViewController: UIViewController {
     
     private lazy var totalPriceLabel: UILabel = {
         let element = UILabel()
-        element.text = "$34.00"
+        //element.text = "$34.00"
         element.font = UIFont(name: Fonts.Raleway.bold, size: 18)
         return element
     }()

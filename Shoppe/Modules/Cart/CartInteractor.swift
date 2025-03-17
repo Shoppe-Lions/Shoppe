@@ -75,9 +75,10 @@ final class CartInteractor: CartInteractorProtocol {
         StorageCartManager.shared.loadCart { cartItems in
             StorageCartManager.shared.fetchProductsForCartItems(cartItems) { updatedCartItems in
                 let total: Double = updatedCartItems.reduce(0.0) {
-                    $0 + ($1.product.price * Double($1.quantity))
+                    $0 + (CurrencyManager.shared.convert(priceInUSD: $1.product.price) * Double($1.quantity))
                 }
-                let formatted = String(format: "%.2f", total)
+                //let formatted = String(format: "%.2f", total)
+                let formatted = CurrencyManager.shared.makeToString(priceInUSD: total)
                 self.presenter?.updateTotalPrice(formatted)
             }
         }
