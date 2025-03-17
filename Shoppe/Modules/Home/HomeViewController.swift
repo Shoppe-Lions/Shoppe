@@ -109,7 +109,7 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
     
     private let cartBadgeLabel: UILabel = {
         let label = UILabel()
-        label.text = "2"
+        label.text = "0"
         label.font = .systemFont(ofSize: 10)
         label.textColor = .white
         label.backgroundColor = .systemRed
@@ -483,8 +483,9 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
     
     // MARK: - Actions
     @objc private func cartButtonTapped() {
-        let cartVC = CartRouter.createModule()
-        navigationController?.pushViewController(cartVC, animated: true)
+        if let tabBarController = self.tabBarController as? MainTabBarController {
+            tabBarController.selectTab(at: 3) 
+        }
     }
     
     @objc func currencyUpdated() {
