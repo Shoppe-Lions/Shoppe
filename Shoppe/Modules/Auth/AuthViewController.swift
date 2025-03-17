@@ -158,8 +158,8 @@ final class AuthViewController: UIViewController, UITextFieldDelegate, AnyAuthVi
             setLoginUI()
         }
         //Для быстрого входа
-        emailTextField.text = "1@2.com"
-        passwordTextField.text = "A1234567"
+//        emailTextField.text = "1@2.com"
+//        passwordTextField.text = "A1234567"
     }
     
     func setGestures() {
