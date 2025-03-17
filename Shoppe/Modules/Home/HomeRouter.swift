@@ -46,11 +46,8 @@ final class HomeRouter: HomeRouterProtocol {
     }
     
     func openAllCategories() {
-        if let sourceVC = view as? UIViewController {
-            let allCategoriesVC = AllCategoriesRouter.createModule()
-            
-            // Используем push вместо present
-            sourceVC.navigationController?.pushViewController(allCategoriesVC, animated: true)
+        if let tabBarController = view?.tabBarController as? MainTabBarController {
+            tabBarController.selectTab(at: 2)
         }
     }
     
