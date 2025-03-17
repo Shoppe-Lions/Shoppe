@@ -128,6 +128,10 @@ final class APIService {
         }
     }
     
+    func updateLikesInProducts(array: [Product]) -> [Product] {
+        array.compactMap { cachedProducts.firstIndex(of: $0).map { cachedProducts[$0] } }
+    }
+    
     func fetchProductsByCategory(_ category: String, completion: @escaping (Result<[Product], NetworkError>) -> Void) {
             fetchProducts { result in
                 switch result {

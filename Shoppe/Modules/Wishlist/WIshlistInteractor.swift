@@ -10,6 +10,7 @@ import Foundation
 protocol WishlistInteractorProtocol {
     func fetchWishlistProducts()
     func toggleWishlistStatus(for product: Product)
+    func updateLikesInProducts(_ products: [Product]) -> [Product]
 }
 
 final class WishlistInteractor: WishlistInteractorProtocol {
@@ -31,5 +32,9 @@ final class WishlistInteractor: WishlistInteractorProtocol {
     
     func toggleWishlistStatus(for product: Product) {
         apiService.toggleLike(for: product)
+    }
+    
+    func updateLikesInProducts(_ products: [Product]) -> [Product] {
+       return apiService.updateLikesInProducts(array: products)
     }
 }

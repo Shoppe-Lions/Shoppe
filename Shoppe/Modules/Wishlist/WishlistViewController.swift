@@ -61,6 +61,10 @@ final class WishlistViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(refreshData), name: .currencyDidChange, object: nil)
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        presenter?.viewWillAppear()
+    }
+    
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
@@ -174,6 +178,7 @@ extension WishlistViewController: WishlistViewProtocol {
         activityIndicator.stopAnimating()
         collectionView.isHidden = false
     }
+    
     func updateCell(at index: Int) {
         let indexPath = IndexPath(item: index, section: 0)
         if let cell = collectionView.cellForItem(at: indexPath) as? ProductCell,
