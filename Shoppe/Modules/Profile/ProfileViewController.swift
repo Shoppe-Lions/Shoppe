@@ -269,7 +269,7 @@ extension ProfileViewController {
         let textFieldVerticalPadding = UIScreen.main.bounds.height * 0.02
         
         settingsLabel.snp.makeConstraints { make in
-            make.top.equalTo(view.safeAreaLayoutGuide.snp.top).offset(verticalPadding * 1)
+            make.top.equalTo(view.safeAreaLayoutGuide)
             make.leading.equalToSuperview().inset(horizontalPadding)
         }
         
