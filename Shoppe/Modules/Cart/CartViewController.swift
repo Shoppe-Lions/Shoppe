@@ -14,7 +14,7 @@ protocol CartViewProtocol: AnyObject {
     func updateProduct(at index: Int, product: Product, quantity: Int)
     func updateCartCount(_ count: Int)
     func updateTotalPrice(_ totalPrice: String)
-    func removeProduct(at index: Int)
+    func removeProduct(at index: Int) // нигде не исползьзуется
     func clearCart()
 }
 
@@ -248,7 +248,7 @@ extension CartViewController: CartViewProtocol {
     
     func updateCartCount(_ count: Int) {
         cartCountLabel.text = "\(count)"
-        
+        checkoutButton.isEnabled = count > 0
         // Обновляем бейдж в HomeViewController
         if let tabBarController = tabBarController,
            let homeVC = tabBarController.viewControllers?[0] as? HomeViewController {
@@ -260,6 +260,7 @@ extension CartViewController: CartViewProtocol {
         totalPriceLabel.text = totalPrice
     }
     
+    // этот метод не используется
     func removeProduct(at index: Int) {
         guard products.indices.contains(index) else { return }
         products.remove(at: index)
