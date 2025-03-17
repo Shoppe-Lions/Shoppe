@@ -28,7 +28,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                 self.window?.rootViewController = AuthRouter.createModule()
             }
         }
-        onboardingCompleted = true
+        
         if onboardingCompleted {
             window?.rootViewController = AuthRouter.createModule()
         } else {

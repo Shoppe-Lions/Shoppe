@@ -72,7 +72,4 @@ final class AuthInteractor: AnyAuthIntercator {
             }
         }
     }
-    
-    
-    
 }
