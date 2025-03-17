@@ -47,9 +47,9 @@ class ProfileViewController: UIViewController, UITextFieldDelegate, UIImagePicke
         return createTextField(placeholder: "Name", keyboardType: .default, isSecure: false)
     }()
     
-    lazy var emailTextField: UITextField = {
-        return createTextField(placeholder: "Email", keyboardType: .emailAddress , isSecure: false)
-    }()
+//    lazy var emailTextField: UITextField = {
+//        return createTextField(placeholder: "Email", keyboardType: .emailAddress , isSecure: false)
+//    }()
     
     lazy var passwordTextField: CustomPasswordTextField = {
         let textField = CustomPasswordTextField()
@@ -159,7 +159,7 @@ class ProfileViewController: UIViewController, UITextFieldDelegate, UIImagePicke
         shippingDetails.editButton.addTarget(self, action: #selector(editShippingDetailsTapped), for: .touchUpInside)
         
         nameTextField.isHidden = true
-        emailTextField.isHidden = true
+//        emailTextField.isHidden = true
         passwordTextField.isHidden = true
         chekPasswordTextField.isHidden = true
         editButton.isHidden = true
@@ -231,7 +231,6 @@ class ProfileViewController: UIViewController, UITextFieldDelegate, UIImagePicke
     }
     
     @objc private func logOutButtonTapped() {
-        print("Выход из аккаунта")
         do {
           try Auth.auth().signOut()
             guard let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate else {
@@ -247,7 +246,24 @@ class ProfileViewController: UIViewController, UITextFieldDelegate, UIImagePicke
     func updateDisplayName(newName: String) {
         guard let uid = Auth.auth().currentUser?.uid else { return }
         let db = Firestore.firestore()
-
+        if newName.isEmpty { return }
+        
+        switch newName.count {
+            case 0...1:
+            self.showAlert(title: "Error", message: "Name too short")
+            return
+            case 16...:
+            self.showAlert(title: "Error", message: "Name too long")
+            return
+        default:
+            break
+        }
+        
+        if newName.contains(where: { !$0.isLetter }) {
+            self.showAlert(title: "Error", message: "Name must contain only letters")
+            return
+        }
+        
         db.collection("users").document(uid).setData([
             "username": newName
         ], merge: true) { error in
@@ -286,7 +302,7 @@ class ProfileViewController: UIViewController, UITextFieldDelegate, UIImagePicke
                 self.shippingDetails.editButton.isHidden = false
                 self.nameTextField.isHidden = false
                 self.nameLabel.isHidden = true
-                self.emailTextField.isHidden = false
+//                self.emailTextField.isHidden = false
                 self.emailLabel.isHidden = true
                 self.passwordTextField.isHidden = false
                 self.chekPasswordTextField.isHidden = false
@@ -294,49 +310,58 @@ class ProfileViewController: UIViewController, UITextFieldDelegate, UIImagePicke
             }, completion: nil)
         case true:
             guard let user = Auth.auth().currentUser else { return }
-                
-                if let newEmail = emailTextField.text, !newEmail.isEmpty {
-                    user.updateEmail(to: newEmail) { [weak self] error in
-                        if let error = error {
-                            self?.showAlert(title: "Ошибка", message: "Не удалось изменить email: \(error.localizedDescription)")
-                            return
-                        }
-                    }
-                }
+            
+            if let userName = nameTextField.text {
+                updateDisplayName(newName: userName)
+            }
+            
+//            if let newEmail = emailTextField.text, !newEmail.isEmpty {
+//                user.updateEmail(to: newEmail) { [weak self] error in
+//                    if let error = error {
+//                        self?.showAlert(title: "Ошибка", message: "Не удалось изменить email: \(error.localizedDescription)")
+//                        return
+//                    }
+//                }
+//            }
             
             if let newPassword = passwordTextField.text, !newPassword.isEmpty,
-                       let confirmPassword = chekPasswordTextField.text, !confirmPassword.isEmpty {
-                        if newPassword == confirmPassword {
-                            user.updatePassword(to: newPassword) { [weak self] error in
-                                if let error = error {
-                                    self?.showAlert(title: "Ошибка", message: "Не удалось изменить пароль: \(error.localizedDescription)")
-                                    return
-                                }
-                            }
-                        } else {
-                            showAlert(title: "Ошибка", message: "Пароли не совпадают.")
+               let confirmPassword = chekPasswordTextField.text, !confirmPassword.isEmpty {
+                if newPassword == confirmPassword {
+                    user.updatePassword(to: newPassword) { [weak self] error in
+                        if let error = error {
+                            self?.showAlert(title: "Error", message: "Failed to change password: \(error.localizedDescription)")
                             return
                         }
                     }
+                } else {
+                    showAlert(title: "Error", message: "The passwords do not match.")
+                    return
+                }
+            }
             changesMode = false
             UIView.transition(with: settingsStackView, duration: 0.3, options: .transitionCrossDissolve, animations: {
                 self.editButton.isHidden = true
                 self.shippingDetails.editButton.isHidden = true
                 self.nameTextField.isHidden = true
+                self.nameTextField.text = ""
                 self.nameLabel.isHidden = false
-                self.emailTextField.isHidden = true
+//                self.emailTextField.isHidden = true
                 self.emailLabel.isHidden = false
                 self.passwordTextField.isHidden = true
+                self.passwordTextField.text = ""
                 self.chekPasswordTextField.isHidden = true
+                self.chekPasswordTextField.text = ""
                 self.saveButton.setTitle("Edit Settings", for: .normal)
+                self.fetchDisplayName { name in
+                    if let name = name {
+                        self.nameLabel.text = "Name: \(name)"
+                    }
+                }
             }, completion: nil)
         }
     }
     
     @objc private func saveButtonTapped() {
-//        if let userName = nameTextField.text {
-//            updateDisplayName(newName: userName)
-//        }
         updateUIforChanges()
     }
     
@@ -403,7 +428,7 @@ extension ProfileViewController {
         settingsStackView.addArrangedSubview(shippingDetails)
         settingsStackView.addArrangedSubview(nameTextField)
         settingsStackView.addArrangedSubview(nameLabel)
-        settingsStackView.addArrangedSubview(emailTextField)
+//        settingsStackView.addArrangedSubview(emailTextField)
         settingsStackView.addArrangedSubview(emailLabel)
         settingsStackView.addArrangedSubview(passwordTextField)
         settingsStackView.addArrangedSubview(chekPasswordTextField)
@@ -458,9 +483,9 @@ extension ProfileViewController {
             make.height.equalTo(PLayout.horizontalPadding * 2.5)
         }
         
-        emailTextField.snp.makeConstraints { make in
-            make.height.equalTo(PLayout.horizontalPadding * 2.5)
-        }
+//        emailTextField.snp.makeConstraints { make in
+//            make.height.equalTo(PLayout.horizontalPadding * 2.5)
+//        }
         
         passwordTextField.snp.makeConstraints { make in
             make.height.equalTo(PLayout.horizontalPadding * 2.5)
