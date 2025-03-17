@@ -11,7 +11,6 @@ protocol SearchResultsPresenterProtocol: AnyObject {
     var filteredProducts: [Product] { get } //?
     func didFilterProducts(with query: String)
     func loadHistory()
-    func didLoadHistory()
     func getSearchHistory() -> [String]
     func didSaveSearchQuery(_ query: String)
     func didRemoveHistory()
@@ -73,11 +72,6 @@ final class SearchResultsPresenter: SearchResultsPresenterProtocol {
         return viewModel.title
     }
     
-    //?
-    func didLoadHistory() {
-        view?.reloadData() //?
-    }
-    
     func didRemoveHistory() {
         interactor.removeSearchHistory()
         searchHistory = []
@@ -90,7 +84,6 @@ final class SearchResultsPresenter: SearchResultsPresenterProtocol {
             filteredProducts[index].like.toggle()
             view?.updateCell(at: index)
         }
-        view?.reloadData()
     }
     
     func didSelectProduct(_ product: Product) {

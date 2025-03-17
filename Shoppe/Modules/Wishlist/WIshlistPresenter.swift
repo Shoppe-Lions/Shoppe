@@ -13,6 +13,7 @@ protocol WishlistPresenterProtocol: AnyObject {
     
     func getTitle() -> String
     func viewDidLoad()
+    func viewWillAppear()
     func didPullToRefresh()
     func didFetchWishlistProducts(_ products: [Product])
     func didSelectProduct(_ product: Product)
@@ -47,6 +48,14 @@ final class WishlistPresenter: WishlistPresenterProtocol {
         }
     }
     
+    func viewWillAppear() {
+        if let productsFromAnotherController = viewModel.products {
+            didFetchWishlistProducts(interactor.updateLikesInProducts(productsFromAnotherController))
+        } else {
+            interactor.fetchWishlistProducts()
+        }
+    }
+        
     func getTitle() -> String {
         return viewModel.title
     }

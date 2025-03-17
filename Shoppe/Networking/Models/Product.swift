@@ -129,3 +129,9 @@ extension Product {
         )
     }
 }
+
+extension Product: Equatable {
+    public static func == (lhs: Product, rhs: Product) -> Bool {
+        return lhs.id == rhs.id
+    }
+}
