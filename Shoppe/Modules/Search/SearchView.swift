@@ -100,6 +100,7 @@ final class SearchView: UIView {
     
     func updateSearchBar(with query: String) {
         searchTextField.text = query
+        searchTextField.becomeFirstResponder()
     }
     
     func setFirstResponder() {
@@ -142,13 +143,8 @@ private extension SearchView {
             make.centerY.equalToSuperview()
         }
         
-        searchTextField.snp.makeConstraints { make in
-            make.width.lessThanOrEqualToSuperview().multipliedBy(0.5).priority(.high)
-            
-        }
-        
         leftTitleLabel.snp.makeConstraints { make in
-            make.width.greaterThanOrEqualTo(75)
+            make.width.equalTo(75)
             make.centerY.equalTo(searchTextField.snp.centerY)
         }
     }

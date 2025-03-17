@@ -8,7 +8,6 @@
 import UIKit
 
 // TODO:
-    // 2. разобраться с обновлением базового контроллера после проставления лайков
     // 4. рефакторинг - константы, магические числа, вопросы с архитектурой для этого экрана (Viper, delegate)
 
 protocol SearchResultsViewProtocol: AnyObject {
@@ -62,7 +61,16 @@ class SearchResultsController: UIViewController {
         return collectionView
     }()
     
-    // MARK: LifeCycle
+    // MARK: Actions
+    @objc private func deleteSearchHistoryTapped() {
+        presenter?.didRemoveHistory()
+        searchHistoryLabel.textColor = .lightGray
+        deleteSearchHistoryButton.isEnabled = false
+    }
+}
+
+// MARK: LifeCycle
+extension SearchResultsController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -75,6 +83,10 @@ class SearchResultsController: UIViewController {
         )
         presenter?.loadHistory()
         historyCollectionView.reloadData()
+        if let isEmpty = presenter?.getSearchHistory().isEmpty, isEmpty {
+            searchHistoryLabel.textColor = .lightGray
+            deleteSearchHistoryButton.isEnabled = false
+        }
         searchView.setFirstResponder()
         navigationController?.navigationBar.isHidden = false
     }
@@ -83,6 +95,10 @@ class SearchResultsController: UIViewController {
         super.viewWillAppear(animated)
         navigationController?.navigationBar.isHidden = false
     }
+}
+
+//MARK: Setup UI
+private extension SearchResultsController {
     
     private func setupSearchView() {
         searchView = SearchView(title: presenter?.getTitle())
@@ -143,20 +159,39 @@ class SearchResultsController: UIViewController {
             make.top.equalTo(searchView.snp.bottom).inset(-8)
         }
     }
-    
-    @objc private func deleteSearchHistoryTapped() {
-        presenter?.didRemoveHistory()
-        deleteSearchHistoryButton.isEnabled = false
-    }
 }
 
+//MARK: Search Logic
 private extension SearchResultsController {
+    func updateSearchResults(for queryText: String?) {
+        // todo: refactor this method
+        // если текст не существует или он пустой, то показываем историю и выходим
+        guard let query = queryText, !query.isEmpty else {
+            hideProductsCollectionView()
+            // если история поиска пустая, то не показываем историю
+            if let searchHistoryIsEmpty = presenter?.getSearchHistory().isEmpty, searchHistoryIsEmpty {
+                hideHistory()
+            } else {
+                showHistory()
+                historyCollectionView.reloadData()
+            }
+            return
+        }
+        // а если что-то начали печатать, то начинаем искать, прячем историю и показываем товары
+        presenter?.didFilterProducts(with: query)
+        hideHistory()
+        showProductsCollectionView()
+        collectionView.reloadData()
+    }
+    
     func hideHistoryCollectionView() {
         historyCollectionView.isHidden = true
     }
     
     func showHistoryCollectionView() {
         historyCollectionView.isHidden = false
+        searchHistoryLabel.textColor = .black
+        deleteSearchHistoryButton.isEnabled = true
     }
     
     func hideProductsCollectionView() {
@@ -191,30 +226,6 @@ extension SearchResultsController: SearchViewDelegate {
     private func saveSearchQuery(_ text: String?) {
         guard let query = text, !query.isEmpty else { return }
         presenter?.didSaveSearchQuery(query)
-    }
-}
-
-
-extension SearchResultsController {
-    func updateSearchResults(for queryText: String?) {
-        // todo: refactor this method
-        // если текст не существует или он пустой, то показываем историю и выходим
-        guard let query = queryText, !query.isEmpty else {
-            hideProductsCollectionView()
-            // если история поиска пустая, то не показываем историю
-            if let searchHistoryIsEmpty = presenter?.getSearchHistory().isEmpty, searchHistoryIsEmpty {
-                hideHistory()
-            } else {
-                showHistory()
-                historyCollectionView.reloadData()
-            }
-            return
-        }
-        // а если что-то начали печатать, то начинаем искать, прячем историю и показываем товары
-        presenter?.didFilterProducts(with: query)
-        hideHistory()
-        showProductsCollectionView()
-        collectionView.reloadData()
     }
 }
 
@@ -307,7 +318,5 @@ extension SearchResultsController: SearchResultsViewProtocol {
 extension SearchResultsController: ProductCellDelegate {
     func didTapWishlistButton(for product: Product) {
         presenter?.toggleWishlist(for: product)
-        //todo сделать так, чтобы базовый контроллер обновил у себя отображение лайков
-       // delegate?.updateData()
     }
 }
