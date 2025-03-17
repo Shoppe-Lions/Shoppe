@@ -125,6 +125,7 @@ final class StorageCartManager {
         db.collection("users").document(uid).updateData(["cart": FieldValue.delete()]) { _ in
             completion?()
         }
+        NotificationCenter.default.post(name: .cartDidUpdate, object: nil, userInfo: ["count": 0])
     }
 }
 
