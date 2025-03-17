@@ -26,6 +26,9 @@ class CustomPasswordTextField: UITextField {
         self.backgroundColor = .customGray
         self.font = UIFont(name: "NunitoSans10pt-Regular", size: 16)
         self.placeholder = "Password"
+        self.textContentType = .newPassword
+        self.autocapitalizationType = .none
+        self.autocorrectionType = .no
         self.layer.cornerRadius = 12
         self.layer.borderWidth = 1
         self.layer.borderColor = UIColor.white.cgColor
