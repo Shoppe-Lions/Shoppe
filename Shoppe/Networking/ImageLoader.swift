@@ -8,6 +8,25 @@ import UIKit
 
 class ImageLoader {
     static let shared = ImageLoader()
+    
+    func loadImage(from image: UIImage, completion: @escaping (UIImage?, String?) -> Void) {
+        let imageName = "profile_avatar.jpg"
+        let fileURL = getFileURL(for: imageName)
+        
+        if !FileManager.default.fileExists(atPath: fileURL.path) {
+            if let imageData = image.jpegData(compressionQuality: 1.0) {
+                do {
+                    try imageData.write(to: fileURL)
+                    completion(image, fileURL.path)
+                } catch {
+                    print("Ошибка при сохранении изображения: \(error)")
+                    completion(nil, nil)
+                }
+            }
+        } else {
+            completion(image, fileURL.path)
+        }
+    }
 
     private func getFileURL(for imageName: String) -> URL {
         let fileManager = FileManager.default

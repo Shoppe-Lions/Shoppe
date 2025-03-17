@@ -28,13 +28,13 @@ class ProfileViewController: UIViewController, UITextFieldDelegate, UIImagePicke
     
     private lazy var nameLabel: UILabel = {
         let element = UILabel()
-        element.font = UIFont(name: "NunitoSans10pt-Regular", size: PFontSize.normal)
+        element.font = UIFont(name: Fonts.Raleway.medium, size: ProductFontSize.medium)
         return element
     }()
     
     private lazy var emailLabel: UILabel = {
         let element = UILabel()
-        element.font = UIFont(name: "NunitoSans10pt-Regular", size: PFontSize.normal)
+        element.font = UIFont(name: Fonts.Raleway.medium, size: ProductFontSize.medium)
         return element
     }()
     
@@ -119,7 +119,6 @@ class ProfileViewController: UIViewController, UITextFieldDelegate, UIImagePicke
         return frame
     }()
     
-    
     private let saveButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("Edit Settings", for: .normal)
@@ -138,7 +137,8 @@ class ProfileViewController: UIViewController, UITextFieldDelegate, UIImagePicke
         super.viewDidLoad()
         setupView()
         setupConstraints()
-        
+        updateShippingAddress()
+        NotificationCenter.default.addObserver(self, selector: #selector(updateShippingAddress), name: .addressUpdated, object: nil)
         fetchDisplayName { name in
             if let name = name {
                 self.nameLabel.text = "Name: \(name)"
@@ -147,6 +147,7 @@ class ProfileViewController: UIViewController, UITextFieldDelegate, UIImagePicke
         if let userEmail = Auth.auth().currentUser?.email {
             self.emailLabel.text = "Email: \(userEmail)"
         }
+        loadProfileImage()
         
         let logOutButton = UIBarButtonItem(title: "Log Out", style: .plain, target: self, action: #selector(logOutButtonTapped))
         logOutButton.tintColor = .customBlue
@@ -154,6 +155,8 @@ class ProfileViewController: UIViewController, UITextFieldDelegate, UIImagePicke
         
         let tap = UITapGestureRecognizer(target: self, action: #selector(UIInputViewController.dismissKeyboard))
         view.addGestureRecognizer(tap)
+        
+        shippingDetails.editButton.addTarget(self, action: #selector(editShippingDetailsTapped), for: .touchUpInside)
         
         nameTextField.isHidden = true
         emailTextField.isHidden = true
@@ -163,9 +166,8 @@ class ProfileViewController: UIViewController, UITextFieldDelegate, UIImagePicke
         shippingDetails.editButton.isHidden = true
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
     
     override func viewDidLayoutSubviews() {
@@ -179,6 +181,54 @@ class ProfileViewController: UIViewController, UITextFieldDelegate, UIImagePicke
     }
     
     // MARK: - Methods
+    
+    @objc func updateShippingAddress() {
+        if let user = Auth.auth().currentUser {
+            let userId = user.uid
+            AddressManager.shared.fetchDefaultAddress(for: userId) { [weak self] address, errorMessage in
+                if let address = address {
+                    let addressString = "\(address.zipCode), \(address.city), \(address.street), \(address.houseNumber)"
+                    self?.shippingDetails.addressLabel.text = addressString
+                } else if let errorMessage = errorMessage {
+                    self?.shippingDetails.addressLabel.text = "Please, add your address."
+                }
+            }
+        } else {
+            print("Пользователь не авторизован")
+        }
+    }
+    
+    @objc func editShippingDetailsTapped() {
+        let vc = AddressesViewController()
+        let nav = UINavigationController(rootViewController: vc)
+        nav.modalPresentationStyle = .pageSheet
+
+        if let sheet = nav.sheetPresentationController {
+            let customDetent = UISheetPresentationController.Detent.custom { context in
+                return context.maximumDetentValue * 0.3
+            }
+            sheet.detents = [customDetent]
+        }
+
+        present(nav, animated: true, completion: nil)
+    }
+    
+    func loadProfileImage() {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        let db = Firestore.firestore()
+
+        db.collection("users").document(uid).getDocument { [weak self] document, error in
+            if let document = document, document.exists {
+                if let filePath = document.data()?["profileImagePath"] as? String {
+                    ImageLoader.shared.loadImage(from: filePath) { image, _ in
+                        if let image = image {
+                            self?.profileImage.image = image
+                        }
+                    }
+                }
+            }
+        }
+    }
     
     @objc private func logOutButtonTapped() {
         print("Выход из аккаунта")
@@ -240,17 +290,14 @@ class ProfileViewController: UIViewController, UITextFieldDelegate, UIImagePicke
                 self.emailLabel.isHidden = true
                 self.passwordTextField.isHidden = false
                 self.chekPasswordTextField.isHidden = false
-                self.saveButton.titleLabel?.text = "Save changes"
+                self.saveButton.setTitle("Save Changes", for: .normal)
             }, completion: nil)
         case true:
             guard let user = Auth.auth().currentUser else { return }
                 
-                // Проверяем, есть ли текст в emailTextField
                 if let newEmail = emailTextField.text, !newEmail.isEmpty {
-                    // Пробуем обновить email
                     user.updateEmail(to: newEmail) { [weak self] error in
                         if let error = error {
-                            // Если произошла ошибка - показываем сообщение и выходим из функции
                             self?.showAlert(title: "Ошибка", message: "Не удалось изменить email: \(error.localizedDescription)")
                             return
                         }
@@ -259,18 +306,14 @@ class ProfileViewController: UIViewController, UITextFieldDelegate, UIImagePicke
             
             if let newPassword = passwordTextField.text, !newPassword.isEmpty,
                        let confirmPassword = chekPasswordTextField.text, !confirmPassword.isEmpty {
-                        // Проверяем, совпадают ли пароли
                         if newPassword == confirmPassword {
-                            // Пробуем обновить пароль
                             user.updatePassword(to: newPassword) { [weak self] error in
                                 if let error = error {
-                                    // Если произошла ошибка - показываем сообщение и выходим из функции
                                     self?.showAlert(title: "Ошибка", message: "Не удалось изменить пароль: \(error.localizedDescription)")
                                     return
                                 }
                             }
                         } else {
-                            // Если пароли не совпадают, показываем ошибку
                             showAlert(title: "Ошибка", message: "Пароли не совпадают.")
                             return
                         }
@@ -285,7 +328,7 @@ class ProfileViewController: UIViewController, UITextFieldDelegate, UIImagePicke
                 self.emailLabel.isHidden = false
                 self.passwordTextField.isHidden = true
                 self.chekPasswordTextField.isHidden = true
-                self.saveButton.titleLabel?.text = "Edit settings"
+                self.saveButton.setTitle("Edit Settings", for: .normal)
             }, completion: nil)
         }
     }
@@ -294,21 +337,6 @@ class ProfileViewController: UIViewController, UITextFieldDelegate, UIImagePicke
 //        if let userName = nameTextField.text {
 //            updateDisplayName(newName: userName)
 //        }
-        
-        
-//        let vc = AddressesViewController()
-//        let nav = UINavigationController(rootViewController: vc)
-//        nav.modalPresentationStyle = .pageSheet
-//
-//        if let sheet = nav.sheetPresentationController {
-//            let customDetent = UISheetPresentationController.Detent.custom { context in
-//                return context.maximumDetentValue * 0.3
-//            }
-//            sheet.detents = [customDetent]
-//        }
-//
-//        present(nav, animated: true, completion: nil)
-//        print("Изменения сохранены")
         updateUIforChanges()
     }
     
@@ -324,13 +352,34 @@ class ProfileViewController: UIViewController, UITextFieldDelegate, UIImagePicke
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         if let selectedImage = info[.editedImage] as? UIImage {
-            profileImage.image = selectedImage
+            ImageLoader.shared.loadImage(from: selectedImage) { [weak self] image, filePath in
+                if let image = image, let filePath = filePath {
+                    self?.profileImage.image = image
+                    
+                    self?.saveImagePathToFirestore(filePath)
+                }
+            }
         }
         dismiss(animated: true, completion: nil)
     }
 
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
         dismiss(animated: true, completion: nil)
+    }
+    
+    func saveImagePathToFirestore(_ filePath: String) {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        let db = Firestore.firestore()
+        
+        db.collection("users").document(uid).setData([
+            "profileImagePath": filePath
+        ], merge: true) { error in
+            if let error = error {
+                print("Ошибка при сохранении пути к изображению: \(error.localizedDescription)")
+            } else {
+                print("Путь к изображению успешно сохранен")
+            }
+        }
     }
     
     @objc func dismissKeyboard() {
