@@ -35,10 +35,10 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         let view = UIView()
         view.backgroundColor = .white
         // Добавляем тень
-        view.layer.shadowColor = UIColor.black.cgColor
-        view.layer.shadowOffset = CGSize(width: 0, height: 2)
-        view.layer.shadowOpacity = 0.1
-        view.layer.shadowRadius = 4
+//        view.layer.shadowColor = UIColor.black.cgColor
+//        view.layer.shadowOffset = CGSize(width: 0, height: 2)
+//        view.layer.shadowOpacity = 0.1
+//        view.layer.shadowRadius = 4
         return view
     }()
     
