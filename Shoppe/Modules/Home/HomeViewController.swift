@@ -186,7 +186,6 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
     
     deinit {
         NotificationCenter.default.removeObserver(self)
-        NotificationCenter.default.removeObserver(self, name: .currencyDidChange, object: nil)
     }
     
     override func viewWillAppear(_ animated: Bool) {
