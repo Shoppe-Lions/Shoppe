@@ -45,19 +45,6 @@ final class WishlistViewController: UIViewController {
         return collectionView
     }()
     
-    private let titleLabel: UILabel = {
-        let label = UILabel()
-        label.textColor = .customBlack
-        label.textAlignment = .center
-        let paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.lineHeightMultiple = 1.1
-        paragraphStyle.alignment = .center
-        label.attributedText = NSMutableAttributedString(string: "Wishlist", attributes: [NSAttributedString.Key.kern: -0.28, NSAttributedString.Key.paragraphStyle: paragraphStyle])
-        label.font = UIFont(name: Fonts.Raleway.bold, size: 28)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
     
     //MARK: Lifecycle
     override func viewDidLoad() {
@@ -85,16 +72,6 @@ final class WishlistViewController: UIViewController {
 
 //MARK: Private
 private extension WishlistViewController {
-    
-    func setupTitle() {
-        titleLabel.text = presenter?.getTitle()
-        view.addSubview(titleLabel)
-        titleLabel.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview()
-            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
-            make.height.equalTo(44)
-        }
-    }
     
     func setupSearchView() {
         view.addSubview(searchView)
@@ -125,7 +102,7 @@ private extension WishlistViewController {
     }
     
     func setupPullToRefresh() {
-        if titleLabel.text == "Wishlist" { // перенести проверку в презентер
+        if title == "Wishlist" { // перенести проверку в презентер
             refreshControl.addTarget(self, action: #selector(refreshData), for: .valueChanged)
             collectionView.refreshControl = refreshControl
         }
